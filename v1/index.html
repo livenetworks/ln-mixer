@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Offline DJ Mixer</title>
+	<link rel="stylesheet" href="./assets/css/icons.css" />
+	<link rel="stylesheet" href="./assets/css/style.css" />
+</head>
+<body>
+
+	<form class="mixer">
+
+		<!-- Deck A -->
+		<section class="deck" data-ln-deck="A">
+			<header>
+				<h2>Deck A</h2>
+
+				<div class="track-meta">
+					<img src="./assets/img/placeholder.svg" alt="Cover" class="track-cover" />
+					<h3 class="current-track">No track loaded</h3>
+				</div>
+			</header>
+
+			<figure class="waveform" data-ln-waveform></figure>
+			<audio preload="auto" controls></audio>
+
+			<ul class="controls">
+				<li>
+					<button type="button" class="play" data-ln-transport="play">
+						<span class="ln-icon-play"></span><span class="label">Play</span>
+					</button>
+				</li>
+				<li>
+					<button type="button" class="stop" data-ln-transport="stop">
+						<span class="ln-icon-stop"></span><span class="label">Stop</span>
+					</button>
+				</li>
+				<li>
+					<button type="button" class="mark-start" data-ln-cue="mark-start">
+						<span class="ln-icon-mark"></span><span class="label">Mark Start</span>
+					</button>
+				</li>
+				<li>
+					<button type="button" class="mark-stop" data-ln-cue="mark-stop">
+						<span class="ln-icon-cue"></span><span class="label">Mark Stop</span>
+					</button>
+				</li>
+				<li>
+					<button type="button" class="loop" data-ln-cue="loop">
+						<span class="ln-icon-loop"></span><span class="label">Loop</span>
+					</button>
+				</li>
+			</ul>
+
+			<section class="loaded-playlist">
+				<h4>Loaded Tracks</h4>
+				<ul class="loaded-track-list">
+					<li class="track">[ Empty ]</li>
+				</ul>
+			</section>
+		</section>
+
+		<!-- Master section -->
+		<section class="master">
+			<header>
+				<h2>Master</h2>
+			</header>
+
+			<label for="master-volume">Master Volume</label>
+
+			<input
+				type="range"
+				id="master-volume"
+				class="master-volume"
+				min="0"
+				max="100"
+				value="80"
+				orient="vertical"
+				data-ln-potentiometer="master"
+			/>
+
+			<fieldset class="crossfader-block">
+				<legend>Crossfader</legend>
+				<div class="ui-toggle-group crossfader-ui">
+					<div class="ui-toggle">
+						<input type="radio" name="crossfader-auto" id="fade-a" value="a" checked />
+						<label class="ui-toggle-button" for="fade-a">Deck A</label>
+					</div>
+
+					<input type="range" class="fader" min="0" max="100" value="50" data-ln-potentiometer="crossfader" />
+
+					<div class="ui-toggle">
+						<input type="radio" name="crossfader-auto" id="fade-b" value="b" />
+						<label class="ui-toggle-button" for="fade-b">Deck B</label>
+					</div>
+				</div>
+			</fieldset>
+
+			<section class="playlist">
+				<header class="playlist-tabs" data-ln-playlist-tabs>
+					<div class="playlist-tabs-header">
+						<div class="ui-toggle-group">
+							<div class="ui-toggle">
+								<input type="radio" id="tab-playlists" name="playlist-tab" data-ln-visible="newPlaylist" checked />
+								<label class="ui-toggle-button" for="tab-playlists">Playlists</label>
+							</div>
+							<div class="ui-toggle">
+								<input type="radio" id="tab-alltracks" name="playlist-tab" data-ln-visible="loadMP3Folder" />
+								<label class="ui-toggle-button" for="tab-alltracks">All Tracks</label>
+							</div>
+						</div>
+
+						<nav class="tab-actions">
+							<button type="button" class="create-playlist toggle-visible" id="newPlaylist">
+								<span class="ln-icon-playlist"></span> New Playlist
+							</button>
+							<button type="button" class="load-tracks toggle-visible" id="loadMP3Folder" data-ln-load-folder="*.mp3,*.m4a">
+								<span class="ln-icon-folder"></span> Load MP3 Folder
+							</button>
+						</nav>
+					</div>
+				</header>
+
+				<ul class="playlist-unified-list" data-ln-files>
+					<li class="list-entry" data-li-files-template>
+						<img src="./assets/img/placeholder.svg" />
+						<div class="entry-content">
+							<span class="entry-name">[[ filename ]]</span>
+							<span class="entry-subtext">[[ taginfo ]]</span>
+						</div>
+						<nav class="track-actions">
+							<button type="button" class="load-to-a" data-ln-load-deck="A">Load to A</button>
+							<button type="button" class="load-to-b" data-ln-load-deck="B">Load to B</button>
+						</nav>
+					</li>
+				</ul>
+			</section>
+
+		</section>
+
+		<!-- Deck B -->
+		<section class="deck" data-ln-deck="B">
+			<header>
+				<h2>Deck B</h2>
+
+				<div class="track-meta">
+					<img src="./assets/img/placeholder.svg" alt="Cover" class="track-cover" />
+					<h3 class="current-track">No track loaded</h3>
+				</div>
+			</header>
+
+			<figure class="waveform" data-ln-waveform></figure>
+			<audio preload="auto" controls></audio>
+
+			<ul class="controls">
+				<li>
+					<button type="button" class="play" data-ln-transport="play">
+						<span class="ln-icon-play"></span><span class="label">Play</span>
+					</button>
+				</li>
+				<li>
+					<button type="button" class="stop" data-ln-transport="stop">
+						<span class="ln-icon-stop"></span><span class="label">Stop</span>
+					</button>
+				</li>
+				<li>
+					<button type="button" class="mark-start" data-ln-cue="mark-start">
+						<span class="ln-icon-mark"></span><span class="label">Mark Start</span>
+					</button>
+				</li>
+				<li>
+					<button type="button" class="mark-stop" data-ln-cue="mark-stop">
+						<span class="ln-icon-cue"></span><span class="label">Mark Stop</span>
+					</button>
+				</li>
+				<li>
+					<button type="button" class="loop" data-ln-cue="loop">
+						<span class="ln-icon-loop"></span><span class="label">Loop</span>
+					</button>
+				</li>
+			</ul>
+
+			<section class="loaded-playlist">
+				<h4>Loaded Tracks</h4>
+				<ul class="loaded-track-list">
+					<li class="track">[ Empty ]</li>
+				</ul>
+			</section>
+		</section>
+	</form>
+
+	<!-- Vendor -->
+	<script src="./assets/js/jsmediatags.min.js"></script>
+	<script src="./assets/js/idb-keyval-6.2.1-compat.min.js"></script>
+	<script src="./assets/js/wavesurfer.min.js"></script>
+
+	<!-- Core infrastructure -->
+	<script src="./assets/js/lnAudioRouter.js"></script>
+	<script src="./assets/js/lnFileAccess.js"></script>
+	<script src="./assets/js/lnTrackCache.js"></script>
+
+	<!-- UI components -->
+	<script src="./assets/js/lnPotentiometer.js"></script>
+	<script src="./assets/js/lnVisible.js"></script>
+	<script src="./assets/js/lnLoadFolder.js"></script>
+	<script src="./assets/js/lnFiles.js"></script>
+	<script src="./assets/js/lnLoadDeck.js"></script>
+	<script src="./assets/js/lnDeck.js"></script>
+	<script src="./assets/js/lnWaveform.js"></script>
+	<script src="./assets/js/lnTransport.js"></script>
+
+	<script>
+		document.addEventListener("submit", e => e.preventDefault(), true);
+
+		window.lnTrackCache?.loadFromStorage();
+
+	</script>
+
+</body>
+</html>

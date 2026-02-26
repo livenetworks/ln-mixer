@@ -1,0 +1,384 @@
+:root {
+	--bg: #111;
+	--panel-bg: #1a1a1a;
+	--text: #eee;
+	--text-muted: #ccc;
+	--highlight: #ffa;
+	--accent: #ffa500;
+	--accent-active: #ff8c00;
+	--track-bg: #555;
+	--thumb-bg: #eee;
+	--thumb-lines: #000;
+	--button-bg: #444;
+	--button-hover: #666;
+	--button-active: #ffa500;
+	--button-border: #555;
+	--playlist-bg: #333;
+
+	--pot-track-bg: linear-gradient(to right, #222 0%, #444 100%);
+}
+
+* {
+	box-sizing: border-box;
+	font-family: sans-serif;
+}
+
+body {
+	margin: 0;
+	background: var(--bg);
+	color: var(--text);
+}
+
+h2, h3, h4 {
+	margin: 0 0 0.5rem 0;
+	color: var(--highlight);
+	text-align: center;
+}
+
+/* === LAYOUT === */
+
+.mixer {
+	display: flex;
+	height: 100vh;
+}
+
+.deck {
+	flex-basis: 33%;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	border-right: 1px solid #333;
+}
+
+.master {
+	flex-basis: 33%;
+	padding: 1rem;
+	background: var(--panel-bg);
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	align-items: stretch;
+}
+
+.deck:last-child {
+	border-right: none;
+}
+
+/* === WAVEFORM === */
+
+figure.waveform {
+	height: 100px;
+	background: var(--track-bg);
+	border: 1px dashed #666;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: var(--text-muted);
+	margin: 0;
+	padding: 0;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+/* === TRACK META === */
+
+.current-track {
+	font-size: 1.1rem;
+	font-weight: bold;
+	color: var(--highlight);
+	margin: 0;
+}
+
+.track-meta {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	margin-top: 0.5rem;
+}
+
+.track-cover {
+	width: 80px;
+	height: 80px;
+	border-radius: 4px;
+	object-fit: cover;
+}
+
+/* === CONTROLS === */
+
+.controls {
+	list-style: none;
+	display: flex;
+	gap: 0.5rem;
+	justify-content: center;
+	padding: 0;
+	margin: 0;
+	flex-wrap: wrap;
+}
+
+.controls li {
+	display: inline-block;
+}
+
+button {
+	background: var(--button-bg);
+	border: 1px solid var(--button-border);
+	color: var(--text);
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	font-size: 0.9rem;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+	transition: background 0.15s ease, border-color 0.15s ease;
+	touch-action: manipulation;
+}
+
+button:hover {
+	background: var(--button-hover);
+}
+
+button.active {
+	background: var(--button-active);
+	color: #000;
+	border-color: var(--accent-active);
+}
+
+button.active [class*="ln-icon-"]::before {
+	filter: brightness(0);
+}
+
+/* === TOGGLE GROUP (for playlist tabs and crossfader) === */
+
+.ui-toggle-group {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.ui-toggle {
+	display: flex;
+	align-items: center;
+}
+
+.ui-toggle-group input[type="radio"] {
+	display: none;
+}
+
+.ui-toggle-button {
+	padding: 0.4rem 1rem;
+	background: var(--button-bg);
+	color: var(--text);
+	border: 1px solid var(--button-border);
+	cursor: pointer;
+	border-radius: 4px;
+	transition: background 0.2s ease, color 0.2s ease;
+	user-select: none;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.ui-toggle-group input[type="radio"]:checked + .ui-toggle-button {
+	background: var(--accent);
+	color: #000;
+}
+
+/* === CROSSFADER === */
+
+.crossfader-block {
+	border: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+}
+
+.crossfader-ui .fader {
+	-webkit-appearance: none;
+	width: 100%;
+	max-width: 300px;
+	height: 6px;
+	background: var(--track-bg);
+	border-radius: 5px;
+	outline: none;
+	cursor: pointer;
+}
+
+.crossfader-ui .fader::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	height: 20px;
+	width: 20px;
+	border-radius: 50%;
+	background: var(--accent);
+	cursor: pointer;
+	box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+/* === MASTER VOLUME === */
+
+.master-volume {
+	-webkit-appearance: none;
+	width: 140px;
+	height: 30px;
+	transform: rotate(-90deg);
+	transform-origin: center;
+	display: block;
+	margin: 2rem auto;
+	cursor: pointer;
+	background: transparent;
+	border: none;
+	padding: 0;
+	overflow: hidden;
+}
+
+.master-volume:focus {
+	outline: none;
+}
+
+.master-volume::-webkit-slider-runnable-track {
+	width: 100%;
+	height: 6px;
+	background: var(--pot-track-bg);
+	border: none;
+	border-radius: 4px;
+	box-shadow: none;
+	position: relative;
+}
+
+.master-volume::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 20px;
+	height: 30px;
+	background: var(--thumb-bg);
+	border-radius: 4px;
+	box-shadow: inset 0 0 0 2px var(--thumb-lines);
+	margin-top: -12px;
+	filter: drop-shadow(0 0 0 transparent);
+	position: relative;
+	z-index: 2;
+}
+
+/* === PLAYLIST === */
+
+.playlist {
+	margin-top: 50px;
+}
+
+.playlist-tabs-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 20px;
+}
+
+.playlist-tabs .create-playlist {
+	margin-left: auto;
+}
+
+.playlist-unified-list {
+	background: var(--panel-bg);
+	border-radius: 4px;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	max-height: 60vh;
+	overflow-y: auto;
+	padding-right: 0.5rem;
+}
+
+.track-actions {
+	display: flex;
+	gap: 0.5rem;
+	flex-shrink: 0;
+}
+
+[data-li-files-template] {
+	display: none !important;
+}
+
+.playlist-unified-list img {
+	width: 64px;
+	height: 64px;
+	object-fit: cover;
+	border-radius: 4px;
+	flex-shrink: 0;
+}
+
+.list-entry {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	background: var(--playlist-bg);
+	padding: 0.5rem;
+	border-radius: 4px;
+	margin-bottom: 0.5rem;
+}
+
+.entry-content {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.entry-name {
+	font-size: 0.9rem;
+	color: var(--text);
+	font-weight: bold;
+	line-height: 1.2;
+}
+
+.entry-subtext {
+	font-size: 0.75rem;
+	color: var(--text-muted);
+	line-height: 1.1;
+}
+
+/* === AUDIO ELEMENT === */
+
+.deck audio {
+	margin-top: 1rem;
+	width: 100%;
+}
+
+/* === TABLET / TOUCH RESPONSIVE === */
+
+@media (max-width: 1024px) {
+	.mixer {
+		flex-direction: column;
+		height: auto;
+		min-height: 100vh;
+	}
+
+	.deck,
+	.master {
+		flex-basis: auto;
+		border-right: none;
+		border-bottom: 1px solid #333;
+	}
+
+	.master {
+		order: -1;
+	}
+
+	.deck:last-child {
+		border-bottom: none;
+	}
+}
+
+@media (pointer: coarse) {
+	button {
+		min-height: 44px;
+		min-width: 44px;
+		padding: 0.625rem 1rem;
+		font-size: 1rem;
+	}
+
+	figure.waveform {
+		height: 120px;
+	}
+}
