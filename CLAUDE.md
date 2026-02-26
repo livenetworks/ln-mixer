@@ -62,7 +62,7 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 - Communication via `CustomEvent` with `bubbles: true`
 
 ### Component = Data Layer, Coordinator = UI Wiring
-- **Components** (ln-profile, ln-playlist) are **pure data layers**: state + CRUD + events. They do NOT listen to specific external buttons, do NOT open modals, do NOT show toasts. They manage their own DOM, listen for `request-*` events, and dispatch notification events.
+- **Components** (ln-profile, ln-playlist, ln-library) are **pure data layers**: state + CRUD + events. They do NOT listen to specific external buttons, do NOT open modals, do NOT show toasts. They manage their own DOM, listen for `request-*` events, and dispatch notification events.
 - **Coordinator** (ln-mixer.js) catches specific UI actions (`[data-ln-action="..."]` clicks, `ln-form:submit`) and dispatches **request events** on component DOM elements (`ln-profile:request-create`, `ln-playlist:request-remove-track`). It also handles UI reactions to notification events (toast on `ln-profile:created`, modal close on `ln-profile:deleted`) and bridges components (profile switch → set playlist attribute).
 - **Request events** (`ln-{component}:request-{action}`) are incoming commands. **Notification events** (`ln-{component}:{past-tense}`) are outgoing facts. Coordinator NEVER calls component methods directly — always dispatches request events.
 - **Queries** (reading state) are allowed directly: `nav.lnProfile.currentId`, `sidebar.lnPlaylist.getTrack(idx)`.
@@ -100,6 +100,7 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 | `data-ln-profile-bar` | Profile button container in topbar |
 | `data-ln-field="new-profile-name"` | Profile name input in new-profile dialog |
 | `data-ln-field="new-playlist-name"` | Playlist name input in new-playlist dialog |
+| `data-ln-library` | Library component root (on track-library `<form>`) |
 | `data-ln-library-search` / `data-ln-library-list` | Library dialog search + list |
 | `data-ln-toast` | Toast notification container |
 
@@ -121,6 +122,7 @@ ln-dj-mixer/
       js/ln-profile.js    — profile CRUD component
       js/ln-playlist.js   — playlist/track management component
       js/ln-settings.js   — settings module (API URL, branding — window.lnSettings)
+      js/ln-library.js    — track library component (fetch from API, search, populate)
       js/ln-mixer.js      — event coordinator (bridges components)
       js/app.js           — deck state (remaining monolith)
       img/placeholder.svg
@@ -159,7 +161,7 @@ ln-dj-mixer/
   - [x] Use ln-accordion + ln-toggle from ln-acme for sidebar playlists
   - [ ] Component refactor: ln-deck (deck state, transport, cue, progress)
   - [x] Component refactor: ln-settings (settings module, API URL, brand logo)
-  - [ ] Wire Library dialog to PHP API (fetch tracks from server)
+  - [x] Wire Library dialog to PHP API (ln-library.js component)
   - [ ] Audio engine: WaveSurfer Regions, cue points, loop sections
 - **Phase 3**: PWA — Service Worker, manifest.json, offline caching
 

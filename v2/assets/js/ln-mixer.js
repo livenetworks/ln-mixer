@@ -137,9 +137,13 @@
 			}
 		});
 
-		// Open library dialog
+		// Open library dialog → fetch tracks + open modal
 		document.addEventListener('click', function (e) {
 			if (e.target.closest('[data-ln-action="open-library"]')) {
+				var libraryEl = document.querySelector('[data-ln-library]');
+				if (libraryEl) {
+					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-fetch'));
+				}
 				lnModal.open('modal-track-library');
 			}
 		});
@@ -169,16 +173,18 @@
 
 			var title = btn.getAttribute('data-track-title');
 			var artist = btn.getAttribute('data-track-artist');
-			var duration = btn.getAttribute('data-track-duration');
 			if (!title) return;
-
-			var parts = duration.split(':');
-			var durationSec = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
 
 			var sidebar = _getSidebar();
 			if (sidebar) {
 				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-add-track', {
-					detail: { title: title, artist: artist, duration: duration, durationSec: durationSec }
+					detail: {
+						title: title,
+						artist: artist,
+						duration: '',
+						durationSec: 0,
+						url: btn.getAttribute('data-track-url') || ''
+					}
 				}));
 			}
 
@@ -233,18 +239,13 @@
 			}
 		});
 
-		// Library search
-		var searchInput = document.querySelector('[data-ln-library-search]');
-		if (searchInput) {
-			searchInput.addEventListener('input', function () {
-				var query = searchInput.value.toLowerCase().trim();
-				var items = document.querySelectorAll('[data-ln-library-track]');
-				items.forEach(function (li) {
-					var text = li.textContent.toLowerCase();
-					li.hidden = query !== '' && text.indexOf(query) === -1;
-				});
-			});
-		}
+		// ─── Library event reactions ────────────────────────────────
+
+		document.addEventListener('ln-library:error', function (e) {
+			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
+				detail: { type: 'warn', message: e.detail.message || 'Library error' }
+			}));
+		});
 
 		// ─── Playlist event reactions (toasts, modals) ───────────────
 

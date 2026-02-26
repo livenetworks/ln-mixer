@@ -253,8 +253,9 @@
 		var newTrack = {
 			title: trackData.title,
 			artist: trackData.artist,
-			duration: trackData.duration,
+			duration: trackData.duration || '',
 			durationSec: trackData.durationSec || 0,
+			url: trackData.url || '',
 			loop: false,
 			cueStart: '',
 			cueEnd: '',
