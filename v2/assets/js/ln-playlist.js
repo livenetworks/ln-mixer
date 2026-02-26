@@ -227,26 +227,8 @@
 
 		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
 
-		// Create accordion section in sidebar using ln-toggle
-		var toggleId = 'playlist-' + id;
-
-		var section = document.createElement('section');
-		section.className = 'playlist-group';
-		section.setAttribute('data-ln-toggle', '');
-		section.setAttribute('data-ln-playlist-id', id);
-		section.id = toggleId;
-
-		var hdr = document.createElement('header');
-		hdr.setAttribute('data-ln-toggle-for', toggleId);
-		hdr.setAttribute('data-ln-playlist-toggle', id);
-		hdr.textContent = name;
-
-		var newList = document.createElement('ol');
-		newList.className = 'track-list';
-		newList.setAttribute('data-ln-track-list', id);
-
-		section.appendChild(hdr);
-		section.appendChild(newList);
+		// Create accordion section in sidebar
+		var section = this._buildPlaylistGroup(id, name, false);
 
 		var footer = this.dom.querySelector('.sidebar-footer');
 		this.dom.insertBefore(section, footer);
