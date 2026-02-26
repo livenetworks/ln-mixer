@@ -69,12 +69,6 @@
 		this.profileId = null;
 		this.deckHighlight = { a: -1, b: -1 };
 
-		this._dragState = {
-			dragging: null,
-			startY: 0,
-			scrollTop: 0
-		};
-
 		this._bindEvents();
 		this._watchProfileAttr();
 
@@ -109,11 +103,11 @@
 			}
 		});
 
-		// Drag & drop reorder (pointer events for touch + mouse)
-		document.addEventListener('pointerdown', function (e) {
-			if (e.target.closest('[data-ln-drag-handle]')) {
-				self._handleDragStart(e);
-			}
+		// Sortable reorder (ln-sortable component handles pointer interaction)
+		this.dom.addEventListener('ln-sortable:reordered', function (e) {
+			var list = e.target.closest('[data-ln-track-list]');
+			if (!list) return;
+			self._syncAfterReorder(list);
 		});
 
 		// Request events (from coordinator / external code)
@@ -516,104 +510,7 @@
 		});
 	};
 
-	/* ─── Drag & Drop Reorder ─────────────────────────────────────── */
-
-	_component.prototype._handleDragStart = function (e) {
-		var handle = e.target.closest('[data-ln-drag-handle]');
-		if (!handle) return;
-
-		var li = handle.closest('[data-ln-track]');
-		if (!li) return;
-
-		e.preventDefault();
-		handle.setPointerCapture(e.pointerId);
-
-		this._dragState.dragging = li;
-		this._dragState.startY = e.clientY;
-		this._dragState.scrollTop = li.parentElement.scrollTop;
-
-		li.classList.add('dragging');
-
-		var self = this;
-		var onMove = function (ev) { self._handleDragMove(ev); };
-		var onEnd = function (ev) {
-			self._handleDragEnd(ev);
-			handle.removeEventListener('pointermove', onMove);
-			handle.removeEventListener('pointerup', onEnd);
-			handle.removeEventListener('pointercancel', onEnd);
-		};
-
-		handle.addEventListener('pointermove', onMove);
-		handle.addEventListener('pointerup', onEnd);
-		handle.addEventListener('pointercancel', onEnd);
-	};
-
-	_component.prototype._handleDragMove = function (e) {
-		if (!this._dragState.dragging) return;
-
-		var list = this._dragState.dragging.parentElement;
-		var items = Array.from(list.querySelectorAll('[data-ln-track]'));
-
-		items.forEach(function (item) {
-			item.classList.remove('drop-above', 'drop-below');
-		});
-
-		var dragging = this._dragState.dragging;
-		for (var i = 0; i < items.length; i++) {
-			if (items[i] === dragging) continue;
-
-			var rect = items[i].getBoundingClientRect();
-			var midY = rect.top + rect.height / 2;
-
-			if (e.clientY >= rect.top && e.clientY < midY) {
-				items[i].classList.add('drop-above');
-				break;
-			} else if (e.clientY >= midY && e.clientY <= rect.bottom) {
-				items[i].classList.add('drop-below');
-				break;
-			}
-		}
-	};
-
-	_component.prototype._handleDragEnd = function (e) {
-		if (!this._dragState.dragging) return;
-
-		var li = this._dragState.dragging;
-		var list = li.parentElement;
-		var items = Array.from(list.querySelectorAll('[data-ln-track]'));
-
-		var dropTarget = null;
-		var dropPosition = null;
-
-		for (var i = 0; i < items.length; i++) {
-			if (items[i].classList.contains('drop-above')) {
-				dropTarget = items[i];
-				dropPosition = 'before';
-				break;
-			}
-			if (items[i].classList.contains('drop-below')) {
-				dropTarget = items[i];
-				dropPosition = 'after';
-				break;
-			}
-		}
-
-		items.forEach(function (item) {
-			item.classList.remove('drop-above', 'drop-below');
-		});
-		li.classList.remove('dragging');
-
-		if (dropTarget && dropTarget !== li) {
-			if (dropPosition === 'before') {
-				list.insertBefore(li, dropTarget);
-			} else {
-				list.insertBefore(li, dropTarget.nextElementSibling);
-			}
-			this._syncAfterReorder(list);
-		}
-
-		this._dragState.dragging = null;
-	};
+	/* ─── Sync After Reorder (triggered by ln-sortable:reordered) ──── */
 
 	_component.prototype._syncAfterReorder = function (list) {
 		var items = Array.from(list.querySelectorAll('[data-ln-track]'));

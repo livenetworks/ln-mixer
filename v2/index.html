@@ -409,7 +409,7 @@
 	     ============================================================ -->
 	<template data-ln-template="track-item">
 		<li data-ln-track>
-			<span class="track-number" data-ln-drag-handle></span>
+			<span class="track-number" data-ln-sortable-handle></span>
 			<article class="track-info">
 				<p class="track-name"></p>
 				<p class="track-artist"></p>
@@ -429,7 +429,7 @@
 	<template data-ln-template="playlist-group">
 		<section class="playlist-group" data-ln-toggle data-ln-playlist-id>
 			<header data-ln-toggle-for data-ln-playlist-toggle></header>
-			<ol class="track-list" data-ln-track-list></ol>
+			<ol class="track-list" data-ln-track-list data-ln-sortable></ol>
 		</section>
 	</template>
 
@@ -453,6 +453,7 @@
 	<script src="../ln-acme/js/ln-accordion/ln-accordion.js"></script>
 	<script src="../ln-acme/js/ln-modal/ln-modal.js"></script>
 	<script src="../ln-acme/js/ln-toast/ln-toast.js"></script>
+	<script src="../ln-acme/js/ln-sortable/ln-sortable.js"></script>
 	<script src="./assets/js/ln-db.js"></script>
 	<script src="./assets/js/ln-profile.js"></script>
 	<script src="./assets/js/ln-playlist.js"></script>
