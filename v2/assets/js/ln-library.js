@@ -54,7 +54,7 @@
 		this._loading = false;
 
 		this._list = dom.querySelector('[data-ln-library-list]');
-		this._searchInput = dom.querySelector('[data-ln-library-search]');
+		this._search = dom.querySelector('[data-ln-search]');
 
 		this._bindEvents();
 
@@ -65,13 +65,6 @@
 
 	_component.prototype._bindEvents = function () {
 		var self = this;
-
-		// Search filtering (own DOM concern)
-		if (this._searchInput) {
-			this._searchInput.addEventListener('input', function () {
-				self._filterBySearch(self._searchInput.value);
-			});
-		}
 
 		// Request events (from coordinator / external code)
 		this.dom.addEventListener('ln-library:request-fetch', function () {
@@ -96,9 +89,7 @@
 
 		var apiUrl = window.lnSettings ? lnSettings.getApiUrl() : '';
 		if (!apiUrl) {
-			_dispatch(this.dom, 'ln-library:error', {
-				message: 'API URL not configured'
-			});
+			this._showNoApi();
 			return;
 		}
 
@@ -151,6 +142,7 @@
 	_component.prototype._populate = function () {
 		if (!this._list) return;
 		this._list.innerHTML = '';
+		if (this._search) this._search.hidden = false;
 
 		if (this._tracks.length === 0) {
 			var emptyLi = document.createElement('li');
@@ -165,9 +157,10 @@
 			self._list.appendChild(self._buildLibraryItem(track));
 		});
 
-		// Clear search on fresh populate
-		if (this._searchInput) {
-			this._searchInput.value = '';
+		// Clear ln-search on fresh populate
+		var searchEl = this.dom.querySelector('[data-ln-search]');
+		if (searchEl && searchEl.lnSearch) {
+			searchEl.lnSearch.clear();
 		}
 	};
 
@@ -191,18 +184,6 @@
 		return li;
 	};
 
-	/* ─── Private: Search Filter ──────────────────────────────────── */
-
-	_component.prototype._filterBySearch = function (query) {
-		if (!this._list) return;
-		var q = query.toLowerCase().trim();
-		var items = this._list.querySelectorAll('[data-ln-library-track]');
-		items.forEach(function (li) {
-			var text = li.textContent.toLowerCase();
-			li.hidden = q !== '' && text.indexOf(q) === -1;
-		});
-	};
-
 	/* ─── Private: Error State ────────────────────────────────────── */
 
 	_component.prototype._showError = function (message) {
@@ -212,6 +193,45 @@
 		errorLi.className = 'library-error';
 		errorLi.textContent = message;
 		this._list.appendChild(errorLi);
+	};
+
+	_component.prototype._showNoApi = function () {
+		if (!this._list) return;
+		this._list.innerHTML = '';
+		if (this._search) this._search.hidden = true;
+
+		var li = document.createElement('li');
+		li.className = 'library-no-api';
+
+		var icon = document.createElement('figure');
+		icon.className = 'library-no-api-icon';
+		var span = document.createElement('span');
+		span.className = 'ln-icon-settings';
+		icon.appendChild(span);
+
+		var title = document.createElement('h3');
+		title.textContent = 'No API configured';
+
+		var desc = document.createElement('p');
+		desc.textContent = 'Set the Library API URL in Settings to load tracks.';
+
+		var btn = document.createElement('button');
+		btn.type = 'button';
+		btn.className = 'library-no-api-btn';
+		btn.setAttribute('data-ln-action', 'open-settings-from-library');
+		var btnIcon = document.createElement('span');
+		btnIcon.className = 'ln-icon-settings ln-icon--sm';
+		var btnLabel = document.createElement('span');
+		btnLabel.className = 'label';
+		btnLabel.textContent = 'Open Settings';
+		btn.appendChild(btnIcon);
+		btn.appendChild(btnLabel);
+
+		li.appendChild(icon);
+		li.appendChild(title);
+		li.appendChild(desc);
+		li.appendChild(btn);
+		this._list.appendChild(li);
 	};
 
 	/* ─── DOM Observer ────────────────────────────────────────────── */

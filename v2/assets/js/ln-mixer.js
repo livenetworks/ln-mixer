@@ -12,6 +12,23 @@
 		return document.querySelector('[data-ln-playlist]');
 	}
 
+	function _getDeck(deckId) {
+		return document.querySelector('[data-ln-deck="' + deckId + '"]');
+	}
+
+	function _refreshDeckHighlights() {
+		var sidebar = _getSidebar();
+		if (!sidebar) return;
+
+		['a', 'b'].forEach(function (deckId) {
+			var deckEl = _getDeck(deckId);
+			var idx = (deckEl && deckEl.lnDeck) ? deckEl.lnDeck.trackIndex : -1;
+			sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-highlight', {
+				detail: { deckId: deckId, index: idx }
+			}));
+		});
+	}
+
 	/* ====================================================================
 	   SETTINGS — form helpers
 	   ==================================================================== */
@@ -247,6 +264,15 @@
 			}));
 		});
 
+		// Open settings from library empty state
+		document.addEventListener('click', function (e) {
+			if (e.target.closest('[data-ln-action="open-settings-from-library"]')) {
+				lnModal.close('modal-track-library');
+				_populateSettingsForm();
+				lnModal.open('modal-settings');
+			}
+		});
+
 		// ─── Playlist event reactions (toasts, modals) ───────────────
 
 		document.addEventListener('ln-playlist:created', function () {
@@ -345,6 +371,118 @@
 				return lnSettings.load();
 			});
 		});
+
+		// ─── Deck wiring ────────────────────────────────────────────
+
+		// Profile switch → reset both decks
+		document.addEventListener('ln-profile:switched', function () {
+			['a', 'b'].forEach(function (deckId) {
+				var deckEl = _getDeck(deckId);
+				if (deckEl) {
+					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-reset'));
+				}
+			});
+		});
+
+		// Playlist load-to-deck → dispatch request-load on target deck
+		document.addEventListener('ln-playlist:load-to-deck', function (e) {
+			var deckEl = _getDeck(e.detail.deckId);
+			if (deckEl) {
+				deckEl.dispatchEvent(new CustomEvent('ln-deck:request-load', {
+					detail: {
+						trackIndex: e.detail.trackIndex,
+						track: e.detail.track
+					}
+				}));
+			}
+		});
+
+		// Deck loaded → update sidebar highlight
+		document.addEventListener('ln-deck:loaded', function (e) {
+			var sidebar = _getSidebar();
+			if (sidebar) {
+				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-highlight', {
+					detail: { deckId: e.detail.deckId, index: e.detail.trackIndex }
+				}));
+			}
+		});
+
+		// Track removed → adjust deck indices
+		document.addEventListener('ln-playlist:track-removed', function (e) {
+			var removedIdx = e.detail.trackIndex;
+
+			['a', 'b'].forEach(function (deckId) {
+				var deckEl = _getDeck(deckId);
+				if (!deckEl || !deckEl.lnDeck) return;
+				var currentIdx = deckEl.lnDeck.trackIndex;
+
+				if (currentIdx === removedIdx) {
+					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-reset'));
+				} else if (currentIdx > removedIdx) {
+					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-adjust-index', {
+						detail: { newIndex: currentIdx - 1 }
+					}));
+				}
+			});
+
+			_refreshDeckHighlights();
+		});
+
+		// Reordered → remap deck indices
+		document.addEventListener('ln-playlist:reordered', function (e) {
+			var oldToNew = e.detail.oldToNew;
+
+			['a', 'b'].forEach(function (deckId) {
+				var deckEl = _getDeck(deckId);
+				if (!deckEl || !deckEl.lnDeck) return;
+				var oldIdx = deckEl.lnDeck.trackIndex;
+
+				if (oldIdx >= 0 && oldToNew.hasOwnProperty(oldIdx)) {
+					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-adjust-index', {
+						detail: { newIndex: oldToNew[oldIdx] }
+					}));
+				}
+			});
+
+			_refreshDeckHighlights();
+		});
+
+		// Track added → auto-load to deck B if empty
+		document.addEventListener('ln-playlist:track-added', function (e) {
+			var deckB = _getDeck('b');
+			if (deckB && deckB.lnDeck && deckB.lnDeck.trackIndex < 0) {
+				deckB.dispatchEvent(new CustomEvent('ln-deck:request-load', {
+					detail: {
+						trackIndex: e.detail.trackIndex,
+						track: e.detail.track
+					}
+				}));
+			}
+		});
+
+		// Edit-track button (from deck) → bridge to playlist
+		document.addEventListener('ln-deck:edit-requested', function (e) {
+			var sidebar = _getSidebar();
+			if (sidebar) {
+				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-open-edit', {
+					detail: { index: e.detail.trackIndex }
+				}));
+			}
+		});
+
+		// ─── Volume slider ──────────────────────────────────────────
+
+		var volumeSlider = document.querySelector('[data-ln-potentiometer="master"]');
+		if (volumeSlider) {
+			var _handleVolume = function () {
+				var val = volumeSlider.value;
+				var pct = val + '%';
+				volumeSlider.style.background =
+					'linear-gradient(to right, var(--accent) ' + pct + ', var(--track-bg) ' + pct + ')';
+			};
+			volumeSlider.addEventListener('input', _handleVolume);
+			_handleVolume();
+		}
 	}
 
 	if (document.readyState === 'loading') {

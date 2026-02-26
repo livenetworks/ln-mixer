@@ -139,24 +139,24 @@
 						<h2>Deck B <mark class="deck-badge deck-badge--b">Next / Cue</mark></h2>
 					</header>
 
-					<p class="track-title" data-ln-field="title-b">&mdash;</p>
-					<p class="track-artist" data-ln-field="artist-b"></p>
+					<p class="track-title" data-ln-field="title">&mdash;</p>
+					<p class="track-artist" data-ln-field="artist"></p>
 
 					<!-- Waveform -->
 					<figure class="waveform" data-ln-waveform="b">
 						<figcaption class="sr-only">Deck B waveform</figcaption>
-						<mark class="cue-region" style="left: 0%; width: 100%;"></mark>
-						<mark class="cue-marker cue-marker--start" style="left: 0%;"></mark>
-						<mark class="cue-marker cue-marker--end" style="left: 100%;"></mark>
+						<mark class="cue-region" style="display: none;"></mark>
+						<mark class="cue-marker cue-marker--start" style="display: none;"></mark>
+						<mark class="cue-marker cue-marker--end" style="display: none;"></mark>
 						<mark class="waveform-progress" style="width: 0%;"></mark>
 						<mark class="waveform-playhead" style="left: 0%;"></mark>
 					</figure>
 
 					<!-- Time -->
 					<output class="time-display">
-						<time class="time-current" data-ln-field="time-current-b">0:00</time>
+						<time class="time-current" data-ln-field="time-current">0:00</time>
 						<span class="time-separator">/</span>
-						<time class="time-total" data-ln-field="time-total-b">3:15</time>
+						<time class="time-total" data-ln-field="time-total">0:00</time>
 					</output>
 
 					<!-- Transport -->
@@ -262,13 +262,13 @@
 					</button>
 				</header>
 				<main>
-					<fieldset class="library-search">
+					<fieldset class="library-search" data-ln-search="library-list">
 						<legend class="sr-only">Search tracks</legend>
 						<span class="ln-icon-search ln-icon--sm"></span>
-						<input type="search" placeholder="Search tracks..." data-ln-library-search />
+						<input type="search" placeholder="Search tracks..." data-ln-search-input />
 					</fieldset>
 
-					<ul class="library-list" data-ln-library-list>
+					<ul class="library-list" id="library-list" data-ln-library-list>
 						<!-- Populated by JS from API -->
 					</ul>
 				</main>
@@ -453,14 +453,15 @@
 	<script src="../ln-acme/js/ln-accordion/ln-accordion.js"></script>
 	<script src="../ln-acme/js/ln-modal/ln-modal.js"></script>
 	<script src="../ln-acme/js/ln-toast/ln-toast.js"></script>
+	<script src="../ln-acme/js/ln-search/ln-search.js"></script>
 	<script src="../ln-acme/js/ln-sortable/ln-sortable.js"></script>
 	<script src="./assets/js/ln-db.js"></script>
 	<script src="./assets/js/ln-profile.js"></script>
 	<script src="./assets/js/ln-playlist.js"></script>
 	<script src="./assets/js/ln-settings.js"></script>
 	<script src="./assets/js/ln-library.js"></script>
+	<script src="./assets/js/ln-deck.js"></script>
 	<script src="./assets/js/ln-mixer.js"></script>
-	<script src="./assets/js/app.js"></script>
 
 	<script>
 		document.addEventListener("submit", function(e) {

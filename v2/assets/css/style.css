@@ -1040,6 +1040,10 @@ body.ln-modal-open {
 	color: var(--text-dim);
 }
 
+[data-ln-search-hide] {
+	display: none;
+}
+
 .library-list > li {
 	display: flex;
 	align-items: center;
@@ -1065,6 +1069,71 @@ body.ln-modal-open {
 .library-track-info .track-artist {
 	font-size: 0.75rem;
 	color: var(--text-muted);
+}
+
+/* --- Library: No API empty state --- */
+
+.library-no-api {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: var(--gap-xl) var(--gap-lg);
+	text-align: center;
+	color: var(--text-muted);
+	gap: var(--gap-sm);
+}
+
+.library-no-api-icon {
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	background: var(--surface-bg);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+}
+
+.library-no-api-icon .ln-icon-settings::before {
+	width: 32px;
+	height: 32px;
+	opacity: 0.5;
+}
+
+.library-no-api h3 {
+	font-size: 1.125rem;
+	color: var(--text-primary);
+	margin: 0;
+}
+
+.library-no-api p {
+	font-size: 0.875rem;
+	margin: 0;
+}
+
+.library-no-api-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.75rem 1.5rem;
+	background: var(--accent);
+	color: var(--bg);
+	border: none;
+	border-radius: var(--radius);
+	font-size: 0.95rem;
+	font-weight: 600;
+	cursor: pointer;
+	touch-action: manipulation;
+	min-height: 48px;
+}
+
+.library-no-api-btn:hover {
+	filter: brightness(1.1);
+}
+
+.library-no-api-btn .ln-icon-settings::before {
+	filter: brightness(0);
 }
 
 /* --- Settings Dialog --- */

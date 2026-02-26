@@ -62,7 +62,7 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 - Communication via `CustomEvent` with `bubbles: true`
 
 ### Component = Data Layer, Coordinator = UI Wiring
-- **Components** (ln-profile, ln-playlist, ln-library) are **pure data layers**: state + CRUD + events. They do NOT listen to specific external buttons, do NOT open modals, do NOT show toasts. They manage their own DOM, listen for `request-*` events, and dispatch notification events.
+- **Components** (ln-profile, ln-playlist, ln-library, ln-deck) are **pure data layers**: state + CRUD + events. They do NOT listen to specific external buttons, do NOT open modals, do NOT show toasts. They manage their own DOM, listen for `request-*` events, and dispatch notification events.
 - **Coordinator** (ln-mixer.js) catches specific UI actions (`[data-ln-action="..."]` clicks, `ln-form:submit`) and dispatches **request events** on component DOM elements (`ln-profile:request-create`, `ln-playlist:request-remove-track`). It also handles UI reactions to notification events (toast on `ln-profile:created`, modal close on `ln-profile:deleted`) and bridges components (profile switch → set playlist attribute).
 - **Request events** (`ln-{component}:request-{action}`) are incoming commands. **Notification events** (`ln-{component}:{past-tense}`) are outgoing facts. Coordinator NEVER calls component methods directly — always dispatches request events.
 - **Queries** (reading state) are allowed directly: `nav.lnProfile.currentId`, `sidebar.lnPlaylist.getTrack(idx)`.
@@ -77,7 +77,7 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 
 | Attribute | Purpose |
 |---|---|
-| `data-ln-deck="a"` / `"b"` | Deck A (now playing) and Deck B (next/cue) sections |
+| `data-ln-deck="a"` / `"b"` | Deck root element (ln-deck component) — two instances |
 | `data-ln-deck-target="a"` / `"b"` | Links transport/cue buttons to their deck |
 | `data-ln-load-to="a"` / `"b"` | Sidebar [A] [B] buttons to load track into specific deck |
 | `data-ln-drag-handle` | Drag reorder handle (on `.track-number` span) |
@@ -100,8 +100,10 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 | `data-ln-profile-bar` | Profile button container in topbar |
 | `data-ln-field="new-profile-name"` | Profile name input in new-profile dialog |
 | `data-ln-field="new-playlist-name"` | Playlist name input in new-playlist dialog |
+| `data-ln-field="title"` / `"artist"` / `"time-current"` / `"time-total"` | Deck display fields (within each deck root) |
 | `data-ln-library` | Library component root (on track-library `<form>`) |
-| `data-ln-library-search` / `data-ln-library-list` | Library dialog search + list |
+| `data-ln-library-list` | Library track list `<ul>` |
+| `data-ln-search="library-list"` | ln-search component on library search fieldset |
 | `data-ln-toast` | Toast notification container |
 
 **Layout**: Deck A (orange) + Deck B (blue) stacked vertically on left (~70%), playlist sidebar on right (~30%). Sidebar uses ln-toggle/ln-accordion for one-at-a-time. Each deck has transport + cue + "Opis" (edit track notes) button. Each sidebar track has explicit [A] [B] buttons (48x48px touch targets) to load into a specific deck. Drag & drop reorder via Pointer Events API. "New Playlist" button in sidebar footer.
@@ -123,8 +125,8 @@ ln-dj-mixer/
       js/ln-playlist.js   — playlist/track management component
       js/ln-settings.js   — settings module (API URL, branding — window.lnSettings)
       js/ln-library.js    — track library component (fetch from API, search, populate)
+      js/ln-deck.js       — deck component (transport, cue, progress)
       js/ln-mixer.js      — event coordinator (bridges components)
-      js/app.js           — deck state (remaining monolith)
       img/placeholder.svg
   v1/                     ← archived Phase 1
     index.html
@@ -159,7 +161,7 @@ ln-dj-mixer/
   - [x] Component refactor: ln-profile extracted from app.js
   - [x] Component refactor: ln-playlist + ln-mixer extracted from app.js
   - [x] Use ln-accordion + ln-toggle from ln-acme for sidebar playlists
-  - [ ] Component refactor: ln-deck (deck state, transport, cue, progress)
+  - [x] Component refactor: ln-deck (deck state, transport, cue, progress)
   - [x] Component refactor: ln-settings (settings module, API URL, brand logo)
   - [x] Wire Library dialog to PHP API (ln-library.js component)
   - [ ] Audio engine: WaveSurfer Regions, cue points, loop sections
@@ -171,13 +173,15 @@ Located at `c:\Users\Dalibor Sojic\ln-acme\js\`:
 
 | Component | Attribute | Use in this project |
 |---|---|---|
-| ln-accordion | `data-ln-accordion` | Sidebar playlist accordion (planned) |
-| ln-toggle | `data-ln-toggle` | Works with ln-accordion (planned) |
-| ln-toast | `data-ln-toast` | Already in use |
-| ln-ajax | `data-ln-ajax` | Could use for Library API fetch |
-| ln-modal | `data-ln-modal` | Native `<dialog>` preferred |
-| ln-progress | `data-ln-progress` | Could use for deck progress |
-| ln-upload | `data-ln-upload` | Could use for logo/audio upload |
+| ln-accordion | `data-ln-accordion` | Sidebar playlist accordion |
+| ln-toggle | `data-ln-toggle` | Works with ln-accordion |
+| ln-toast | `data-ln-toast` | Toast notifications |
+| ln-modal | `data-ln-modal` | Modal dialogs |
+| ln-sortable | `data-ln-sortable` | Drag & drop reorder in playlists |
+| ln-search | `data-ln-search` | Library track search |
+| ln-ajax | `data-ln-ajax` | — |
+| ln-progress | `data-ln-progress` | — |
+| ln-upload | `data-ln-upload` | — |
 | ln-tabs | `data-ln-tabs` | — |
 | ln-select | `data-ln-select` | — |
 | ln-nav | `data-ln-nav` | — |
