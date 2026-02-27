@@ -101,6 +101,7 @@
 		if (container) {
 			container.addEventListener('click', function (e) {
 				var zoomBtn = e.target.closest('[data-ln-zoom]');
+				console.log('[zoom-click]', zoomBtn ? zoomBtn.getAttribute('data-ln-zoom') : 'miss', e.target.tagName, e.target.className);
 				if (zoomBtn) {
 					self.zoom(zoomBtn.getAttribute('data-ln-zoom'));
 				}
@@ -291,6 +292,7 @@
 	};
 
 	_component.prototype.zoom = function (direction) {
+		console.log('[zoom]', direction, 'surfer:', !!this._surfer, 'duration:', this._duration, 'level:', this._zoomLevel);
 		if (!this._surfer || !this._duration) return;
 
 		if (direction === 'in' && this._zoomLevel < this._zoomFactors.length - 1) {
