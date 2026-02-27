@@ -81,7 +81,8 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 | `data-ln-drag-handle` | Drag reorder handle (on `.track-number` span) |
 | `data-ln-transport="play"` / `"stop"` | Transport control buttons (per deck) |
 | `data-ln-cue="mark-start"` / `"mark-end"` / `"loop"` | Cue point and loop controls (per deck). Loop button is LED toggle (`.btn--led` with `<mark class="led-indicator">`) |
-| `data-ln-waveform="a"` / `"b"` | Waveform figure container — WaveSurfer renders here (per deck) |
+| `data-ln-waveform="a"` / `"b"` | Waveform figure container — ln-waveform component (WaveSurfer, zoom, timeline) |
+| `data-ln-zoom="in"` / `"out"` | Waveform zoom buttons (handled by ln-waveform) |
 | `data-ln-audio="a"` / `"b"` | Hidden `<audio>` element inside each deck (WaveSurfer `media` option) |
 | `data-ln-potentiometer="master"` | Master volume slider (controls AudioContext masterGain) |
 | `data-ln-playlist` | Sidebar root element (ln-playlist component) |
@@ -133,7 +134,8 @@ ln-dj-mixer/
     js/ln-settings.js     — settings module (API URL, branding — window.lnSettings)
     js/ln-library.js      — track library component (fetch from API, search, populate)
     js/wavesurfer.min.js  — WaveSurfer.js v7 (waveform rendering)
-    js/ln-deck.js         — deck component (WaveSurfer + audio playback, transport, cue)
+    js/ln-waveform.js     — waveform component (WaveSurfer, zoom, timeline ruler, overlays)
+    js/ln-deck.js         — deck component (audio playback, transport, cue, loop management)
     js/ln-mixer.js        — event coordinator (bridges components, AudioContext routing)
     img/placeholder.svg
     img/icon.svg          — PWA app icon (SVG, 512x512 viewBox)
@@ -167,6 +169,23 @@ ln-dj-mixer/
   - [x] App icon (`assets/img/icon.svg`)
 
 ## Changelog
+
+### Waveform Component Extraction + Zoom + Timeline (2026-02-27)
+
+- **New component: `ln-waveform.js`** — extracted from ln-deck.js, owns `<figure data-ln-waveform>`
+  - WaveSurfer lifecycle (init/destroy), overlay management (progress, playhead, cue markers)
+  - Zoom: +/- buttons, pinch-to-zoom, ctrl+wheel; 4 levels (1x, 2x, 5x, 10x) via `WaveSurfer.zoom()`
+  - Timeline ruler: auto-spaced tick marks at bottom of waveform, adapts density to zoom level
+  - Pending cue marker: pulsing line on waveform when Cue A is pressed
+  - Overlay relocation: `<mark>` elements moved into WaveSurfer's scroll wrapper for correct zoom alignment
+  - Auto-scroll via WaveSurfer's native `autoScroll: true` option
+- **ln-deck.js refactored**: removed WaveSurfer code, communicates with ln-waveform via direct method calls (deck→waveform) and CustomEvents (waveform→deck)
+- **Communication**: `ln-waveform:ready`, `ln-waveform:timeupdate`, `ln-waveform:finish`, `ln-waveform:seeked`
+- HTML: `<figure>` wrapped in `<fieldset class="waveform-container">` with zoom `<nav>`, added `<nav class="waveform-timeline">` and `<mark class="cue-marker--pending">`
+- CSS: waveform-container, zoom buttons, timeline ruler ticks, pending cue pulse animation, zoomed scroll styles
+- SW: cache bumped to v2, ln-waveform.js added to APP_SHELL
+- Files added: `assets/js/ln-waveform.js`
+- Files changed: `ln-deck.js`, `index.html`, `style.css`, `sw.js`, `CLAUDE.md`
 
 ### Code Review (2026-02-27)
 
