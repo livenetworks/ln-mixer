@@ -557,6 +557,8 @@ fieldset {
 	border: 0;
 	padding: 0;
 	margin: 0;
+	overflow: visible;
+	min-width: 0;
 }
 
 .waveform--zoomed {
