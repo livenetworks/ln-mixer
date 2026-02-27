@@ -35,6 +35,8 @@
 	--loop-color: #44cc88;
 	--dialog-bg: #1e1e1e;
 	--dialog-overlay: rgba(0, 0, 0, 0.75);
+	--surface-bg: #222;
+	--text-primary: #eee;
 	--input-bg: #2a2a2a;
 	--input-border: #444;
 

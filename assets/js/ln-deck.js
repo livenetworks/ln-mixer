@@ -244,7 +244,7 @@
 
 		this.track.durationSec = duration;
 		this.track.duration = _formatTime(duration);
-		this._els.timeTotal.textContent = this.track.duration;
+		if (this._els.timeTotal) this._els.timeTotal.textContent = this.track.duration;
 
 		_dispatch(this.dom, 'ln-deck:duration-detected', {
 			deckId: this.deckId,
@@ -273,9 +273,9 @@
 		if (!duration || !isFinite(duration)) return;
 
 		this.progress = (currentTime / duration) * 100;
-		this._els.timeCurrent.textContent = _formatTime(currentTime);
-		this._els.progress.style.width = this.progress + '%';
-		this._els.playhead.style.left = this.progress + '%';
+		if (this._els.timeCurrent) this._els.timeCurrent.textContent = _formatTime(currentTime);
+		if (this._els.progress) this._els.progress.style.width = this.progress + '%';
+		if (this._els.playhead) this._els.playhead.style.left = this.progress + '%';
 	};
 
 	_component.prototype._onEnded = function () {
@@ -409,40 +409,36 @@
 		var track = this.track;
 
 		if (!track) {
-			e.title.textContent = '\u2014';
-			e.artist.textContent = '';
-			e.timeCurrent.textContent = '0:00';
-			e.timeTotal.textContent = '0:00';
-			e.progress.style.width = '0%';
-			e.playhead.style.left = '0%';
-			e.cueRegion.style.display = 'none';
-			e.cueStart.style.display = 'none';
-			e.cueEnd.style.display = 'none';
+			if (e.title) e.title.textContent = '\u2014';
+			if (e.artist) e.artist.textContent = '';
+			if (e.timeCurrent) e.timeCurrent.textContent = '0:00';
+			if (e.timeTotal) e.timeTotal.textContent = '0:00';
+			if (e.progress) e.progress.style.width = '0%';
+			if (e.playhead) e.playhead.style.left = '0%';
+			if (e.cueRegion) e.cueRegion.style.display = 'none';
+			if (e.cueStart) e.cueStart.style.display = 'none';
+			if (e.cueEnd) e.cueEnd.style.display = 'none';
 			return;
 		}
 
-		e.title.textContent = track.title;
-		e.artist.textContent = track.artist;
-		e.timeTotal.textContent = track.duration;
+		if (e.title) e.title.textContent = track.title;
+		if (e.artist) e.artist.textContent = track.artist;
+		if (e.timeTotal) e.timeTotal.textContent = track.duration;
 
 		var currentSec = Math.floor(track.durationSec * (this.progress / 100));
-		e.timeCurrent.textContent = _formatTime(currentSec);
+		if (e.timeCurrent) e.timeCurrent.textContent = _formatTime(currentSec);
 
-		e.progress.style.width = this.progress + '%';
-		e.playhead.style.left = this.progress + '%';
+		if (e.progress) e.progress.style.width = this.progress + '%';
+		if (e.playhead) e.playhead.style.left = this.progress + '%';
 
 		if (track.cueStartPct > 0 || track.cueEndPct > 0) {
-			e.cueStart.style.left = track.cueStartPct + '%';
-			e.cueStart.style.display = '';
-			e.cueEnd.style.left = track.cueEndPct + '%';
-			e.cueEnd.style.display = '';
-			e.cueRegion.style.left = track.cueStartPct + '%';
-			e.cueRegion.style.width = (track.cueEndPct - track.cueStartPct) + '%';
-			e.cueRegion.style.display = '';
+			if (e.cueStart) { e.cueStart.style.left = track.cueStartPct + '%'; e.cueStart.style.display = ''; }
+			if (e.cueEnd) { e.cueEnd.style.left = track.cueEndPct + '%'; e.cueEnd.style.display = ''; }
+			if (e.cueRegion) { e.cueRegion.style.left = track.cueStartPct + '%'; e.cueRegion.style.width = (track.cueEndPct - track.cueStartPct) + '%'; e.cueRegion.style.display = ''; }
 		} else {
-			e.cueStart.style.display = 'none';
-			e.cueEnd.style.display = 'none';
-			e.cueRegion.style.display = 'none';
+			if (e.cueStart) e.cueStart.style.display = 'none';
+			if (e.cueEnd) e.cueEnd.style.display = 'none';
+			if (e.cueRegion) e.cueRegion.style.display = 'none';
 		}
 	};
 
