@@ -487,13 +487,13 @@ fieldset {
 	position: absolute;
 	inset: 0;
 	z-index: 2;
-	background: rgba(255, 165, 0, 0.25);
+	background: rgba(255, 165, 0, 0.08);
 	pointer-events: none;
 	transition: width 0.1s linear;
 }
 
 .deck--b .waveform-progress {
-	background: rgba(68, 170, 255, 0.2);
+	background: rgba(68, 170, 255, 0.06);
 }
 
 .waveform-playhead {

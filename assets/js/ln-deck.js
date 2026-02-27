@@ -265,10 +265,12 @@
 
 		var self = this;
 
+		var progressColor = this.deckId === 'b' ? '#44aaff' : '#ffa500';
+
 		var opts = {
 			container: container,
-			waveColor: '#888',
-			progressColor: 'transparent',
+			waveColor: 'rgba(136, 136, 136, 0.5)',
+			progressColor: progressColor,
 			cursorWidth: 0,
 			barWidth: 2,
 			barGap: 1,
