@@ -87,14 +87,22 @@
 					<p class="track-artist" data-ln-field="artist"></p>
 
 					<!-- Waveform -->
-					<figure class="waveform" data-ln-waveform="a">
-						<figcaption class="sr-only">Deck A waveform</figcaption>
-						<mark class="cue-region" style="display: none;"></mark>
-						<mark class="cue-marker cue-marker--start" style="display: none;"></mark>
-						<mark class="cue-marker cue-marker--end" style="display: none;"></mark>
-						<mark class="waveform-progress" style="width: 0%;"></mark>
-						<mark class="waveform-playhead" style="left: 0%;"></mark>
-					</figure>
+					<fieldset class="waveform-container">
+						<figure class="waveform" data-ln-waveform="a">
+							<figcaption class="sr-only">Deck A waveform</figcaption>
+							<mark class="cue-region" style="display: none;"></mark>
+							<mark class="cue-marker cue-marker--start" style="display: none;"></mark>
+							<mark class="cue-marker cue-marker--end" style="display: none;"></mark>
+							<mark class="cue-marker cue-marker--pending" style="display: none;"></mark>
+							<mark class="waveform-progress" style="width: 0%;"></mark>
+							<mark class="waveform-playhead" style="left: 0%;"></mark>
+							<nav class="waveform-timeline" aria-hidden="true"></nav>
+						</figure>
+						<nav class="waveform-zoom">
+							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"><span class="ln-icon-add"></span></button>
+							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"><span class="ln-icon-remove"></span></button>
+						</nav>
+					</fieldset>
 
 					<!-- Time -->
 					<output class="time-display">
@@ -157,14 +165,22 @@
 					<p class="track-artist" data-ln-field="artist"></p>
 
 					<!-- Waveform -->
-					<figure class="waveform" data-ln-waveform="b">
-						<figcaption class="sr-only">Deck B waveform</figcaption>
-						<mark class="cue-region" style="display: none;"></mark>
-						<mark class="cue-marker cue-marker--start" style="display: none;"></mark>
-						<mark class="cue-marker cue-marker--end" style="display: none;"></mark>
-						<mark class="waveform-progress" style="width: 0%;"></mark>
-						<mark class="waveform-playhead" style="left: 0%;"></mark>
-					</figure>
+					<fieldset class="waveform-container">
+						<figure class="waveform" data-ln-waveform="b">
+							<figcaption class="sr-only">Deck B waveform</figcaption>
+							<mark class="cue-region" style="display: none;"></mark>
+							<mark class="cue-marker cue-marker--start" style="display: none;"></mark>
+							<mark class="cue-marker cue-marker--end" style="display: none;"></mark>
+							<mark class="cue-marker cue-marker--pending" style="display: none;"></mark>
+							<mark class="waveform-progress" style="width: 0%;"></mark>
+							<mark class="waveform-playhead" style="left: 0%;"></mark>
+							<nav class="waveform-timeline" aria-hidden="true"></nav>
+						</figure>
+						<nav class="waveform-zoom">
+							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"><span class="ln-icon-add"></span></button>
+							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"><span class="ln-icon-remove"></span></button>
+						</nav>
+					</fieldset>
 
 					<!-- Time -->
 					<output class="time-display">
@@ -526,6 +542,7 @@
 	<script src="./assets/js/ln-settings.js"></script>
 	<script src="./assets/js/ln-library.js"></script>
 	<script src="./assets/js/wavesurfer.min.js"></script>
+	<script src="./assets/js/ln-waveform.js"></script>
 	<script src="./assets/js/ln-deck.js"></script>
 	<script src="./assets/js/ln-mixer.js"></script>
 

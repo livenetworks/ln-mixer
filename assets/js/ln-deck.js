@@ -67,7 +67,6 @@
 
 		// Audio
 		this._audio = dom.querySelector('[data-ln-audio]');
-		this._surfer = null;
 
 		// Cache DOM (all within this.dom)
 		this._els = {
@@ -75,12 +74,7 @@
 			artist:      dom.querySelector('[data-ln-field="artist"]'),
 			timeCurrent: dom.querySelector('[data-ln-field="time-current"]'),
 			timeTotal:   dom.querySelector('[data-ln-field="time-total"]'),
-			waveform:    dom.querySelector('[class*="waveform"][data-ln-waveform]') || dom.querySelector('.waveform'),
-			progress:    dom.querySelector('.waveform-progress'),
-			playhead:    dom.querySelector('.waveform-playhead'),
-			cueRegion:   dom.querySelector('.cue-region'),
-			cueStart:    dom.querySelector('.cue-marker--start'),
-			cueEnd:      dom.querySelector('.cue-marker--end'),
+			waveformEl:  dom.querySelector('[data-ln-waveform]'),
 			playBtn:     dom.querySelector('[data-ln-transport="play"]'),
 			loopBtn:     dom.querySelector('[data-ln-cue="loop"]'),
 			loopSegments: dom.querySelector('[data-ln-loop-segments]')
@@ -95,8 +89,26 @@
 	   EVENT BINDING
 	   ==================================================================== */
 
+	_component.prototype._getWaveform = function () {
+		var el = this._els.waveformEl;
+		return (el && el.lnWaveform) ? el.lnWaveform : null;
+	};
+
 	_component.prototype._bindEvents = function () {
 		var self = this;
+
+		// ln-waveform events (bubble up from <figure>)
+		this.dom.addEventListener('ln-waveform:ready', function () {
+			self._onAudioMetadata();
+		});
+
+		this.dom.addEventListener('ln-waveform:timeupdate', function (e) {
+			self._onTimeUpdate(e.detail.currentTime);
+		});
+
+		this.dom.addEventListener('ln-waveform:finish', function () {
+			self._onEnded();
+		});
 
 		// Click delegation within this deck root
 		this.dom.addEventListener('click', function (e) {
@@ -213,6 +225,8 @@
 			if (this._pendingCueBtn) this._pendingCueBtn.classList.remove('active');
 			this._pendingCueBtn = btn;
 			btn.classList.add('active');
+			var wf = this._getWaveform();
+			if (wf) wf.setPendingCue((currentTime / duration) * 100);
 		} else if (action === 'mark-end') {
 			if (this._pendingLoopStart === null) return;
 			var startSec = this._pendingLoopStart;
@@ -222,6 +236,8 @@
 				this._pendingCueBtn.classList.remove('active');
 				this._pendingCueBtn = null;
 			}
+			var wf = this._getWaveform();
+			if (wf) wf.clearPendingCue();
 
 			// Swap if needed
 			if (endSec < startSec) {
@@ -256,70 +272,6 @@
 	};
 
 	/* ====================================================================
-	   WAVESURFER LIFECYCLE
-	   ==================================================================== */
-
-	_component.prototype._initWaveSurfer = function (peaks, peaksDuration) {
-		var container = this._els.waveform;
-		if (!container || !this._audio) return;
-
-		var self = this;
-
-		var progressColor = this.deckId === 'b' ? '#44aaff' : '#ffa500';
-
-		var opts = {
-			container: container,
-			waveColor: 'rgba(136, 136, 136, 0.5)',
-			progressColor: progressColor,
-			cursorWidth: 0,
-			barWidth: 2,
-			barGap: 1,
-			barRadius: 1,
-			height: 100,
-			media: this._audio
-		};
-
-		if (peaks && peaks.length > 0 && peaksDuration > 0) {
-			opts.peaks = peaks;
-			opts.duration = peaksDuration;
-		}
-
-		this._hasCachedPeaks = !!(peaks && peaks.length > 0 && peaksDuration > 0);
-
-		this._surfer = WaveSurfer.create(opts);
-
-		container.classList.add('waveform--loaded');
-
-		this._surfer.on('ready', function () {
-			self._onAudioMetadata();
-		});
-
-		this._surfer.on('timeupdate', function (currentTime) {
-			self._onTimeUpdate(currentTime);
-		});
-
-		this._surfer.on('finish', function () {
-			self._onEnded();
-		});
-	};
-
-	_component.prototype._destroySurfer = function () {
-		if (this._surfer) {
-			this._surfer.destroy();
-			this._surfer = null;
-		}
-		this._hasCachedPeaks = false;
-		if (this._audio) {
-			this._audio.removeAttribute('src');
-			this._audio.load();
-		}
-		var container = this._els.waveform;
-		if (container) {
-			container.classList.remove('waveform--loaded');
-		}
-	};
-
-	/* ====================================================================
 	   AUDIO EVENT HANDLERS
 	   ==================================================================== */
 
@@ -340,8 +292,9 @@
 		});
 
 		// Export peaks if freshly generated (not pre-loaded from cache)
-		if (!this._hasCachedPeaks && this._surfer) {
-			var peaks = this._surfer.exportPeaks();
+		var wf = this._getWaveform();
+		if (wf && !wf.hasCachedPeaks()) {
+			var peaks = wf.exportPeaks();
 			if (peaks && peaks.length > 0) {
 				_dispatch(this.dom, 'ln-deck:peaks-ready', {
 					deckId: this.deckId,
@@ -360,8 +313,8 @@
 
 		this.progress = (currentTime / duration) * 100;
 		if (this._els.timeCurrent) this._els.timeCurrent.textContent = _formatTime(currentTime);
-		if (this._els.progress) this._els.progress.style.width = this.progress + '%';
-		if (this._els.playhead) this._els.playhead.style.left = this.progress + '%';
+		var wf = this._getWaveform();
+		if (wf) wf.setProgress(this.progress);
 
 		// Loop enforcement
 		if (this._loopEnabled && this._activeLoopIndex >= 0 && this.track.loops) {
@@ -390,7 +343,8 @@
 	_component.prototype.loadTrack = function (index, trackData, peaks, peaksDuration) {
 		if (this.trackIndex === index) return;
 
-		this._destroySurfer();
+		var wf = this._getWaveform();
+		if (wf) wf.destroy();
 		this.trackIndex = index;
 		this.track = trackData || null;
 		this.progress = 0;
@@ -413,7 +367,8 @@
 		if (this.track && this.track.url && this._audio) {
 			this._audio.src = this.track.url;
 			this._audio.load();
-			this._initWaveSurfer(peaks, peaksDuration);
+			wf = this._getWaveform();
+			if (wf) wf.init(this._audio, peaks, peaksDuration);
 		}
 
 		_dispatch(this.dom, 'ln-deck:loaded', {
@@ -471,7 +426,12 @@
 	};
 
 	_component.prototype.reset = function () {
-		this._destroySurfer();
+		var wf = this._getWaveform();
+		if (wf) wf.destroy();
+		if (this._audio) {
+			this._audio.removeAttribute('src');
+			this._audio.load();
+		}
 		this.trackIndex = -1;
 		this.track = null;
 		this.progress = 0;
@@ -514,7 +474,7 @@
 			}
 		}
 
-		this._renderActiveRegion();
+		this._updateActiveRegionOnWaveform();
 		this._updateSegmentHighlight();
 
 		_dispatch(this.dom, 'ln-deck:loop-activated', {
@@ -546,17 +506,14 @@
 	_component.prototype._render = function () {
 		var e = this._els;
 		var track = this.track;
+		var wf = this._getWaveform();
 
 		if (!track) {
 			if (e.title) e.title.textContent = '\u2014';
 			if (e.artist) e.artist.textContent = '';
 			if (e.timeCurrent) e.timeCurrent.textContent = '0:00';
 			if (e.timeTotal) e.timeTotal.textContent = '0:00';
-			if (e.progress) e.progress.style.width = '0%';
-			if (e.playhead) e.playhead.style.left = '0%';
-			if (e.cueRegion) e.cueRegion.style.display = 'none';
-			if (e.cueStart) e.cueStart.style.display = 'none';
-			if (e.cueEnd) e.cueEnd.style.display = 'none';
+			if (wf) wf.clearAll();
 			return;
 		}
 
@@ -567,32 +524,24 @@
 		var currentSec = Math.floor(track.durationSec * (this.progress / 100));
 		if (e.timeCurrent) e.timeCurrent.textContent = _formatTime(currentSec);
 
-		if (e.progress) e.progress.style.width = this.progress + '%';
-		if (e.playhead) e.playhead.style.left = this.progress + '%';
+		if (wf) wf.setProgress(this.progress);
 
-		this._renderActiveRegion();
+		this._updateActiveRegionOnWaveform();
 	};
 
-	_component.prototype._renderActiveRegion = function () {
-		var e = this._els;
-		var loop = null;
+	_component.prototype._updateActiveRegionOnWaveform = function () {
+		var wf = this._getWaveform();
+		if (!wf) return;
 
+		var loop = null;
 		if (this._activeLoopIndex >= 0 && this.track && this.track.loops) {
 			loop = this.track.loops[this._activeLoopIndex];
 		}
 
 		if (loop) {
-			if (e.cueStart) { e.cueStart.style.left = loop.startPct + '%'; e.cueStart.style.display = ''; }
-			if (e.cueEnd) { e.cueEnd.style.left = loop.endPct + '%'; e.cueEnd.style.display = ''; }
-			if (e.cueRegion) {
-				e.cueRegion.style.left = loop.startPct + '%';
-				e.cueRegion.style.width = (loop.endPct - loop.startPct) + '%';
-				e.cueRegion.style.display = '';
-			}
+			wf.setRegion(loop.startPct, loop.endPct);
 		} else {
-			if (e.cueStart) e.cueStart.style.display = 'none';
-			if (e.cueEnd) e.cueEnd.style.display = 'none';
-			if (e.cueRegion) e.cueRegion.style.display = 'none';
+			wf.clearRegion();
 		}
 	};
 
