@@ -61,6 +61,7 @@
 
 		// Loop state
 		this._pendingLoopStart = null; // seconds — set on mark-start
+		this._pendingCueBtn = null;    // Cue A button reference for active state
 		this._activeLoopIndex = -1;    // index into track.loops[]
 		this._loopEnabled = false;     // LED toggle
 
@@ -209,13 +210,18 @@
 
 		if (action === 'mark-start') {
 			this._pendingLoopStart = currentTime;
+			if (this._pendingCueBtn) this._pendingCueBtn.classList.remove('active');
+			this._pendingCueBtn = btn;
 			btn.classList.add('active');
-			setTimeout(function () { btn.classList.remove('active'); }, 300);
 		} else if (action === 'mark-end') {
 			if (this._pendingLoopStart === null) return;
 			var startSec = this._pendingLoopStart;
 			var endSec = currentTime;
 			this._pendingLoopStart = null;
+			if (this._pendingCueBtn) {
+				this._pendingCueBtn.classList.remove('active');
+				this._pendingCueBtn = null;
+			}
 
 			// Swap if needed
 			if (endSec < startSec) {
@@ -259,10 +265,12 @@
 
 		var self = this;
 
+		var progressColor = this.deckId === 'b' ? '#44aaff' : '#ffa500';
+
 		var opts = {
 			container: container,
-			waveColor: '#888',
-			progressColor: 'transparent',
+			waveColor: 'rgba(136, 136, 136, 0.5)',
+			progressColor: progressColor,
 			cursorWidth: 0,
 			barWidth: 2,
 			barGap: 1,
@@ -390,6 +398,7 @@
 
 		// Reset loop state
 		this._pendingLoopStart = null;
+		if (this._pendingCueBtn) { this._pendingCueBtn.classList.remove('active'); this._pendingCueBtn = null; }
 		this._activeLoopIndex = -1;
 		this._loopEnabled = false;
 		if (this._els.loopBtn) {
@@ -470,6 +479,7 @@
 
 		// Reset loop state
 		this._pendingLoopStart = null;
+		if (this._pendingCueBtn) { this._pendingCueBtn.classList.remove('active'); this._pendingCueBtn = null; }
 		this._activeLoopIndex = -1;
 		this._loopEnabled = false;
 		if (this._els.loopBtn) {
@@ -601,15 +611,27 @@
 			btn.className = 'loop-seg-btn' + (i === this._activeLoopIndex ? ' active' : '');
 			btn.setAttribute('data-ln-loop-index', i);
 
+			var label = document.createElement('span');
+			label.className = 'loop-seg-label';
+
+			var led = document.createElement('mark');
+			led.className = 'led-indicator';
+			label.appendChild(led);
+
 			var nameSpan = document.createElement('span');
 			nameSpan.textContent = loop.name;
-			btn.appendChild(nameSpan);
+			label.appendChild(nameSpan);
+
+			btn.appendChild(label);
 
 			var removeBtn = document.createElement('button');
 			removeBtn.type = 'button';
 			removeBtn.className = 'loop-seg-remove';
-			removeBtn.textContent = '\u00d7';
 			removeBtn.title = 'Remove loop';
+			var removeIcon = document.createElement('span');
+			removeIcon.className = 'ln-icon-close';
+			removeBtn.appendChild(removeIcon);
+
 			btn.appendChild(removeBtn);
 
 			container.appendChild(btn);

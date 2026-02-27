@@ -487,13 +487,13 @@ fieldset {
 	position: absolute;
 	inset: 0;
 	z-index: 2;
-	background: rgba(255, 165, 0, 0.25);
+	background: rgba(255, 165, 0, 0.08);
 	pointer-events: none;
 	transition: width 0.1s linear;
 }
 
 .deck--b .waveform-progress {
-	background: rgba(68, 170, 255, 0.2);
+	background: rgba(68, 170, 255, 0.06);
 }
 
 .waveform-playhead {
@@ -995,21 +995,35 @@ button.active .led-indicator {
 
 .loop-seg-btn {
 	display: inline-flex;
-	align-items: center;
-	gap: 0.25rem;
-	padding: 0.25rem 0.6rem;
-	font-size: 0.7rem;
+	align-items: stretch;
+	gap: 0;
+	padding: 0;
+	font-size: 0.75rem;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
-	border-radius: 99px;
+	border-radius: var(--radius);
 	background: transparent;
 	border: 1px solid var(--loop-color);
 	color: var(--loop-color);
 	cursor: pointer;
 	touch-action: manipulation;
-	min-height: 32px;
+	min-height: 44px;
+	position: relative;
+	overflow: hidden;
 	transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.loop-seg-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.4rem 0.75rem;
+	padding-left: 1.4rem;
+}
+
+.loop-seg-btn .led-indicator {
+	left: 0.45rem;
 }
 
 .loop-seg-btn:hover {
@@ -1017,8 +1031,14 @@ button.active .led-indicator {
 }
 
 .loop-seg-btn.active {
+	background: rgba(68, 204, 136, 0.2);
+	border-color: var(--loop-color);
+	color: var(--loop-color);
+}
+
+.loop-seg-btn.active .led-indicator {
 	background: var(--loop-color);
-	color: #000;
+	box-shadow: 0 0 8px var(--loop-color), 0 0 16px rgba(68, 204, 136, 0.3);
 }
 
 .deck--b .loop-seg-btn {
@@ -1031,8 +1051,14 @@ button.active .led-indicator {
 }
 
 .deck--b .loop-seg-btn.active {
+	background: rgba(68, 170, 255, 0.2);
+	border-color: var(--deck-b-color);
+	color: var(--deck-b-color);
+}
+
+.deck--b .loop-seg-btn.active .led-indicator {
 	background: var(--deck-b-color);
-	color: #000;
+	box-shadow: 0 0 8px var(--deck-b-color), 0 0 16px rgba(68, 170, 255, 0.3);
 }
 
 .loop-seg-remove {
@@ -1040,25 +1066,23 @@ button.active .led-indicator {
 	align-items: center;
 	justify-content: center;
 	padding: 0;
-	margin-left: 0.15rem;
-	background: none;
+	background: rgba(255, 68, 68, 0.15);
 	border: none;
-	min-width: auto;
+	border-left: 1px solid rgba(255, 68, 68, 0.3);
+	min-width: 40px;
 	min-height: auto;
-	width: 16px;
-	height: 16px;
-	font-size: 0.85rem;
-	line-height: 1;
-	color: inherit;
 	cursor: pointer;
-	opacity: 0.6;
-	transition: opacity var(--transition-fast);
+	transition: background var(--transition-fast);
+}
+
+.loop-seg-remove .ln-icon-close::before {
+	width: 0.9rem;
+	height: 0.9rem;
+	filter: brightness(0) saturate(100%) invert(40%) sepia(80%) saturate(2000%) hue-rotate(335deg);
 }
 
 .loop-seg-remove:hover {
-	opacity: 1;
-	color: var(--cue-color);
-	background: none;
+	background: rgba(255, 68, 68, 0.35);
 }
 
 /* ==========================================================================

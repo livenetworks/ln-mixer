@@ -763,17 +763,34 @@
 				}
 			}));
 
-			// Refresh deck segment buttons
-			var deckEl = self._getDeck(e.detail.deckId);
-			if (deckEl && deckEl.lnDeck && deckEl.lnDeck.track) {
-				deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
-					detail: { loops: deckEl.lnDeck.track.loops || [] }
-				}));
-			}
-
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: { type: 'info', message: 'Loop removed' }
 			}));
+		});
+
+		// Loop added/removed → refresh deck segment buttons
+		this.dom.addEventListener('ln-playlist:loop-added', function (e) {
+			var d = e.detail;
+			['a', 'b'].forEach(function (deckId) {
+				var deckEl = self._getDeck(deckId);
+				if (deckEl && deckEl.lnDeck && deckEl.lnDeck.trackIndex === d.trackIndex) {
+					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
+						detail: { loops: d.loops }
+					}));
+				}
+			});
+		});
+
+		this.dom.addEventListener('ln-playlist:loop-removed', function (e) {
+			var d = e.detail;
+			['a', 'b'].forEach(function (deckId) {
+				var deckEl = self._getDeck(deckId);
+				if (deckEl && deckEl.lnDeck && deckEl.lnDeck.trackIndex === d.trackIndex) {
+					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
+						detail: { loops: d.loops }
+					}));
+				}
+			});
 		});
 
 		// ─── Settings load after profile ready ──────────────────────
@@ -1047,14 +1064,6 @@
 						trackIndex: trackIndex,
 						loop: loopData
 					}
-				}));
-			}
-
-			// Refresh deck segment buttons
-			var deckEl = self._getDeck(deckId);
-			if (deckEl && deckEl.lnDeck && deckEl.lnDeck.track) {
-				deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
-					detail: { loops: deckEl.lnDeck.track.loops || [] }
 				}));
 			}
 
