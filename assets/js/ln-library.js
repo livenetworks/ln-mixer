@@ -173,7 +173,7 @@
 		items.forEach(function (li) {
 			var addBtn = li.querySelector('[data-ln-action="add-to-playlist"]');
 			var url = addBtn ? addBtn.getAttribute('data-track-url') : '';
-			var bar = li.querySelector('[data-ln-progress]');
+			var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 			if (url && urlSet[url]) {
 				li.setAttribute('data-ln-cached', '');
 				if (bar) bar.setAttribute('data-ln-progress', '100');
@@ -203,7 +203,7 @@
 		if (!li) return;
 		if (active) {
 			li.setAttribute('data-ln-downloading', '');
-			var bar = li.querySelector('[data-ln-progress]');
+			var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 			if (bar) bar.setAttribute('data-ln-progress', '0');
 		} else {
 			li.removeAttribute('data-ln-downloading');
@@ -213,7 +213,7 @@
 	_component.prototype._updateProgress = function (url, percent) {
 		var li = this._findItemByUrl(url);
 		if (!li) return;
-		var bar = li.querySelector('[data-ln-progress]');
+		var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 		if (bar) bar.setAttribute('data-ln-progress', String(Math.round(percent)));
 	};
 
@@ -221,7 +221,7 @@
 		var li = this._findItemByUrl(url);
 		if (!li) return;
 		li.setAttribute('data-ln-cached', '');
-		var bar = li.querySelector('[data-ln-progress]');
+		var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 		if (bar) bar.setAttribute('data-ln-progress', '100');
 	};
 
@@ -229,7 +229,7 @@
 		var li = this._findItemByUrl(url);
 		if (!li) return;
 		li.removeAttribute('data-ln-cached');
-		var bar = li.querySelector('[data-ln-progress]');
+		var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 		if (bar) bar.setAttribute('data-ln-progress', '0');
 	};
 
@@ -238,37 +238,12 @@
 		var items = this._list.querySelectorAll('[data-ln-cached]');
 		items.forEach(function (li) {
 			li.removeAttribute('data-ln-cached');
-			var bar = li.querySelector('[data-ln-progress]');
+			var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 			if (bar) bar.setAttribute('data-ln-progress', '0');
 		});
 	};
 
 	/* ─── Private: Populate ───────────────────────────────────────── */
-
-	_component.prototype._populate = function () {
-		if (!this._list) return;
-		this._list.innerHTML = '';
-		if (this._search) this._search.hidden = false;
-
-		if (this._tracks.length === 0) {
-			var emptyLi = document.createElement('li');
-			emptyLi.className = 'library-empty';
-			emptyLi.textContent = 'No tracks found';
-			this._list.appendChild(emptyLi);
-			return;
-		}
-
-		var self = this;
-		this._tracks.forEach(function (track) {
-			self._list.appendChild(self._buildLibraryItem(track));
-		});
-
-		// Clear ln-search on fresh populate
-		var searchEl = this.dom.querySelector('[data-ln-search]');
-		if (searchEl && searchEl.lnSearch) {
-			searchEl.lnSearch.clear();
-		}
-	};
 
 	_component.prototype._buildLibraryItem = function (track) {
 		var frag = _cloneTemplate('library-item');
@@ -288,6 +263,36 @@
 		}
 
 		return li;
+	};
+
+	_component.prototype._populate = function () {
+		if (!this._list) return;
+		this._list.innerHTML = '';
+		if (this._search) this._search.hidden = false;
+
+		if (this._tracks.length === 0) {
+			var emptyLi = document.createElement('li');
+			emptyLi.className = 'library-empty';
+			emptyLi.textContent = 'No tracks found';
+			this._list.appendChild(emptyLi);
+			return;
+		}
+
+		var self = this;
+		this._tracks.forEach(function (track) {
+			self._list.appendChild(self._buildLibraryItem(track));
+		});
+
+		// Ensure ln-progress instances are initialized on newly added bars
+		if (window.lnProgress) {
+			window.lnProgress(this._list);
+		}
+
+		// Clear ln-search on fresh populate
+		var searchEl = this.dom.querySelector('[data-ln-search]');
+		if (searchEl && searchEl.lnSearch) {
+			searchEl.lnSearch.clear();
+		}
 	};
 
 	/* ─── Private: Error State ────────────────────────────────────── */
