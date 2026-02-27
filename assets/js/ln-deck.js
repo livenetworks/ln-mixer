@@ -609,15 +609,27 @@
 			btn.className = 'loop-seg-btn' + (i === this._activeLoopIndex ? ' active' : '');
 			btn.setAttribute('data-ln-loop-index', i);
 
+			var label = document.createElement('span');
+			label.className = 'loop-seg-label';
+
+			var led = document.createElement('mark');
+			led.className = 'led-indicator';
+			label.appendChild(led);
+
 			var nameSpan = document.createElement('span');
 			nameSpan.textContent = loop.name;
-			btn.appendChild(nameSpan);
+			label.appendChild(nameSpan);
+
+			btn.appendChild(label);
 
 			var removeBtn = document.createElement('button');
 			removeBtn.type = 'button';
 			removeBtn.className = 'loop-seg-remove';
-			removeBtn.textContent = '\u00d7';
 			removeBtn.title = 'Remove loop';
+			var removeIcon = document.createElement('span');
+			removeIcon.className = 'ln-icon-close';
+			removeBtn.appendChild(removeIcon);
+
 			btn.appendChild(removeBtn);
 
 			container.appendChild(btn);
