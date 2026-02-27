@@ -510,7 +510,7 @@
 
 		if (!track) {
 			if (e.title) e.title.textContent = '\u2014';
-			if (e.artist) e.artist.textContent = '';
+			if (e.artist) e.artist.textContent = '\u2014';
 			if (e.timeCurrent) e.timeCurrent.textContent = '0:00';
 			if (e.timeTotal) e.timeTotal.textContent = '0:00';
 			if (wf) wf.clearAll();
