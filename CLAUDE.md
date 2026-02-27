@@ -136,6 +136,9 @@ ln-dj-mixer/
     js/ln-deck.js         — deck component (WaveSurfer + audio playback, transport, cue)
     js/ln-mixer.js        — event coordinator (bridges components, AudioContext routing)
     img/placeholder.svg
+    img/icon.svg          — PWA app icon (SVG, 512x512 viewBox)
+  manifest.webmanifest    — PWA manifest (app name, icon, display mode)
+  sw.js                   — Service Worker (app shell caching, offline support)
 ```
 
 ## Roadmap
@@ -156,7 +159,12 @@ ln-dj-mixer/
   - [x] Auto-detect duration from audio files, persist to IDB
   - [x] Audio caching: download tracks to IDB on add, cache-aware deck loading, ln-progress bar
   - [x] Cue points: mark-start/mark-end, multiple named loop segments
-- **Phase 3**: PWA — Service Worker, manifest.json, offline caching
+- **Phase 3** (complete): PWA — Service Worker, manifest, offline caching
+  - [x] Web App Manifest (`manifest.webmanifest`) with SVG icon
+  - [x] Service Worker (`sw.js`) — cache-first app shell, network-first API
+  - [x] PWA meta tags (theme-color, apple-mobile-web-app-*)
+  - [x] SW registration in index.html
+  - [x] App icon (`assets/img/icon.svg`)
 
 ## Changelog
 
@@ -191,6 +199,20 @@ ln-dj-mixer/
 - Coordinator wiring: `ln-deck:loop-captured` → modal → `ln-playlist:request-add-loop` → persist → `ln-deck:request-set-loops`
 - Sidebar indicators: loop count badge (e.g. "2 loops") in track meta row
 - Files changed: `ln-deck.js`, `ln-playlist.js`, `ln-mixer.js`, `index.html`, `style.css`
+
+### PWA (2026-02-27)
+
+- `manifest.webmanifest`: standalone display, landscape orientation, SVG icon, dark theme
+- `sw.js`: Service Worker with cache-first app shell strategy, network-first for API
+  - Pre-caches all HTML/CSS/JS/images on install (ln-acme components cached individually, failures skipped)
+  - Stale-while-revalidate for app shell (serves cached, updates in background)
+  - API requests (`/api/`) go network-first with cache fallback for offline
+  - Audio files (`/music/`) skipped — already cached as blobs in IndexedDB by the app
+  - Old caches cleaned up on activate (`CACHE_NAME` versioning)
+- PWA meta tags in `index.html`: theme-color, apple-mobile-web-app-capable/status-bar-style/title
+- `assets/img/icon.svg`: app icon (dark bg, orange music note, 512x512 viewBox)
+- Files added: `sw.js`, `manifest.webmanifest`, `assets/img/icon.svg`
+- Files changed: `index.html`, `CLAUDE.md`
 
 ## Available ln-acme Components
 
