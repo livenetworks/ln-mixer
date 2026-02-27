@@ -1336,7 +1336,7 @@ body.ln-modal-open {
 
 .library-list > li {
 	display: grid;
-	grid-template-columns: 1fr auto;
+	grid-template-columns: 1fr auto auto;
 	grid-template-rows: auto 4px;
 	align-items: center;
 	gap: 0 var(--gap-md);
@@ -1349,9 +1349,13 @@ body.ln-modal-open {
 	grid-row: 2;
 }
 
-.library-list > li [data-ln-action="add-to-playlist"],
-.library-list > li .library-uncache-btn {
+.library-list > li [data-ln-action="add-to-playlist"] {
 	grid-column: 2;
+	grid-row: 1;
+}
+
+.library-list > li .library-uncache-btn {
+	grid-column: 3;
 	grid-row: 1;
 }
 
@@ -1422,11 +1426,6 @@ body.ln-modal-open {
 
 .library-list > li[data-ln-cached] .library-uncache-btn {
 	display: inline-flex;
-}
-
-/* Cached: hide Add button, show uncache */
-.library-list > li[data-ln-cached] [data-ln-action="add-to-playlist"] {
-	display: none;
 }
 
 /* Downloading state: hide Add button */
