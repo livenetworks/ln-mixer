@@ -41,8 +41,9 @@
 		this._masterGain = null;
 
 		// Audio cache
-		this._downloading = {};   // url → true (prevent duplicate downloads)
-		this._blobUrls = {};      // deckId → blobUrl (for revokeObjectURL cleanup)
+		this._downloading = {};       // url → true (prevent duplicate downloads)
+		this._downloadProgress = {};  // url → { loaded, total } (aggregate progress)
+		this._blobUrls = {};          // deckId → blobUrl (for revokeObjectURL cleanup)
 		this._fileProtocolWarned = false;
 
 		this._bindScopedEvents();
@@ -144,13 +145,163 @@
 	   AUDIO CACHE — download + blob URL lifecycle
 	   ==================================================================== */
 
+	_component.prototype._getGlobalProgressBar = function () {
+		return this.dom.querySelector('[data-ln-global-progress]');
+	};
+
+	_component.prototype._updateGlobalProgress = function () {
+		var bar = this._getGlobalProgressBar();
+		if (!bar) return;
+
+		var urls = Object.keys(this._downloadProgress);
+		if (urls.length === 0) {
+			bar.hidden = true;
+			return;
+		}
+
+		var totalLoaded = 0;
+		var totalSize = 0;
+
+		for (var i = 0; i < urls.length; i++) {
+			var entry = this._downloadProgress[urls[i]];
+			totalLoaded += entry.loaded;
+			totalSize += entry.total;
+		}
+
+		var pct = (totalSize > 0) ? Math.round((totalLoaded / totalSize) * 100) : 0;
+
+		bar.hidden = false;
+		var markEl = bar.querySelector('[data-ln-progress]');
+		if (markEl) {
+			markEl.setAttribute('data-ln-progress', String(pct));
+		}
+	};
+
+	_component.prototype._downloadBlob = function (url, callback) {
+		var self = this;
+
+		if (this._downloading[url]) {
+			if (callback) callback(false);
+			return;
+		}
+
+		this._downloading[url] = true;
+		this._downloadProgress[url] = { loaded: 0, total: 0 };
+		this._updateGlobalProgress();
+
+		var libraryEl = this._getLibraryEl();
+		if (libraryEl) {
+			libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-start', {
+				detail: { url: url }
+			}));
+		}
+
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', url, true);
+		xhr.responseType = 'blob';
+
+		xhr.onprogress = function (e) {
+			if (e.lengthComputable) {
+				self._downloadProgress[url] = { loaded: e.loaded, total: e.total };
+				self._updateGlobalProgress();
+
+				if (libraryEl) {
+					var pct = (e.loaded / e.total) * 100;
+					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-progress', {
+						detail: { url: url, percent: pct }
+					}));
+				}
+			}
+		};
+
+		xhr.onload = function () {
+			delete self._downloading[url];
+			delete self._downloadProgress[url];
+
+			if (xhr.status >= 200 && xhr.status < 300) {
+				var blob = xhr.response;
+
+				lnDb.put('audioFiles', {
+					url: url,
+					blob: blob,
+					size: blob.size,
+					timestamp: Date.now()
+				}).then(function () {
+					self._updateGlobalProgress();
+					if (libraryEl) {
+						libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
+							detail: { url: url, success: true }
+						}));
+					}
+					if (callback) callback(true);
+				}).catch(function () {
+					self._updateGlobalProgress();
+					if (libraryEl) {
+						libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
+							detail: { url: url, success: false }
+						}));
+					}
+					if (callback) callback(false);
+				});
+			} else {
+				self._updateGlobalProgress();
+				if (libraryEl) {
+					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
+						detail: { url: url, success: false }
+					}));
+				}
+				if (callback) callback(false);
+			}
+		};
+
+		xhr.onerror = function () {
+			delete self._downloading[url];
+			delete self._downloadProgress[url];
+			self._updateGlobalProgress();
+
+			if (libraryEl) {
+				libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
+					detail: { url: url, success: false }
+				}));
+			}
+			if (callback) callback(false);
+		};
+
+		xhr.send();
+	};
+
 	_component.prototype._addTrackToPlaylist = function (sidebar, title, artist, url) {
+		var duration = '';
+		var durationSec = 0;
+
+		if (url) {
+			var nav = this._getNav();
+			if (nav && nav.lnProfile) {
+				var profile = nav.lnProfile.getProfile(nav.lnProfile.currentId);
+				if (profile && profile.playlists) {
+					var found = false;
+					for (var pid in profile.playlists) {
+						if (!profile.playlists.hasOwnProperty(pid) || found) continue;
+						var tracks = profile.playlists[pid].tracks;
+						for (var i = 0; i < tracks.length; i++) {
+							if (tracks[i].url === url && tracks[i].durationSec > 0) {
+								duration = tracks[i].duration;
+								durationSec = tracks[i].durationSec;
+								found = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
 		sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-add-track', {
 			detail: {
 				title: title,
 				artist: artist,
-				duration: '',
-				durationSec: 0,
+				duration: duration,
+				durationSec: durationSec,
 				url: url
 			}
 		}));
@@ -167,95 +318,17 @@
 
 	_component.prototype._downloadAndCache = function (url, title, artist, sidebar, btn) {
 		var self = this;
-		this._downloading[url] = true;
 
-		var libraryEl = this._getLibraryEl();
-		if (libraryEl) {
-			libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-start', {
-				detail: { url: url }
-			}));
-		}
-
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', url, true);
-		xhr.responseType = 'blob';
-
-		xhr.onprogress = function (e) {
-			if (e.lengthComputable && libraryEl) {
-				var pct = (e.loaded / e.total) * 100;
-				libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-progress', {
-					detail: { url: url, percent: pct }
-				}));
-			}
-		};
-
-		xhr.onload = function () {
-			delete self._downloading[url];
-
-			if (xhr.status >= 200 && xhr.status < 300) {
-				var blob = xhr.response;
-
-				lnDb.put('audioFiles', {
-					url: url,
-					blob: blob,
-					size: blob.size,
-					timestamp: Date.now()
-				}).then(function () {
-					if (libraryEl) {
-						libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
-							detail: { url: url, success: true }
-						}));
-					}
-					self._addTrackToPlaylist(sidebar, title, artist, url);
-					self._showAddFeedback(btn);
-
-					window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-						detail: { type: 'success', message: 'Track downloaded' }
-					}));
-				}).catch(function () {
-					// QuotaExceeded or IDB error — fall back to remote URL
-					if (libraryEl) {
-						libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
-							detail: { url: url, success: false }
-						}));
-					}
-					self._addTrackToPlaylist(sidebar, title, artist, url);
-					self._showAddFeedback(btn);
-
-					window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-						detail: { type: 'warn', message: 'Storage full \u2014 using remote URL' }
-					}));
-				});
-			} else {
-				if (libraryEl) {
-					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
-						detail: { url: url, success: false }
-					}));
-				}
-				self._addTrackToPlaylist(sidebar, title, artist, url);
-				self._showAddFeedback(btn);
-
-				window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-					detail: { type: 'warn', message: 'Download failed \u2014 using remote URL' }
-				}));
-			}
-		};
-
-		xhr.onerror = function () {
-			delete self._downloading[url];
-
-			if (libraryEl) {
-				libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
-					detail: { url: url, success: false }
-				}));
-			}
+		this._downloadBlob(url, function (success) {
+			self._addTrackToPlaylist(sidebar, title, artist, url);
+			self._showAddFeedback(btn);
 
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'warn', message: 'Network error \u2014 track not downloaded' }
+				detail: success
+					? { type: 'success', message: 'Track downloaded' }
+					: { type: 'warn', message: 'Download failed — using remote URL' }
 			}));
-		};
-
-		xhr.send();
+		});
 	};
 
 	_component.prototype._loadTrackToDeck = function (deckId, trackIndex, track) {
@@ -278,22 +351,43 @@
 			delete self._blobUrls[deckId];
 		}
 
-		// Try to resolve from cache
+		// Try to resolve from cache (audio blob + waveform peaks)
 		lnDb.get('audioFiles', trackUrl).then(function (cached) {
-			if (cached && cached.blob) {
-				var loadTrack = Object.assign({}, track);
-				loadTrack.url = URL.createObjectURL(cached.blob);
-				self._blobUrls[deckId] = loadTrack.url;
-				deckEl.dispatchEvent(new CustomEvent('ln-deck:request-load', {
-					detail: { trackIndex: trackIndex, track: loadTrack }
-				}));
-			} else {
-				deckEl.dispatchEvent(new CustomEvent('ln-deck:request-load', {
-					detail: { trackIndex: trackIndex, track: track }
-				}));
+			var loadTrack = Object.assign({}, track);
+			loadTrack._originalUrl = trackUrl;
+
+			var peaks = null;
+			var peaksDuration = 0;
+			var hasCachedBlob = false;
+
+			if (cached) {
+				if (cached.peaks && cached.peaksDuration) {
+					peaks = cached.peaks;
+					peaksDuration = cached.peaksDuration;
+				}
+				if (cached.blob) {
+					hasCachedBlob = true;
+					loadTrack.url = URL.createObjectURL(cached.blob);
+					self._blobUrls[deckId] = loadTrack.url;
+				}
+			}
+
+			deckEl.dispatchEvent(new CustomEvent('ln-deck:request-load', {
+				detail: { trackIndex: trackIndex, track: loadTrack, peaks: peaks, peaksDuration: peaksDuration }
+			}));
+
+			// Cache miss + remote URL → re-download in background
+			if (!hasCachedBlob && trackUrl && !_isFileProtocol() && !self._downloading[trackUrl]) {
+				self._downloadBlob(trackUrl, function (success) {
+					if (success) {
+						window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
+							detail: { type: 'info', message: 'Track re-cached' }
+						}));
+					}
+				});
 			}
 		}).catch(function () {
-			// IDB error — fall back to remote URL
+			// IDB error — fall back to remote URL, no peaks
 			deckEl.dispatchEvent(new CustomEvent('ln-deck:request-load', {
 				detail: { trackIndex: trackIndex, track: track }
 			}));
@@ -505,7 +599,7 @@
 			}
 		});
 
-		// Duration auto-detected → persist to playlist data
+		// Duration auto-detected → update all matching tracks in sidebar + persist
 		this.dom.addEventListener('ln-deck:duration-detected', function (e) {
 			var sidebar = self._getSidebar();
 			if (!sidebar || !sidebar.lnPlaylist) return;
@@ -517,18 +611,29 @@
 			if (idx < 0 || idx >= playlist.tracks.length) return;
 
 			var track = playlist.tracks[idx];
-			if (track.durationSec === 0 || !track.duration) {
-				track.durationSec = e.detail.durationSec;
-				track.duration = e.detail.duration;
+			if (!track.url) return;
 
-				var nav = self._getNav();
-				if (nav && nav.lnProfile) {
-					var profile = nav.lnProfile.getProfile(nav.lnProfile.currentId);
-					if (profile) {
-						lnDb.put('profiles', profile);
-					}
+			sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-update-duration', {
+				detail: {
+					url: track.url,
+					duration: e.detail.duration,
+					durationSec: e.detail.durationSec
 				}
-			}
+			}));
+		});
+
+		// Waveform peaks generated → persist to audioFiles record
+		this.dom.addEventListener('ln-deck:peaks-ready', function (e) {
+			var trackUrl = e.detail.trackUrl;
+			if (!trackUrl) return;
+
+			lnDb.get('audioFiles', trackUrl).then(function (record) {
+				if (record) {
+					record.peaks = e.detail.peaks;
+					record.peaksDuration = e.detail.peaksDuration;
+					return lnDb.put('audioFiles', record);
+				}
+			});
 		});
 
 		// Reordered → remap deck indices

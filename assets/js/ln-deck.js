@@ -113,7 +113,7 @@
 
 		// Request events (from coordinator)
 		this.dom.addEventListener('ln-deck:request-load', function (e) {
-			self.loadTrack(e.detail.trackIndex, e.detail.track);
+			self.loadTrack(e.detail.trackIndex, e.detail.track, e.detail.peaks, e.detail.peaksDuration);
 		});
 
 		this.dom.addEventListener('ln-deck:request-reset', function () {
@@ -175,13 +175,13 @@
 	   WAVESURFER LIFECYCLE
 	   ==================================================================== */
 
-	_component.prototype._initWaveSurfer = function () {
+	_component.prototype._initWaveSurfer = function (peaks, peaksDuration) {
 		var container = this._els.waveform;
 		if (!container || !this._audio) return;
 
 		var self = this;
 
-		this._surfer = WaveSurfer.create({
+		var opts = {
 			container: container,
 			waveColor: '#888',
 			progressColor: 'transparent',
@@ -191,7 +191,16 @@
 			barRadius: 1,
 			height: 100,
 			media: this._audio
-		});
+		};
+
+		if (peaks && peaks.length > 0 && peaksDuration > 0) {
+			opts.peaks = peaks;
+			opts.duration = peaksDuration;
+		}
+
+		this._hasCachedPeaks = !!(peaks && peaks.length > 0 && peaksDuration > 0);
+
+		this._surfer = WaveSurfer.create(opts);
 
 		container.classList.add('waveform--loaded');
 
@@ -213,6 +222,7 @@
 			this._surfer.destroy();
 			this._surfer = null;
 		}
+		this._hasCachedPeaks = false;
 		if (this._audio) {
 			this._audio.removeAttribute('src');
 			this._audio.load();
@@ -242,6 +252,19 @@
 			durationSec: duration,
 			duration: this.track.duration
 		});
+
+		// Export peaks if freshly generated (not pre-loaded from cache)
+		if (!this._hasCachedPeaks && this._surfer) {
+			var peaks = this._surfer.exportPeaks();
+			if (peaks && peaks.length > 0) {
+				_dispatch(this.dom, 'ln-deck:peaks-ready', {
+					deckId: this.deckId,
+					trackUrl: this.track._originalUrl || this.track.url,
+					peaks: peaks,
+					peaksDuration: duration
+				});
+			}
+		}
 	};
 
 	_component.prototype._onTimeUpdate = function (currentTime) {
@@ -270,7 +293,7 @@
 	   PUBLIC API — COMMANDS
 	   ==================================================================== */
 
-	_component.prototype.loadTrack = function (index, trackData) {
+	_component.prototype.loadTrack = function (index, trackData, peaks, peaksDuration) {
 		if (this.trackIndex === index) return;
 
 		this._destroySurfer();
@@ -285,7 +308,7 @@
 		if (this.track && this.track.url && this._audio) {
 			this._audio.src = this.track.url;
 			this._audio.load();
-			this._initWaveSurfer();
+			this._initWaveSurfer(peaks, peaksDuration);
 		}
 
 		_dispatch(this.dom, 'ln-deck:loaded', {

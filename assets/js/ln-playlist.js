@@ -138,6 +138,10 @@
 		this.dom.addEventListener('ln-playlist:request-load-profile', function (e) {
 			self.loadProfile(e.detail.profileId, e.detail.playlists);
 		});
+
+		this.dom.addEventListener('ln-playlist:request-update-duration', function (e) {
+			self.updateDuration(e.detail.url, e.detail.duration, e.detail.durationSec);
+		});
 	};
 
 	/* ─── Load Profile ────────────────────────────────────────────── */
@@ -272,6 +276,38 @@
 		});
 
 		return true;
+	};
+
+	_component.prototype.updateDuration = function (url, duration, durationSec) {
+		if (!url || !this.playlists) return;
+
+		var changed = false;
+
+		for (var pid in this.playlists) {
+			if (!this.playlists.hasOwnProperty(pid)) continue;
+			var tracks = this.playlists[pid].tracks;
+			var list = this.dom.querySelector('[data-ln-track-list="' + pid + '"]');
+
+			for (var i = 0; i < tracks.length; i++) {
+				if (tracks[i].url === url && (tracks[i].durationSec === 0 || !tracks[i].duration)) {
+					tracks[i].duration = duration;
+					tracks[i].durationSec = durationSec;
+					changed = true;
+
+					if (list) {
+						var li = list.querySelector('[data-ln-track="' + i + '"]');
+						if (li) {
+							var durEl = li.querySelector('.track-duration');
+							if (durEl) durEl.textContent = duration;
+						}
+					}
+				}
+			}
+		}
+
+		if (changed) {
+			_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
+		}
 	};
 
 	_component.prototype.removeTrack = function (playlistId, index) {

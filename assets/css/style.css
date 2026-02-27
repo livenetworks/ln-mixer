@@ -172,6 +172,30 @@ fieldset {
 	grid-template-rows: var(--topbar-height) 1fr;
 	height: 100vh;
 	overflow: hidden;
+	position: relative;
+}
+
+/* --- Global Download Progress Bar --- */
+
+.global-progress {
+	position: absolute;
+	top: var(--topbar-height);
+	left: 0;
+	right: 0;
+	height: 4px;
+	z-index: 10;
+	background: var(--track-bg);
+	overflow: hidden;
+	margin: 0;
+	pointer-events: none;
+}
+
+.global-progress > [data-ln-progress] {
+	height: 100%;
+	width: 0;
+	background: var(--accent);
+	border-radius: 0;
+	transition: width 0.15s ease;
 }
 
 /* --- Topbar --- */
