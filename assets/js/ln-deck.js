@@ -59,6 +59,11 @@
 		this.progress = 0;
 		this.isPlaying = false;
 
+		// Loop state
+		this._pendingLoopStart = null; // seconds — set on mark-start
+		this._activeLoopIndex = -1;    // index into track.loops[]
+		this._loopEnabled = false;     // LED toggle
+
 		// Audio
 		this._audio = dom.querySelector('[data-ln-audio]');
 		this._surfer = null;
@@ -75,7 +80,9 @@
 			cueRegion:   dom.querySelector('.cue-region'),
 			cueStart:    dom.querySelector('.cue-marker--start'),
 			cueEnd:      dom.querySelector('.cue-marker--end'),
-			playBtn:     dom.querySelector('[data-ln-transport="play"]')
+			playBtn:     dom.querySelector('[data-ln-transport="play"]'),
+			loopBtn:     dom.querySelector('[data-ln-cue="loop"]'),
+			loopSegments: dom.querySelector('[data-ln-loop-segments]')
 		};
 
 		this._bindEvents();
@@ -111,6 +118,33 @@
 			}
 		});
 
+		// Loop segment buttons
+		var segContainer = this._els.loopSegments;
+		if (segContainer) {
+			segContainer.addEventListener('click', function (e) {
+				var removeBtn = e.target.closest('.loop-seg-remove');
+				if (removeBtn) {
+					e.stopPropagation();
+					var segBtn = removeBtn.closest('[data-ln-loop-index]');
+					if (segBtn) {
+						var idx = parseInt(segBtn.getAttribute('data-ln-loop-index'), 10);
+						_dispatch(self.dom, 'ln-deck:loop-delete-requested', {
+							deckId: self.deckId,
+							trackIndex: self.trackIndex,
+							loopIndex: idx
+						});
+					}
+					return;
+				}
+
+				var loopBtn = e.target.closest('[data-ln-loop-index]');
+				if (loopBtn) {
+					var loopIdx = parseInt(loopBtn.getAttribute('data-ln-loop-index'), 10);
+					self.activateLoop(loopIdx);
+				}
+			});
+		}
+
 		// Request events (from coordinator)
 		this.dom.addEventListener('ln-deck:request-load', function (e) {
 			self.loadTrack(e.detail.trackIndex, e.detail.track, e.detail.peaks, e.detail.peaksDuration);
@@ -130,6 +164,13 @@
 
 		this.dom.addEventListener('ln-deck:request-adjust-index', function (e) {
 			self.adjustIndex(e.detail.newIndex);
+		});
+
+		this.dom.addEventListener('ln-deck:request-set-loops', function (e) {
+			if (self.track) {
+				self.track.loops = e.detail.loops;
+				self._renderLoopSegments();
+			}
 		});
 	};
 
@@ -155,10 +196,47 @@
 		var action = btn.getAttribute('data-ln-cue');
 
 		if (action === 'loop') {
-			btn.classList.toggle('active');
-		} else if (action === 'mark-start' || action === 'mark-end') {
+			this._loopEnabled = !this._loopEnabled;
+			btn.classList.toggle('active', this._loopEnabled);
+			btn.setAttribute('aria-pressed', this._loopEnabled ? 'true' : 'false');
+			return;
+		}
+
+		if (!this._audio || !this.track || this.trackIndex < 0) return;
+		var currentTime = this._audio.currentTime;
+		var duration = this._audio.duration;
+		if (!duration || !isFinite(duration)) return;
+
+		if (action === 'mark-start') {
+			this._pendingLoopStart = currentTime;
 			btn.classList.add('active');
 			setTimeout(function () { btn.classList.remove('active'); }, 300);
+		} else if (action === 'mark-end') {
+			if (this._pendingLoopStart === null) return;
+			var startSec = this._pendingLoopStart;
+			var endSec = currentTime;
+			this._pendingLoopStart = null;
+
+			// Swap if needed
+			if (endSec < startSec) {
+				var tmp = startSec;
+				startSec = endSec;
+				endSec = tmp;
+			}
+			// Minimum 0.5s segment
+			if (endSec - startSec < 0.5) return;
+
+			btn.classList.add('active');
+			setTimeout(function () { btn.classList.remove('active'); }, 300);
+
+			_dispatch(this.dom, 'ln-deck:loop-captured', {
+				deckId: this.deckId,
+				trackIndex: this.trackIndex,
+				startSec: startSec,
+				endSec: endSec,
+				startPct: (startSec / duration) * 100,
+				endPct: (endSec / duration) * 100
+			});
 		}
 	};
 
@@ -276,6 +354,14 @@
 		if (this._els.timeCurrent) this._els.timeCurrent.textContent = _formatTime(currentTime);
 		if (this._els.progress) this._els.progress.style.width = this.progress + '%';
 		if (this._els.playhead) this._els.playhead.style.left = this.progress + '%';
+
+		// Loop enforcement
+		if (this._loopEnabled && this._activeLoopIndex >= 0 && this.track.loops) {
+			var loop = this.track.loops[this._activeLoopIndex];
+			if (loop && currentTime >= loop.endSec) {
+				this._audio.currentTime = loop.startSec;
+			}
+		}
 	};
 
 	_component.prototype._onEnded = function () {
@@ -302,7 +388,17 @@
 		this.progress = 0;
 		this.isPlaying = false;
 
+		// Reset loop state
+		this._pendingLoopStart = null;
+		this._activeLoopIndex = -1;
+		this._loopEnabled = false;
+		if (this._els.loopBtn) {
+			this._els.loopBtn.classList.remove('active');
+			this._els.loopBtn.setAttribute('aria-pressed', 'false');
+		}
+
 		this._render();
+		this._renderLoopSegments();
 		this._updatePlayButton(false);
 
 		if (this.track && this.track.url && this._audio) {
@@ -372,7 +468,17 @@
 		this.progress = 0;
 		this.isPlaying = false;
 
+		// Reset loop state
+		this._pendingLoopStart = null;
+		this._activeLoopIndex = -1;
+		this._loopEnabled = false;
+		if (this._els.loopBtn) {
+			this._els.loopBtn.classList.remove('active');
+			this._els.loopBtn.setAttribute('aria-pressed', 'false');
+		}
+
 		this._render();
+		this._renderLoopSegments();
 		this._updatePlayButton(false);
 
 		_dispatch(this.dom, 'ln-deck:reset', {
@@ -382,6 +488,29 @@
 
 	_component.prototype.adjustIndex = function (newIndex) {
 		this.trackIndex = newIndex;
+	};
+
+	_component.prototype.activateLoop = function (idx) {
+		if (!this.track || !this.track.loops) return;
+
+		// Toggle off if same
+		if (this._activeLoopIndex === idx) {
+			this._activeLoopIndex = -1;
+		} else {
+			this._activeLoopIndex = idx;
+			var loop = this.track.loops[idx];
+			if (loop && this._audio) {
+				this._audio.currentTime = loop.startSec;
+			}
+		}
+
+		this._renderActiveRegion();
+		this._updateSegmentHighlight();
+
+		_dispatch(this.dom, 'ln-deck:loop-activated', {
+			deckId: this.deckId,
+			loopIndex: this._activeLoopIndex
+		});
 	};
 
 	/* ====================================================================
@@ -431,15 +560,72 @@
 		if (e.progress) e.progress.style.width = this.progress + '%';
 		if (e.playhead) e.playhead.style.left = this.progress + '%';
 
-		if (track.cueStartPct > 0 || track.cueEndPct > 0) {
-			if (e.cueStart) { e.cueStart.style.left = track.cueStartPct + '%'; e.cueStart.style.display = ''; }
-			if (e.cueEnd) { e.cueEnd.style.left = track.cueEndPct + '%'; e.cueEnd.style.display = ''; }
-			if (e.cueRegion) { e.cueRegion.style.left = track.cueStartPct + '%'; e.cueRegion.style.width = (track.cueEndPct - track.cueStartPct) + '%'; e.cueRegion.style.display = ''; }
+		this._renderActiveRegion();
+	};
+
+	_component.prototype._renderActiveRegion = function () {
+		var e = this._els;
+		var loop = null;
+
+		if (this._activeLoopIndex >= 0 && this.track && this.track.loops) {
+			loop = this.track.loops[this._activeLoopIndex];
+		}
+
+		if (loop) {
+			if (e.cueStart) { e.cueStart.style.left = loop.startPct + '%'; e.cueStart.style.display = ''; }
+			if (e.cueEnd) { e.cueEnd.style.left = loop.endPct + '%'; e.cueEnd.style.display = ''; }
+			if (e.cueRegion) {
+				e.cueRegion.style.left = loop.startPct + '%';
+				e.cueRegion.style.width = (loop.endPct - loop.startPct) + '%';
+				e.cueRegion.style.display = '';
+			}
 		} else {
 			if (e.cueStart) e.cueStart.style.display = 'none';
 			if (e.cueEnd) e.cueEnd.style.display = 'none';
 			if (e.cueRegion) e.cueRegion.style.display = 'none';
 		}
+	};
+
+	_component.prototype._renderLoopSegments = function () {
+		var container = this._els.loopSegments;
+		if (!container) return;
+
+		container.innerHTML = '';
+
+		if (!this.track || !this.track.loops || this.track.loops.length === 0) return;
+
+		for (var i = 0; i < this.track.loops.length; i++) {
+			var loop = this.track.loops[i];
+			var btn = document.createElement('button');
+			btn.type = 'button';
+			btn.className = 'loop-seg-btn' + (i === this._activeLoopIndex ? ' active' : '');
+			btn.setAttribute('data-ln-loop-index', i);
+
+			var nameSpan = document.createElement('span');
+			nameSpan.textContent = loop.name;
+			btn.appendChild(nameSpan);
+
+			var removeBtn = document.createElement('button');
+			removeBtn.type = 'button';
+			removeBtn.className = 'loop-seg-remove';
+			removeBtn.textContent = '\u00d7';
+			removeBtn.title = 'Remove loop';
+			btn.appendChild(removeBtn);
+
+			container.appendChild(btn);
+		}
+	};
+
+	_component.prototype._updateSegmentHighlight = function () {
+		var container = this._els.loopSegments;
+		if (!container) return;
+
+		var btns = container.querySelectorAll('[data-ln-loop-index]');
+		var self = this;
+		btns.forEach(function (btn) {
+			var idx = parseInt(btn.getAttribute('data-ln-loop-index'), 10);
+			btn.classList.toggle('active', idx === self._activeLoopIndex);
+		});
 	};
 
 	_component.prototype._updatePlayButton = function (playing) {

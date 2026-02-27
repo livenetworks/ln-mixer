@@ -124,7 +124,8 @@
 							</button>
 						</li>
 						<li>
-							<button type="button" data-ln-cue="loop" data-ln-deck-target="a">
+							<button type="button" class="btn--led" data-ln-cue="loop" data-ln-deck-target="a" aria-pressed="false">
+								<mark class="led-indicator"></mark>
 								<span class="ln-icon-loop"></span>
 								<span class="label">Loop</span>
 							</button>
@@ -136,6 +137,7 @@
 							</button>
 						</li>
 					</ul>
+					<nav class="loop-segments" data-ln-loop-segments="a"></nav>
 					<audio preload="auto" data-ln-audio="a"></audio>
 				</article>
 
@@ -192,7 +194,8 @@
 							</button>
 						</li>
 						<li>
-							<button type="button" data-ln-cue="loop" data-ln-deck-target="b">
+							<button type="button" class="btn--led" data-ln-cue="loop" data-ln-deck-target="b" aria-pressed="false">
+								<mark class="led-indicator"></mark>
 								<span class="ln-icon-loop"></span>
 								<span class="label">Loop</span>
 							</button>
@@ -204,6 +207,7 @@
 							</button>
 						</li>
 					</ul>
+					<nav class="loop-segments" data-ln-loop-segments="b"></nav>
 					<audio preload="auto" data-ln-audio="b"></audio>
 				</article>
 
@@ -317,6 +321,38 @@
 					</button>
 					<button type="submit" data-ln-action="save-track-edit">
 						Save
+					</button>
+				</footer>
+			</form>
+		</article>
+	</section>
+
+	<!-- ============================================================
+	     NAME LOOP MODAL
+	     ============================================================ -->
+	<section class="ln-modal" id="modal-name-loop">
+		<article class="ln-modal__content ln-modal__content--sm">
+			<form data-ln-form="name-loop" data-ln-deck-id="" data-ln-track-index="-1"
+				data-ln-loop-start="" data-ln-loop-end=""
+				data-ln-loop-start-pct="" data-ln-loop-end-pct="">
+				<header>
+					<h2>Name Loop Segment</h2>
+					<button type="button" class="btn--ghost" data-ln-modal-close>
+						<span class="ln-icon-close"></span>
+					</button>
+				</header>
+				<main>
+					<output class="loop-range-display" data-ln-field="loop-range">0:00 – 0:00</output>
+					<fieldset class="form-field">
+						<label for="loop-name">Loop Name</label>
+						<input type="text" id="loop-name" placeholder="e.g. Chorus, Intro, Drop" data-ln-field="loop-name" required />
+					</fieldset>
+				</main>
+				<footer>
+					<span></span>
+					<button type="submit">
+						<span class="ln-icon-add ln-icon--sm"></span>
+						<span class="label">Save Loop</span>
 					</button>
 				</footer>
 			</form>

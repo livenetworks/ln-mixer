@@ -785,11 +785,11 @@ fieldset {
 	filter: hue-rotate(100deg) brightness(1.5);
 }
 
-.cue-range {
-	font-size: 0.65rem;
-	color: var(--text-dim);
+.loop-count-badge {
+	font-size: 0.6rem;
+	color: var(--loop-color);
 	font-family: var(--font-mono);
-	background: rgba(255, 68, 68, 0.1);
+	background: rgba(68, 204, 136, 0.1);
 	padding: 0.1rem 0.3rem;
 	border-radius: 2px;
 }
@@ -951,6 +951,116 @@ button.btn--danger:hover {
 	border-color: var(--cue-color);
 }
 
+/* --- LED Button (Loop toggle) --- */
+
+.btn--led {
+	position: relative;
+	padding-left: 1.6rem;
+}
+
+.led-indicator {
+	position: absolute;
+	left: 0.5rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--text-dim);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	transition: background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+button.active .led-indicator {
+	background: var(--loop-color);
+	box-shadow: 0 0 8px var(--loop-color), 0 0 16px rgba(68, 204, 136, 0.3);
+}
+
+.deck--b button.active .led-indicator {
+	background: var(--deck-b-color);
+	box-shadow: 0 0 8px var(--deck-b-color), 0 0 16px rgba(68, 170, 255, 0.3);
+}
+
+/* --- Loop Segment Buttons Strip --- */
+
+.loop-segments {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--gap-xs);
+}
+
+.loop-segments:empty {
+	display: none;
+}
+
+.loop-seg-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.6rem;
+	font-size: 0.7rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	border-radius: 99px;
+	background: transparent;
+	border: 1px solid var(--loop-color);
+	color: var(--loop-color);
+	cursor: pointer;
+	touch-action: manipulation;
+	min-height: 32px;
+	transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.loop-seg-btn:hover {
+	background: rgba(68, 204, 136, 0.15);
+}
+
+.loop-seg-btn.active {
+	background: var(--loop-color);
+	color: #000;
+}
+
+.deck--b .loop-seg-btn {
+	border-color: var(--deck-b-color);
+	color: var(--deck-b-color);
+}
+
+.deck--b .loop-seg-btn:hover {
+	background: rgba(68, 170, 255, 0.15);
+}
+
+.deck--b .loop-seg-btn.active {
+	background: var(--deck-b-color);
+	color: #000;
+}
+
+.loop-seg-remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	margin-left: 0.15rem;
+	background: none;
+	border: none;
+	min-width: auto;
+	min-height: auto;
+	width: 16px;
+	height: 16px;
+	font-size: 0.85rem;
+	line-height: 1;
+	color: inherit;
+	cursor: pointer;
+	opacity: 0.6;
+	transition: opacity var(--transition-fast);
+}
+
+.loop-seg-remove:hover {
+	opacity: 1;
+	color: var(--cue-color);
+	background: none;
+}
+
 /* ==========================================================================
    8. MODALS (ln-modal)
    ========================================================================== */
@@ -1026,6 +1136,20 @@ body.ln-modal-open {
 	align-items: center;
 	padding: var(--gap-md) var(--gap-lg);
 	border-top: 1px solid var(--border-color);
+}
+
+.ln-modal__content--sm {
+	max-width: 400px;
+}
+
+/* --- Loop Range Display --- */
+
+.loop-range-display {
+	display: block;
+	font-family: var(--font-mono);
+	font-size: 1.1rem;
+	color: var(--loop-color);
+	margin-bottom: var(--gap-md);
 }
 
 /* --- New Playlist Dialog --- */
