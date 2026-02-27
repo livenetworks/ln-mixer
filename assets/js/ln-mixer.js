@@ -833,7 +833,7 @@
 
 		// ─── Audio cache actions ────────────────────────────────────
 
-		// Remove single cached track (from library list badge button)
+		// Remove single cached track (from progress bar uncache button)
 		document.addEventListener('click', function (e) {
 			var btn = e.target.closest('[data-ln-action="remove-cached"]');
 			if (!btn) return;

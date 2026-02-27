@@ -173,10 +173,13 @@
 		items.forEach(function (li) {
 			var addBtn = li.querySelector('[data-ln-action="add-to-playlist"]');
 			var url = addBtn ? addBtn.getAttribute('data-track-url') : '';
+			var bar = li.querySelector('[data-ln-progress]');
 			if (url && urlSet[url]) {
 				li.setAttribute('data-ln-cached', '');
+				if (bar) bar.setAttribute('data-ln-progress', '100');
 			} else {
 				li.removeAttribute('data-ln-cached');
+				if (bar) bar.setAttribute('data-ln-progress', '0');
 			}
 		});
 	};
@@ -200,16 +203,10 @@
 		if (!li) return;
 		if (active) {
 			li.setAttribute('data-ln-downloading', '');
-			var progress = li.querySelector('.library-download-progress');
-			if (progress) {
-				progress.hidden = false;
-				var bar = progress.querySelector('[data-ln-progress]');
-				if (bar) bar.setAttribute('data-ln-progress', '0');
-			}
+			var bar = li.querySelector('[data-ln-progress]');
+			if (bar) bar.setAttribute('data-ln-progress', '0');
 		} else {
 			li.removeAttribute('data-ln-downloading');
-			var progress = li.querySelector('.library-download-progress');
-			if (progress) progress.hidden = true;
 		}
 	};
 
@@ -222,12 +219,18 @@
 
 	_component.prototype._markSingleCached = function (url) {
 		var li = this._findItemByUrl(url);
-		if (li) li.setAttribute('data-ln-cached', '');
+		if (!li) return;
+		li.setAttribute('data-ln-cached', '');
+		var bar = li.querySelector('[data-ln-progress]');
+		if (bar) bar.setAttribute('data-ln-progress', '100');
 	};
 
 	_component.prototype._markSingleUncached = function (url) {
 		var li = this._findItemByUrl(url);
-		if (li) li.removeAttribute('data-ln-cached');
+		if (!li) return;
+		li.removeAttribute('data-ln-cached');
+		var bar = li.querySelector('[data-ln-progress]');
+		if (bar) bar.setAttribute('data-ln-progress', '0');
 	};
 
 	_component.prototype._clearAllCached = function () {
@@ -235,6 +238,8 @@
 		var items = this._list.querySelectorAll('[data-ln-cached]');
 		items.forEach(function (li) {
 			li.removeAttribute('data-ln-cached');
+			var bar = li.querySelector('[data-ln-progress]');
+			if (bar) bar.setAttribute('data-ln-progress', '0');
 		});
 	};
 

@@ -1060,17 +1060,23 @@ body.ln-modal-open {
 
 .library-list > li {
 	display: grid;
-	grid-template-columns: 1fr auto auto;
-	grid-template-rows: auto auto;
+	grid-template-columns: 1fr auto;
+	grid-template-rows: auto 4px;
 	align-items: center;
 	gap: 0 var(--gap-sm);
-	padding: var(--gap-sm) 0;
+	padding: var(--gap-sm) 0 0;
 	border-bottom: 1px solid var(--border-color);
 }
 
 .library-list > li .library-download-progress {
 	grid-column: 1 / -1;
 	grid-row: 2;
+}
+
+.library-list > li [data-ln-action="add-to-playlist"],
+.library-list > li .library-uncache-btn {
+	grid-column: 2;
+	grid-row: 1;
 }
 
 .library-list > li:last-child {
@@ -1091,58 +1097,63 @@ body.ln-modal-open {
 	color: var(--text-muted);
 }
 
-/* --- Library: Cached badge --- */
-
-.library-cached-badge {
-	display: none;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	background: transparent;
-	border: none;
-	padding: 0.25rem;
-	border-radius: var(--radius);
-	cursor: pointer;
-	touch-action: manipulation;
-}
-
-.library-cached-badge:hover,
-.library-cached-badge:active {
-	background: rgba(255, 68, 68, 0.15);
-}
-
-.library-cached-badge:hover .ln-icon-check::before,
-.library-cached-badge:active .ln-icon-check::before {
-	background-image: var(--icon-remove);
-}
-
-.library-list > li[data-ln-cached] .library-cached-badge {
-	display: inline-flex;
-}
-
-/* --- Library: Download progress bar --- */
+/* --- Library: Download progress bar (always visible) --- */
 
 .library-download-progress {
 	height: 4px;
 	width: 100%;
-	border-radius: 2px;
+	border-radius: 0;
 	background: var(--track-bg);
 	overflow: hidden;
 	margin: 0;
-	display: none;
 }
 
 .library-download-progress > [data-ln-progress] {
 	height: 100%;
 	width: 0;
 	background: var(--accent);
+	border-radius: 0;
 	transition: width 0.15s ease;
 }
 
-.library-list > li[data-ln-downloading] .library-download-progress {
-	display: block;
+/* Cached state: green bar at 100% */
+.library-list > li[data-ln-cached] .library-download-progress > [data-ln-progress] {
+	background: #22c55e;
 }
 
+/* Uncache button — positioned at end of row 1, only when cached */
+.library-uncache-btn {
+	display: none;
+	background: transparent;
+	border: none;
+	padding: 0.25rem;
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	touch-action: manipulation;
+	min-width: auto;
+	min-height: auto;
+}
+
+.library-uncache-btn:hover,
+.library-uncache-btn:active {
+	background: rgba(255, 68, 68, 0.2);
+}
+
+.library-uncache-btn .ln-icon-remove::before {
+	width: 0.85rem;
+	height: 0.85rem;
+}
+
+.library-list > li[data-ln-cached] .library-uncache-btn {
+	display: inline-flex;
+}
+
+/* Cached: hide Add button, show uncache */
+.library-list > li[data-ln-cached] [data-ln-action="add-to-playlist"] {
+	display: none;
+}
+
+/* Downloading state: hide Add button */
 .library-list > li[data-ln-downloading] [data-ln-action="add-to-playlist"] {
 	display: none;
 }
