@@ -80,14 +80,17 @@
 		});
 
 		this.dom.addEventListener('ln-library:request-download-start', function (e) {
+			console.log('[library] request-download-start received, url=', e.detail ? e.detail.url : '(no detail)');
 			if (e.detail) self._setDownloading(e.detail.url, true);
 		});
 
 		this.dom.addEventListener('ln-library:request-download-progress', function (e) {
+			console.log('[library] request-download-progress received, pct=', e.detail ? e.detail.percent : '(no detail)');
 			if (e.detail) self._updateProgress(e.detail.url, e.detail.percent);
 		});
 
 		this.dom.addEventListener('ln-library:request-download-done', function (e) {
+			console.log('[library] request-download-done received, success=', e.detail ? e.detail.success : '(no detail)');
 			if (!e.detail) return;
 			self._setDownloading(e.detail.url, false);
 			if (e.detail.success) {
@@ -204,10 +207,12 @@
 
 	_component.prototype._setDownloading = function (url, active) {
 		var li = this._findItemByUrl(url);
+		console.log('[library] _setDownloading, li found=', !!li, 'active=', active);
 		if (!li) return;
 		if (active) {
 			li.setAttribute('data-ln-downloading', '');
 			var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
+			console.log('[library] _setDownloading, bar found=', !!bar);
 			if (bar) bar.setAttribute('data-ln-progress', '0');
 		} else {
 			li.removeAttribute('data-ln-downloading');
@@ -216,8 +221,9 @@
 
 	_component.prototype._updateProgress = function (url, percent) {
 		var li = this._findItemByUrl(url);
-		if (!li) return;
+		if (!li) { console.log('[library] _updateProgress, li NOT found for url=', url); return; }
 		var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
+		console.log('[library] _updateProgress, bar found=', !!bar, 'percent=', percent, 'bar.lnProgress=', bar ? !!bar.lnProgress : 'N/A');
 		if (bar) bar.setAttribute('data-ln-progress', String(Math.round(percent)));
 	};
 

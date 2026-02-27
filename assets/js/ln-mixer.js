@@ -211,6 +211,7 @@
 		this._updateGlobalProgress();
 
 		var libraryEl = this._getLibraryEl();
+		console.log('[mixer] _downloadBlob START, libraryEl=', !!libraryEl, 'url=', url);
 		if (libraryEl) {
 			libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-start', {
 				detail: { url: url }
@@ -236,12 +237,14 @@
 		};
 
 		xhr.onprogress = function (e) {
+			console.log('[mixer] XHR onprogress, lengthComputable=', e.lengthComputable, 'loaded=', e.loaded, 'total=', e.total);
 			if (e.lengthComputable) {
 				self._downloadProgress[url] = { loaded: e.loaded, total: e.total };
 				self._updateGlobalProgress();
 
 				if (libraryEl) {
 					var pct = (e.loaded / e.total) * 100;
+					console.log('[mixer] dispatching request-download-progress, pct=', pct.toFixed(1));
 					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-progress', {
 						detail: { url: url, percent: pct }
 					}));
@@ -250,6 +253,7 @@
 		};
 
 		xhr.onload = function () {
+			console.log('[mixer] XHR onload, status=', xhr.status);
 			delete self._downloading[url];
 			delete self._downloadProgress[url];
 
