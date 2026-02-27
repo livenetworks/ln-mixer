@@ -471,26 +471,6 @@
 			if (notesInput) notesInput.focus();
 		});
 
-		// ─── Library event reactions ────────────────────────────────
-
-		this.dom.addEventListener('ln-library:error', function (e) {
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'warn', message: e.detail.message || 'Library error' }
-			}));
-		});
-
-		// Library fetched → mark cached tracks
-		this.dom.addEventListener('ln-library:fetched', function () {
-			lnDb.getAllKeys('audioFiles').then(function (cachedUrls) {
-				var libraryEl = self._getLibraryEl();
-				if (libraryEl) {
-					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-mark-cached', {
-						detail: { cachedUrls: cachedUrls }
-					}));
-				}
-			});
-		});
-
 		// ─── Deck wiring ────────────────────────────────────────────
 
 		// Profile switch → revoke blob URLs + reset both decks
@@ -829,6 +809,26 @@
 				self._populateSettingsForm();
 				lnModal.open('modal-settings');
 			}
+		});
+
+		// ─── Library event reactions (global — library modal is outside mixer DOM) ──
+
+		document.addEventListener('ln-library:error', function (e) {
+			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
+				detail: { type: 'warn', message: e.detail.message || 'Library error' }
+			}));
+		});
+
+		// Library fetched → mark cached tracks
+		document.addEventListener('ln-library:fetched', function () {
+			lnDb.getAllKeys('audioFiles').then(function (cachedUrls) {
+				var libraryEl = self._getLibraryEl();
+				if (libraryEl) {
+					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-mark-cached', {
+						detail: { cachedUrls: cachedUrls }
+					}));
+				}
+			});
 		});
 
 		// ─── Audio cache actions ────────────────────────────────────

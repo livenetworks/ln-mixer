@@ -1063,8 +1063,8 @@ body.ln-modal-open {
 	grid-template-columns: 1fr auto;
 	grid-template-rows: auto 4px;
 	align-items: center;
-	gap: 0 var(--gap-sm);
-	padding: var(--gap-sm) 0 0;
+	gap: 0 var(--gap-md);
+	padding: var(--gap-sm) var(--gap-sm) 0;
 	border-bottom: 1px solid var(--border-color);
 }
 
