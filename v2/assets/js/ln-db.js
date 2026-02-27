@@ -6,7 +6,7 @@
 	if (window[DOM_ATTRIBUTE] !== undefined) return;
 
 	var DB_NAME = 'lnDjMixer';
-	var DB_VERSION = 1;
+	var DB_VERSION = 2;
 	var _db = null;
 	var _opening = null;
 
@@ -24,6 +24,9 @@
 				}
 				if (!d.objectStoreNames.contains('settings')) {
 					d.createObjectStore('settings', { keyPath: 'key' });
+				}
+				if (!d.objectStoreNames.contains('audioFiles')) {
+					d.createObjectStore('audioFiles', { keyPath: 'url' });
 				}
 			};
 
@@ -60,6 +63,16 @@
 		});
 	}
 
+	function getAllKeys(storeName) {
+		return new Promise(function (resolve, reject) {
+			var tx = _db.transaction(storeName, 'readonly');
+			var store = tx.objectStore(storeName);
+			var req = store.getAllKeys();
+			req.onsuccess = function () { resolve(req.result || []); };
+			req.onerror = function () { reject(req.error); };
+		});
+	}
+
 	function put(storeName, value) {
 		return new Promise(function (resolve, reject) {
 			var tx = _db.transaction(storeName, 'readwrite');
@@ -80,11 +93,23 @@
 		});
 	}
 
+	function clear(storeName) {
+		return new Promise(function (resolve, reject) {
+			var tx = _db.transaction(storeName, 'readwrite');
+			var store = tx.objectStore(storeName);
+			var req = store.clear();
+			req.onsuccess = function () { resolve(); };
+			req.onerror = function () { reject(req.error); };
+		});
+	}
+
 	window[DOM_ATTRIBUTE] = {
 		open: open,
 		get: get,
 		getAll: getAll,
+		getAllKeys: getAllKeys,
 		put: put,
-		delete: del
+		delete: del,
+		clear: clear
 	};
 })();

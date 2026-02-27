@@ -8,7 +8,7 @@
 </head>
 <body>
 
-	<form class="player">
+	<form class="player" data-ln-mixer>
 
 		<!-- ============================================================
 		     TOPBAR
@@ -131,6 +131,7 @@
 							</button>
 						</li>
 					</ul>
+					<audio preload="auto" data-ln-audio="a"></audio>
 				</article>
 
 				<!-- DECK B — Next / Cue -->
@@ -198,6 +199,7 @@
 							</button>
 						</li>
 					</ul>
+					<audio preload="auto" data-ln-audio="b"></audio>
 				</article>
 
 			</section>
@@ -353,6 +355,18 @@
 							<input type="file" accept="image/*" data-ln-logo-input hidden />
 							<p class="field-hint">Shown in the topbar. Square image recommended (64x64px or larger)</p>
 						</fieldset>
+
+						<fieldset class="form-field">
+							<label>Audio Cache</label>
+							<section class="cache-info">
+								<output data-ln-cache-size>No cached tracks</output>
+								<button type="button" data-ln-action="clear-audio-cache">
+									<span class="ln-icon-remove ln-icon--sm"></span>
+									<span class="label">Clear Cache</span>
+								</button>
+							</section>
+							<p class="field-hint">Downloaded audio files stored locally for offline playback</p>
+						</fieldset>
 					</section>
 				</main>
 				<footer>
@@ -400,10 +414,6 @@
 	<!-- Toast notification -->
 	<ul data-ln-toast data-ln-toast-timeout="2000" data-ln-toast-max="3"></ul>
 
-	<!-- Hidden audio elements -->
-	<audio preload="auto" data-ln-audio="a"></audio>
-	<audio preload="auto" data-ln-audio="b"></audio>
-
 	<!-- ============================================================
 	     TEMPLATES (inert, cloned by JS components)
 	     ============================================================ -->
@@ -443,6 +453,13 @@
 				<p class="track-name"></p>
 				<p class="track-artist"></p>
 			</article>
+			<button type="button" class="library-cached-badge" data-ln-action="remove-cached" hidden>
+				<span class="ln-icon-check ln-icon--sm"></span>
+			</button>
+			<figure class="library-download-progress" data-ln-progress hidden
+				role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+				<mark data-ln-progress="0"></mark>
+			</figure>
 			<button type="button" data-ln-action="add-to-playlist">
 				<span class="ln-icon-add ln-icon--sm"></span> Add
 			</button>
@@ -455,11 +472,13 @@
 	<script src="../ln-acme/js/ln-toast/ln-toast.js"></script>
 	<script src="../ln-acme/js/ln-search/ln-search.js"></script>
 	<script src="../ln-acme/js/ln-sortable/ln-sortable.js"></script>
+	<script src="../ln-acme/js/ln-progress/ln-progress.js"></script>
 	<script src="./assets/js/ln-db.js"></script>
 	<script src="./assets/js/ln-profile.js"></script>
 	<script src="./assets/js/ln-playlist.js"></script>
 	<script src="./assets/js/ln-settings.js"></script>
 	<script src="./assets/js/ln-library.js"></script>
+	<script src="./assets/js/wavesurfer.min.js"></script>
 	<script src="./assets/js/ln-deck.js"></script>
 	<script src="./assets/js/ln-mixer.js"></script>
 

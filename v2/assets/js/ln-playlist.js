@@ -70,13 +70,6 @@
 		this.deckHighlight = { a: -1, b: -1 };
 
 		this._bindEvents();
-		this._watchProfileAttr();
-
-		// Read initial attribute value (if set before component init)
-		var initialProfile = dom.getAttribute('data-ln-playlist-profile');
-		if (initialProfile) {
-			this.loadProfile(initialProfile);
-		}
 
 		return this;
 	}
@@ -141,48 +134,19 @@
 		this.dom.addEventListener('ln-playlist:request-highlight', function (e) {
 			self.highlightDeck(e.detail.deckId, e.detail.index);
 		});
-	};
 
-	/* ─── Attribute Observer ──────────────────────────────────────── */
-
-	_component.prototype._watchProfileAttr = function () {
-		var self = this;
-		this._attrObserver = new MutationObserver(function (mutations) {
-			mutations.forEach(function (mutation) {
-				if (mutation.type === 'attributes' && mutation.attributeName === 'data-ln-playlist-profile') {
-					var newId = self.dom.getAttribute('data-ln-playlist-profile');
-					self.loadProfile(newId || null);
-				}
-			});
-		});
-		this._attrObserver.observe(this.dom, {
-			attributes: true,
-			attributeFilter: ['data-ln-playlist-profile']
+		this.dom.addEventListener('ln-playlist:request-load-profile', function (e) {
+			self.loadProfile(e.detail.profileId, e.detail.playlists);
 		});
 	};
 
 	/* ─── Load Profile ────────────────────────────────────────────── */
 
-	_component.prototype.loadProfile = function (profileId) {
+	_component.prototype.loadProfile = function (profileId, playlists) {
 		this.profileId = profileId;
 		this.currentId = null;
 		this.deckHighlight = { a: -1, b: -1 };
-
-		if (!profileId) {
-			this.playlists = null;
-			this._rebuild();
-			return;
-		}
-
-		var nav = document.querySelector('[data-ln-profile]');
-		if (!nav || !nav.lnProfile) {
-			this.playlists = null;
-			this._rebuild();
-			return;
-		}
-
-		var profile = nav.lnProfile.getProfile(profileId);
-		this.playlists = profile ? profile.playlists : null;
+		this.playlists = playlists || null;
 		this._rebuild();
 	};
 

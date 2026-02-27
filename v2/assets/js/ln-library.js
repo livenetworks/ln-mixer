@@ -67,8 +67,36 @@
 		var self = this;
 
 		// Request events (from coordinator / external code)
-		this.dom.addEventListener('ln-library:request-fetch', function () {
-			self.fetch();
+		this.dom.addEventListener('ln-library:request-fetch', function (e) {
+			self.fetch(e.detail ? e.detail.apiUrl : '');
+		});
+
+		this.dom.addEventListener('ln-library:request-mark-cached', function (e) {
+			self.markCached(e.detail ? e.detail.cachedUrls : []);
+		});
+
+		this.dom.addEventListener('ln-library:request-download-start', function (e) {
+			if (e.detail) self._setDownloading(e.detail.url, true);
+		});
+
+		this.dom.addEventListener('ln-library:request-download-progress', function (e) {
+			if (e.detail) self._updateProgress(e.detail.url, e.detail.percent);
+		});
+
+		this.dom.addEventListener('ln-library:request-download-done', function (e) {
+			if (!e.detail) return;
+			self._setDownloading(e.detail.url, false);
+			if (e.detail.success) {
+				self._markSingleCached(e.detail.url);
+			}
+		});
+
+		this.dom.addEventListener('ln-library:request-uncache', function (e) {
+			if (e.detail) self._markSingleUncached(e.detail.url);
+		});
+
+		this.dom.addEventListener('ln-library:request-clear-all-cached', function () {
+			self._clearAllCached();
 		});
 	};
 
@@ -84,10 +112,9 @@
 
 	/* ─── Public API (commands) ───────────────────────────────────── */
 
-	_component.prototype.fetch = function () {
+	_component.prototype.fetch = function (apiUrl) {
 		if (this._loading) return;
 
-		var apiUrl = window.lnSettings ? lnSettings.getApiUrl() : '';
 		if (!apiUrl) {
 			this._showNoApi();
 			return;
@@ -135,6 +162,80 @@
 		};
 
 		xhr.send();
+	};
+
+	_component.prototype.markCached = function (cachedUrls) {
+		if (!this._list) return;
+		var urlSet = {};
+		cachedUrls.forEach(function (u) { urlSet[u] = true; });
+
+		var items = this._list.querySelectorAll('[data-ln-library-track]');
+		items.forEach(function (li) {
+			var addBtn = li.querySelector('[data-ln-action="add-to-playlist"]');
+			var url = addBtn ? addBtn.getAttribute('data-track-url') : '';
+			if (url && urlSet[url]) {
+				li.setAttribute('data-ln-cached', '');
+			} else {
+				li.removeAttribute('data-ln-cached');
+			}
+		});
+	};
+
+	/* ─── Private: Download UI ───────────────────────────────────── */
+
+	_component.prototype._findItemByUrl = function (url) {
+		if (!this._list) return null;
+		var items = this._list.querySelectorAll('[data-ln-library-track]');
+		for (var i = 0; i < items.length; i++) {
+			var btn = items[i].querySelector('[data-ln-action="add-to-playlist"]');
+			if (btn && btn.getAttribute('data-track-url') === url) {
+				return items[i];
+			}
+		}
+		return null;
+	};
+
+	_component.prototype._setDownloading = function (url, active) {
+		var li = this._findItemByUrl(url);
+		if (!li) return;
+		if (active) {
+			li.setAttribute('data-ln-downloading', '');
+			var progress = li.querySelector('.library-download-progress');
+			if (progress) {
+				progress.hidden = false;
+				var bar = progress.querySelector('[data-ln-progress]');
+				if (bar) bar.setAttribute('data-ln-progress', '0');
+			}
+		} else {
+			li.removeAttribute('data-ln-downloading');
+			var progress = li.querySelector('.library-download-progress');
+			if (progress) progress.hidden = true;
+		}
+	};
+
+	_component.prototype._updateProgress = function (url, percent) {
+		var li = this._findItemByUrl(url);
+		if (!li) return;
+		var bar = li.querySelector('[data-ln-progress]');
+		if (bar) bar.setAttribute('data-ln-progress', String(Math.round(percent)));
+	};
+
+	_component.prototype._markSingleCached = function (url) {
+		var li = this._findItemByUrl(url);
+		if (li) li.setAttribute('data-ln-cached', '');
+	};
+
+	_component.prototype._markSingleUncached = function (url) {
+		var li = this._findItemByUrl(url);
+		if (li) li.removeAttribute('data-ln-cached');
+	};
+
+	_component.prototype._clearAllCached = function () {
+		if (!this._list) return;
+		var items = this._list.querySelectorAll('[data-ln-cached]');
+		items.forEach(function (li) {
+			li.removeAttribute('data-ln-cached');
+		});
 	};
 
 	/* ─── Private: Populate ───────────────────────────────────────── */

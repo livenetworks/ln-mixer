@@ -71,7 +71,6 @@
 		this.sidebar = document.querySelector('.sidebar');
 
 		this._bindEvents();
-		this._loadFromDb();
 
 		return this;
 	}
@@ -101,35 +100,30 @@
 			self.remove(e.detail.id);
 		});
 
-		this.dom.addEventListener('ln-profile:request-persist', function (e) {
-			self.persist(e.detail ? e.detail.id : undefined);
+		this.dom.addEventListener('ln-profile:request-hydrate', function (e) {
+			self.hydrate(e.detail.profiles || []);
 		});
 	};
 
-	/* ─── Load from IDB ───────────────────────────────────────────── */
+	/* ─── Hydrate (called by coordinator with DB data) ───────────── */
 
-	_component.prototype._loadFromDb = function () {
+	_component.prototype.hydrate = function (profilesArr) {
 		var self = this;
+		profilesArr.forEach(function (p) {
+			self.profiles[p.id] = p;
+		});
 
-		lnDb.open().then(function () {
-			return lnDb.getAll('profiles');
-		}).then(function (profiles) {
-			profiles.forEach(function (p) {
-				self.profiles[p.id] = p;
-			});
+		this._renderButtons();
+		this._updateEmptyState();
 
-			self._renderButtons();
-			self._updateEmptyState();
+		var keys = Object.keys(this.profiles);
+		if (keys.length > 0) {
+			this.switchTo(keys[0]);
+		}
 
-			var keys = Object.keys(self.profiles);
-			if (keys.length > 0) {
-				self.switchTo(keys[0]);
-			}
-
-			_dispatch(self.dom, 'ln-profile:ready', {
-				profiles: self.profiles,
-				currentId: self.currentId
-			});
+		_dispatch(this.dom, 'ln-profile:ready', {
+			profiles: this.profiles,
+			currentId: this.currentId
 		});
 	};
 
@@ -187,7 +181,6 @@
 		var id = _uniqueId(base, this.profiles);
 
 		this.profiles[id] = { id: id, name: name, playlists: {} };
-		lnDb.put('profiles', this.profiles[id]);
 
 		this._renderButtons();
 		this._updateEmptyState();
@@ -204,7 +197,6 @@
 	_component.prototype.remove = function (id) {
 		if (!id || !this.profiles[id]) return;
 
-		lnDb.delete('profiles', id);
 		delete this.profiles[id];
 
 		this._renderButtons();
@@ -222,12 +214,6 @@
 		}
 
 		_dispatch(this.dom, 'ln-profile:deleted', { profileId: id });
-	};
-
-	_component.prototype.persist = function (id) {
-		var profileId = id || this.currentId;
-		if (!profileId || !this.profiles[profileId]) return Promise.resolve();
-		return lnDb.put('profiles', this.profiles[profileId]);
 	};
 
 	_component.prototype.getProfile = function (id) {

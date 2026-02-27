@@ -43,31 +43,23 @@
 	}
 
 	/* ====================================================================
-	   LOAD / SAVE (IndexedDB)
+	   HYDRATE / APPLY (no DB — coordinator handles persistence)
 	   ==================================================================== */
 
-	function load() {
-		return lnDb.get('settings', 'app').then(function (record) {
-			if (record) {
-				if (record.apiUrl !== undefined) _settings.apiUrl = record.apiUrl;
-				if (record.brandLogo !== undefined) _settings.brandLogo = record.brandLogo;
-			}
-			_applyBranding();
-			window.dispatchEvent(new CustomEvent('ln-settings:loaded', {
-				detail: { apiUrl: _settings.apiUrl, brandLogo: _settings.brandLogo }
-			}));
-		});
+	function hydrate(record) {
+		if (record) {
+			if (record.apiUrl !== undefined) _settings.apiUrl = record.apiUrl;
+			if (record.brandLogo !== undefined) _settings.brandLogo = record.brandLogo;
+		}
+		_applyBranding();
+		window.dispatchEvent(new CustomEvent('ln-settings:loaded', {
+			detail: { apiUrl: _settings.apiUrl, brandLogo: _settings.brandLogo }
+		}));
 	}
 
-	function save(data) {
+	function apply(data) {
 		if (data.apiUrl !== undefined) _settings.apiUrl = data.apiUrl;
 		if (data.brandLogo !== undefined) _settings.brandLogo = data.brandLogo;
-
-		lnDb.put('settings', {
-			key: 'app',
-			apiUrl: _settings.apiUrl,
-			brandLogo: _settings.brandLogo
-		});
 
 		_applyBranding();
 		window.dispatchEvent(new CustomEvent('ln-settings:saved', {
@@ -106,8 +98,8 @@
 	   ==================================================================== */
 
 	window[DOM_ATTRIBUTE] = {
-		load: load,
-		save: save,
+		hydrate: hydrate,
+		apply: apply,
 		getApiUrl: getApiUrl,
 		getBrandLogo: getBrandLogo
 	};

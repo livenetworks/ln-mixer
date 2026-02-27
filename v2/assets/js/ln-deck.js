@@ -58,7 +58,10 @@
 		this.track = null;
 		this.progress = 0;
 		this.isPlaying = false;
-		this._timer = null;
+
+		// Audio
+		this._audio = dom.querySelector('[data-ln-audio]');
+		this._surfer = null;
 
 		// Cache DOM (all within this.dom)
 		this._els = {
@@ -66,6 +69,7 @@
 			artist:      dom.querySelector('[data-ln-field="artist"]'),
 			timeCurrent: dom.querySelector('[data-ln-field="time-current"]'),
 			timeTotal:   dom.querySelector('[data-ln-field="time-total"]'),
+			waveform:    dom.querySelector('[class*="waveform"][data-ln-waveform]') || dom.querySelector('.waveform'),
 			progress:    dom.querySelector('.waveform-progress'),
 			playhead:    dom.querySelector('.waveform-playhead'),
 			cueRegion:   dom.querySelector('.cue-region'),
@@ -168,13 +172,108 @@
 	};
 
 	/* ====================================================================
+	   WAVESURFER LIFECYCLE
+	   ==================================================================== */
+
+	_component.prototype._initWaveSurfer = function () {
+		var container = this._els.waveform;
+		if (!container || !this._audio) return;
+
+		var self = this;
+
+		this._surfer = WaveSurfer.create({
+			container: container,
+			waveColor: '#888',
+			progressColor: 'transparent',
+			cursorWidth: 0,
+			barWidth: 2,
+			barGap: 1,
+			barRadius: 1,
+			height: 100,
+			media: this._audio
+		});
+
+		container.classList.add('waveform--loaded');
+
+		this._surfer.on('ready', function () {
+			self._onAudioMetadata();
+		});
+
+		this._surfer.on('timeupdate', function (currentTime) {
+			self._onTimeUpdate(currentTime);
+		});
+
+		this._surfer.on('finish', function () {
+			self._onEnded();
+		});
+	};
+
+	_component.prototype._destroySurfer = function () {
+		if (this._surfer) {
+			this._surfer.destroy();
+			this._surfer = null;
+		}
+		if (this._audio) {
+			this._audio.removeAttribute('src');
+			this._audio.load();
+		}
+		var container = this._els.waveform;
+		if (container) {
+			container.classList.remove('waveform--loaded');
+		}
+	};
+
+	/* ====================================================================
+	   AUDIO EVENT HANDLERS
+	   ==================================================================== */
+
+	_component.prototype._onAudioMetadata = function () {
+		if (!this._audio || !this.track) return;
+		var duration = this._audio.duration;
+		if (!duration || !isFinite(duration) || duration <= 0) return;
+
+		this.track.durationSec = duration;
+		this.track.duration = _formatTime(duration);
+		this._els.timeTotal.textContent = this.track.duration;
+
+		_dispatch(this.dom, 'ln-deck:duration-detected', {
+			deckId: this.deckId,
+			trackIndex: this.trackIndex,
+			durationSec: duration,
+			duration: this.track.duration
+		});
+	};
+
+	_component.prototype._onTimeUpdate = function (currentTime) {
+		if (!this.track || !this._audio) return;
+		var duration = this._audio.duration;
+		if (!duration || !isFinite(duration)) return;
+
+		this.progress = (currentTime / duration) * 100;
+		this._els.timeCurrent.textContent = _formatTime(currentTime);
+		this._els.progress.style.width = this.progress + '%';
+		this._els.playhead.style.left = this.progress + '%';
+	};
+
+	_component.prototype._onEnded = function () {
+		this.progress = 100;
+		this.isPlaying = false;
+		this._updatePlayButton(false);
+
+		_dispatch(this.dom, 'ln-deck:ended', {
+			deckId: this.deckId,
+			trackIndex: this.trackIndex
+		});
+	};
+
+	/* ====================================================================
 	   PUBLIC API — COMMANDS
 	   ==================================================================== */
 
 	_component.prototype.loadTrack = function (index, trackData) {
 		if (this.trackIndex === index) return;
 
-		this._stopProgress();
+		this._destroySurfer();
 		this.trackIndex = index;
 		this.track = trackData || null;
 		this.progress = 0;
@@ -182,6 +281,12 @@
 
 		this._render();
 		this._updatePlayButton(false);
+
+		if (this.track && this.track.url && this._audio) {
+			this._audio.src = this.track.url;
+			this._audio.load();
+			this._initWaveSurfer();
+		}
 
 		_dispatch(this.dom, 'ln-deck:loaded', {
 			deckId: this.deckId,
@@ -192,21 +297,28 @@
 
 	_component.prototype.play = function () {
 		if (this.trackIndex < 0 || !this.track) return;
+		if (!this._audio || !this._audio.src) return;
 
-		this.isPlaying = true;
-		this._updatePlayButton(true);
-		this._startProgress();
+		var self = this;
+		this._audio.play().then(function () {
+			self.isPlaying = true;
+			self._updatePlayButton(true);
 
-		_dispatch(this.dom, 'ln-deck:played', {
-			deckId: this.deckId,
-			trackIndex: this.trackIndex
+			_dispatch(self.dom, 'ln-deck:played', {
+				deckId: self.deckId,
+				trackIndex: self.trackIndex
+			});
+		}).catch(function (err) {
+			console.warn('Play failed for deck ' + self.deckId + ':', err);
 		});
 	};
 
 	_component.prototype.pause = function () {
+		if (this._audio) {
+			this._audio.pause();
+		}
 		this.isPlaying = false;
 		this._updatePlayButton(false);
-		this._stopProgress();
 
 		_dispatch(this.dom, 'ln-deck:paused', {
 			deckId: this.deckId,
@@ -215,9 +327,12 @@
 	};
 
 	_component.prototype.stop = function () {
+		if (this._audio) {
+			this._audio.pause();
+			this._audio.currentTime = 0;
+		}
 		this.isPlaying = false;
 		this.progress = 0;
-		this._stopProgress();
 		this._updatePlayButton(false);
 		this._render();
 
@@ -228,7 +343,7 @@
 	};
 
 	_component.prototype.reset = function () {
-		this._stopProgress();
+		this._destroySurfer();
 		this.trackIndex = -1;
 		this.track = null;
 		this.progress = 0;
@@ -323,50 +438,6 @@
 			if (icon) icon.className = 'ln-icon-play';
 			if (label) label.textContent = 'Play';
 			btn.classList.remove('active');
-		}
-	};
-
-	/* ====================================================================
-	   PROGRESS SIMULATION
-	   ==================================================================== */
-
-	_component.prototype._startProgress = function () {
-		this._stopProgress();
-		if (!this.track) return;
-
-		var self = this;
-		var e = this._els;
-		var durationSec = this.track.durationSec;
-
-		var intervalMs = (durationSec * 1000) / 100;
-		if (intervalMs < 100) intervalMs = 100;
-
-		this._timer = setInterval(function () {
-			self.progress += 1;
-			if (self.progress >= 100) {
-				self.progress = 100;
-				self._stopProgress();
-				self.isPlaying = false;
-				self._updatePlayButton(false);
-
-				_dispatch(self.dom, 'ln-deck:ended', {
-					deckId: self.deckId,
-					trackIndex: self.trackIndex
-				});
-				return;
-			}
-
-			var currentSec = Math.floor(durationSec * (self.progress / 100));
-			e.timeCurrent.textContent = _formatTime(currentSec);
-			e.progress.style.width = self.progress + '%';
-			e.playhead.style.left = self.progress + '%';
-		}, intervalMs);
-	};
-
-	_component.prototype._stopProgress = function () {
-		if (this._timer) {
-			clearInterval(this._timer);
-			this._timer = null;
 		}
 	};
 

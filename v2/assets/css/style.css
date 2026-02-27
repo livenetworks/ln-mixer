@@ -81,6 +81,7 @@
 	--icon-drag: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3E%3Ccircle cx='9' cy='6' r='1.5'/%3E%3Ccircle cx='15' cy='6' r='1.5'/%3E%3Ccircle cx='9' cy='12' r='1.5'/%3E%3Ccircle cx='15' cy='12' r='1.5'/%3E%3Ccircle cx='9' cy='18' r='1.5'/%3E%3Ccircle cx='15' cy='18' r='1.5'/%3E%3C/svg%3E");
 	--icon-settings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z'/%3E%3C/svg%3E");
 	--icon-upload: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
+	--icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2322c55e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
 }
 
 /* ==========================================================================
@@ -118,6 +119,7 @@
 .ln-icon-drag::before     { background-image: var(--icon-drag); }
 .ln-icon-settings::before { background-image: var(--icon-settings); }
 .ln-icon-upload::before   { background-image: var(--icon-upload); }
+.ln-icon-check::before    { background-image: var(--icon-check); }
 
 .ln-icon--sm::before { width: 1rem; height: 1rem; }
 .ln-icon--lg::before { width: 1.5rem; height: 1.5rem; }
@@ -451,9 +453,14 @@ fieldset {
 	cursor: pointer;
 }
 
+.waveform--loaded {
+	background: none;
+}
+
 .waveform-progress {
 	position: absolute;
 	inset: 0;
+	z-index: 2;
 	background: rgba(255, 165, 0, 0.25);
 	pointer-events: none;
 	transition: width 0.1s linear;
@@ -467,6 +474,7 @@ fieldset {
 	position: absolute;
 	top: 0;
 	bottom: 0;
+	z-index: 2;
 	width: 2px;
 	background: #fff;
 	box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
@@ -478,6 +486,7 @@ fieldset {
 	position: absolute;
 	top: 0;
 	bottom: 0;
+	z-index: 2;
 	width: 2px;
 	pointer-events: none;
 }
@@ -489,6 +498,7 @@ fieldset {
 	position: absolute;
 	top: 0;
 	bottom: 0;
+	z-index: 2;
 	background: var(--cue-dim);
 	pointer-events: none;
 }
@@ -980,6 +990,10 @@ body.ln-modal-open {
 	max-height: 60vh;
 }
 
+#modal-track-library main {
+	height: 60vh;
+}
+
 .ln-modal footer {
 	display: flex;
 	justify-content: space-between;
@@ -1041,16 +1055,22 @@ body.ln-modal-open {
 }
 
 [data-ln-search-hide] {
-	display: none;
+	display: none !important;
 }
 
 .library-list > li {
-	display: flex;
+	display: grid;
+	grid-template-columns: 1fr auto auto;
+	grid-template-rows: auto auto;
 	align-items: center;
-	justify-content: space-between;
-	gap: var(--gap-sm);
+	gap: 0 var(--gap-sm);
 	padding: var(--gap-sm) 0;
 	border-bottom: 1px solid var(--border-color);
+}
+
+.library-list > li .library-download-progress {
+	grid-column: 1 / -1;
+	grid-row: 2;
 }
 
 .library-list > li:last-child {
@@ -1069,6 +1089,62 @@ body.ln-modal-open {
 .library-track-info .track-artist {
 	font-size: 0.75rem;
 	color: var(--text-muted);
+}
+
+/* --- Library: Cached badge --- */
+
+.library-cached-badge {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	background: transparent;
+	border: none;
+	padding: 0.25rem;
+	border-radius: var(--radius);
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.library-cached-badge:hover,
+.library-cached-badge:active {
+	background: rgba(255, 68, 68, 0.15);
+}
+
+.library-cached-badge:hover .ln-icon-check::before,
+.library-cached-badge:active .ln-icon-check::before {
+	background-image: var(--icon-remove);
+}
+
+.library-list > li[data-ln-cached] .library-cached-badge {
+	display: inline-flex;
+}
+
+/* --- Library: Download progress bar --- */
+
+.library-download-progress {
+	height: 4px;
+	width: 100%;
+	border-radius: 2px;
+	background: var(--track-bg);
+	overflow: hidden;
+	margin: 0;
+	display: none;
+}
+
+.library-download-progress > [data-ln-progress] {
+	height: 100%;
+	width: 0;
+	background: var(--accent);
+	transition: width 0.15s ease;
+}
+
+.library-list > li[data-ln-downloading] .library-download-progress {
+	display: block;
+}
+
+.library-list > li[data-ln-downloading] [data-ln-action="add-to-playlist"] {
+	display: none;
 }
 
 /* --- Library: No API empty state --- */
@@ -1191,6 +1267,24 @@ body.ln-modal-open {
 	justify-content: center;
 	color: var(--text-dim);
 	font-size: 0.7rem;
+}
+
+/* --- Settings: Audio cache info --- */
+
+.cache-info {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--gap-sm);
+}
+
+.cache-info output {
+	font-size: 0.875rem;
+	color: var(--text-muted);
+}
+
+.cache-info button {
+	white-space: nowrap;
 }
 
 /* --- Toast (ln-toast from ln-acme, dark theme) --- */

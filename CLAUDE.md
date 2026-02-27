@@ -10,25 +10,26 @@ Open `v2/index.html` in a browser. No build step, no server required.
 Use Chrome DevTools device mode (tablet landscape) for the intended experience.
 
 - `v1/` — Phase 1 DJ mixer prototype (archived)
-- `v2/` — Current version (Phase 2 in progress — IndexedDB persistence, no real audio yet)
+- `v2/` — Current version (Phase 2 — IndexedDB persistence, WaveSurfer audio playback)
 
 ## Architecture
 
-- **Vanilla JS** — ln-acme style IIFE components (refactor in progress)
+- **Vanilla JS** — ln-acme style IIFE components
 - **ln-mixer.js** — Thin event coordinator bridging components via events + attributes
 - **IndexedDB** — Persistence for profiles, playlists, settings (native API, no library)
 - **ln-modal (from ln-acme)** — Modal dialogs via `lnModal.open()/close()`
-- **WaveSurfer.js v7** — Waveform rendering (v1, planned for v2)
-- **Web Audio API** — AudioContext routing with per-deck GainNodes (v1, planned for v2)
+- **WaveSurfer.js v7** — Waveform rendering (internal to ln-deck, `media` option syncs with `<audio>`)
+- **Web Audio API** — AudioContext + masterGain in ln-mixer, per-deck MediaElementSourceNode
 
 ### IndexedDB Schema
 
-DB: `lnDjMixer`, version: 1
+DB: `lnDjMixer`, version: 2
 
 | Store | keyPath | Structure |
 |---|---|---|
 | `profiles` | `id` | `{ id, name, playlists: { playlistId: { name, tracks: [] } } }` |
 | `settings` | `key` | `{ key: 'app', apiUrl, brandLogo }` |
+| `audioFiles` | `url` | `{ url, blob: Blob, size, timestamp }` — cached audio files |
 
 ### Init Flow
 
@@ -83,8 +84,9 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 | `data-ln-drag-handle` | Drag reorder handle (on `.track-number` span) |
 | `data-ln-transport="play"` / `"stop"` | Transport control buttons (per deck) |
 | `data-ln-cue="mark-start"` / `"mark-end"` / `"loop"` | Cue point and loop controls (per deck) |
-| `data-ln-waveform="a"` / `"b"` | Waveform figure container (per deck) |
-| `data-ln-potentiometer="master"` | Master volume slider |
+| `data-ln-waveform="a"` / `"b"` | Waveform figure container — WaveSurfer renders here (per deck) |
+| `data-ln-audio="a"` / `"b"` | Hidden `<audio>` element inside each deck (WaveSurfer `media` option) |
+| `data-ln-potentiometer="master"` | Master volume slider (controls AudioContext masterGain) |
 | `data-ln-playlist` | Sidebar root element (ln-playlist component) |
 | `data-ln-playlist-profile="..."` | Reactive attribute — profile ID to load (set by ln-mixer) |
 | `data-ln-playlist-id="..."` | Child playlist group identifier (`<section>`) |
@@ -93,7 +95,7 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 | `data-ln-dialog="new-playlist"` / `"track-library"` / `"edit-track"` / `"settings"` / `"new-profile"` | Dialog elements |
 | `data-ln-form="new-playlist"` / `"track-library"` / `"edit-track"` / `"settings"` / `"new-profile"` | `<form>` inside each dialog |
 | `data-ln-track-index` / `data-ln-playlist-id` | Context attributes on edit-track `<form>` (set by JS, no hidden inputs) |
-| `data-ln-action="..."` | Action buttons (new-playlist, create-playlist, open-library, add-to-playlist, edit-track, save-track-edit, remove-track, open-settings, save-settings, upload-logo, new-profile, create-profile, delete-profile) |
+| `data-ln-action="..."` | Action buttons (new-playlist, create-playlist, open-library, add-to-playlist, edit-track, save-track-edit, remove-track, open-settings, save-settings, upload-logo, new-profile, create-profile, delete-profile, remove-cached, clear-audio-cache) |
 | `data-ln-setting="api-url"` | Settings form fields |
 | `data-ln-brand` / `data-ln-brand-logo` | Topbar branding elements |
 | `data-ln-logo-input` / `data-ln-logo-preview` | Settings dialog internal elements |
@@ -105,6 +107,9 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 | `data-ln-library-list` | Library track list `<ul>` |
 | `data-ln-search="library-list"` | ln-search component on library search fieldset |
 | `data-ln-toast` | Toast notification container |
+| `data-ln-cache-size` | Settings `<output>` — shows cached tracks count + size |
+| `data-ln-cached` | Library `<li>` — track audio is cached in IDB |
+| `data-ln-downloading` | Library `<li>` — download in progress |
 
 **Layout**: Deck A (orange) + Deck B (blue) stacked vertically on left (~70%), playlist sidebar on right (~30%). Sidebar uses ln-toggle/ln-accordion for one-at-a-time. Each deck has transport + cue + "Opis" (edit track notes) button. Each sidebar track has explicit [A] [B] buttons (48x48px touch targets) to load into a specific deck. Drag & drop reorder via Pointer Events API. "New Playlist" button in sidebar footer.
 
@@ -125,8 +130,9 @@ ln-dj-mixer/
       js/ln-playlist.js   — playlist/track management component
       js/ln-settings.js   — settings module (API URL, branding — window.lnSettings)
       js/ln-library.js    — track library component (fetch from API, search, populate)
-      js/ln-deck.js       — deck component (transport, cue, progress)
-      js/ln-mixer.js      — event coordinator (bridges components)
+      js/wavesurfer.min.js — WaveSurfer.js v7 (waveform rendering)
+      js/ln-deck.js       — deck component (WaveSurfer + audio playback, transport, cue)
+      js/ln-mixer.js      — event coordinator (bridges components, AudioContext routing)
       img/placeholder.svg
   v1/                     ← archived Phase 1
     index.html
@@ -153,7 +159,7 @@ ln-dj-mixer/
 
 ## Roadmap
 
-- **Phase 2** (in progress): Profiles + Persistence + Library
+- **Phase 2** (in progress): Profiles + Persistence + Library + Audio
   - [x] IndexedDB persistence layer (profiles, settings stores)
   - [x] Profile CRUD (create, switch, delete)
   - [x] Settings in IDB (API URL, brand logo)
@@ -164,7 +170,11 @@ ln-dj-mixer/
   - [x] Component refactor: ln-deck (deck state, transport, cue, progress)
   - [x] Component refactor: ln-settings (settings module, API URL, brand logo)
   - [x] Wire Library dialog to PHP API (ln-library.js component)
-  - [ ] Audio engine: WaveSurfer Regions, cue points, loop sections
+  - [x] Audio engine: WaveSurfer.js v7 waveform + real audio playback
+  - [x] Web Audio API: AudioContext + masterGain routing in ln-mixer
+  - [x] Auto-detect duration from audio files, persist to IDB
+  - [x] Audio caching: download tracks to IDB on add, cache-aware deck loading, ln-progress bar
+  - [ ] Cue points: WaveSurfer Regions, mark-start/mark-end, loop sections
 - **Phase 3**: PWA — Service Worker, manifest.json, offline caching
 
 ## Available ln-acme Components
@@ -180,7 +190,7 @@ Located at `c:\Users\Dalibor Sojic\ln-acme\js\`:
 | ln-sortable | `data-ln-sortable` | Drag & drop reorder in playlists |
 | ln-search | `data-ln-search` | Library track search |
 | ln-ajax | `data-ln-ajax` | — |
-| ln-progress | `data-ln-progress` | — |
+| ln-progress | `data-ln-progress` | Library download progress bar |
 | ln-upload | `data-ln-upload` | — |
 | ln-tabs | `data-ln-tabs` | — |
 | ln-select | `data-ln-select` | — |
