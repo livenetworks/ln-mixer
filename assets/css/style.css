@@ -755,14 +755,22 @@ fieldset {
 }
 
 .track-list > li {
+	position: relative;
+	overflow: hidden;
+	border-bottom: 1px solid var(--border-color);
+	transition: background var(--transition-fast);
+}
+
+.track-content {
+	position: relative;
+	z-index: 1;
 	display: grid;
 	grid-template-columns: 1.5rem 1fr auto;
 	grid-template-rows: auto auto;
 	column-gap: var(--gap-sm);
 	row-gap: 2px;
 	padding: var(--gap-sm) var(--gap-md);
-	border-bottom: 1px solid var(--border-color);
-	transition: background var(--transition-fast);
+	background: var(--sidebar-bg);
 	align-items: center;
 }
 
@@ -810,6 +818,9 @@ fieldset {
 /* Dragging state (ln-sortable component) */
 .track-list > li.ln-sortable--dragging {
 	opacity: 0.4;
+}
+
+.track-list > li.ln-sortable--dragging > .track-content {
 	background: var(--panel-bg);
 }
 
@@ -907,7 +918,7 @@ fieldset {
 }
 
 /* Active on Deck A */
-.track-list > li.active-a {
+.track-list > li.active-a > .track-content {
 	background: var(--accent-dim);
 	border-left: 3px solid var(--accent);
 }
@@ -922,7 +933,7 @@ fieldset {
 }
 
 /* Active on Deck B */
-.track-list > li.active-b {
+.track-list > li.active-b > .track-content {
 	background: var(--deck-b-dim);
 	border-left: 3px solid var(--deck-b-color);
 }
@@ -937,7 +948,7 @@ fieldset {
 }
 
 /* Both decks on same track */
-.track-list > li.active-a.active-b {
+.track-list > li.active-a.active-b > .track-content {
 	background: linear-gradient(90deg, var(--accent-dim), var(--deck-b-dim));
 	border-left: 3px solid var(--accent);
 }
@@ -1731,13 +1742,106 @@ body.ln-modal-open {
 
 /* --- Track added flash in sidebar --- */
 
-.track-list > li.just-added {
+.track-list > li.just-added > .track-content {
 	animation: flash-added 0.6s ease;
 }
 
 @keyframes flash-added {
 	0%   { background: var(--accent-glow); }
-	100% { background: transparent; }
+	100% { background: var(--sidebar-bg); }
+}
+
+/* --- Swipe-to-Delete --- */
+
+.track-list > li[data-ln-swiping] {
+	background: var(--cue-color);
+}
+
+.track-list > li[data-ln-swiping] .track-content {
+	will-change: transform;
+}
+
+.track-list > li[data-ln-swiping]::after {
+	content: 'Delete';
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	padding-right: var(--gap-lg);
+	color: #fff;
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	z-index: 0;
+}
+
+.track-list > li[data-ln-swiping]::before {
+	content: '';
+	position: absolute;
+	right: calc(var(--gap-lg) + 3rem);
+	top: 50%;
+	transform: translateY(-50%);
+	width: 1.25rem;
+	height: 1.25rem;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 6 5 6 21 6'/%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/%3E%3C/svg%3E");
+	background-size: contain;
+	background-repeat: no-repeat;
+	z-index: 0;
+}
+
+.track-list > li[data-ln-swipe-committed] {
+	transition: max-height 0.25s ease-out, opacity 0.2s ease-out;
+	max-height: 0 !important;
+	opacity: 0;
+	overflow: hidden;
+}
+
+/* --- Playlist Delete Button --- */
+
+.playlist-name {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.playlist-delete-btn {
+	flex-shrink: 0;
+	width: 2rem;
+	height: 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: none;
+	opacity: 0;
+	transition: opacity var(--transition-fast);
+	touch-action: manipulation;
+	margin-left: auto;
+	padding: 0;
+	cursor: pointer;
+}
+
+.playlist-delete-btn::before {
+	width: 0.85rem;
+	height: 0.85rem;
+}
+
+.playlist-group > header:hover .playlist-delete-btn,
+.playlist-group.open > header .playlist-delete-btn {
+	opacity: 0.4;
+}
+
+.playlist-delete-btn:hover {
+	opacity: 1 !important;
+}
+
+.playlist-delete-btn:hover::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff4444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 6 5 6 21 6'/%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/%3E%3C/svg%3E");
 }
 
 /* ==========================================================================
@@ -1783,7 +1887,7 @@ body.ln-modal-open {
 		min-width: var(--touch-min);
 	}
 
-	.track-list > li {
+	.track-content {
 		padding: var(--gap-md);
 	}
 }

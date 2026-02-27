@@ -154,6 +154,12 @@
 		this.dom.addEventListener('ln-playlist:request-remove-loop', function (e) {
 			self.removeLoop(e.detail.playlistId || self.currentId, e.detail.trackIndex, e.detail.loopIndex);
 		});
+
+		this.dom.addEventListener('ln-playlist:request-remove-playlist', function (e) {
+			self.removePlaylist(e.detail.playlistId);
+		});
+
+		this._initSwipeToDelete();
 	};
 
 	/* ─── Load Profile ────────────────────────────────────────────── */
@@ -390,6 +396,48 @@
 		return true;
 	};
 
+	_component.prototype.removePlaylist = function (playlistId) {
+		if (!this.playlists || !this.playlists[playlistId]) return false;
+
+		var name = this.playlists[playlistId].name;
+		var trackCount = this.playlists[playlistId].tracks.length;
+
+		delete this.playlists[playlistId];
+
+		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
+
+		// Remove DOM section
+		var section = this.dom.querySelector('[data-ln-playlist-id="' + playlistId + '"]');
+		if (section) section.remove();
+
+		// If deleted playlist was the current one, switch to first remaining or null
+		if (this.currentId === playlistId) {
+			var firstId = null;
+			for (var id in this.playlists) {
+				if (this.playlists.hasOwnProperty(id)) {
+					firstId = id;
+					break;
+				}
+			}
+			this.currentId = firstId;
+
+			if (firstId) {
+				var nextSection = this.dom.querySelector('[data-ln-playlist-id="' + firstId + '"]');
+				if (nextSection) {
+					nextSection.dispatchEvent(new CustomEvent('ln-toggle:request-open'));
+				}
+			}
+		}
+
+		_dispatch(this.dom, 'ln-playlist:playlist-removed', {
+			playlistId: playlistId,
+			name: name,
+			trackCount: trackCount
+		});
+
+		return true;
+	};
+
 	_component.prototype.openEditTrack = function (idx) {
 		var playlist = this.getPlaylist();
 		if (!playlist || idx < 0 || idx >= playlist.tracks.length) return;
@@ -417,7 +465,12 @@
 		var hdr = section.querySelector('header');
 		hdr.setAttribute('data-ln-toggle-for', toggleId);
 		hdr.setAttribute('data-ln-playlist-toggle', id);
-		hdr.textContent = name;
+
+		var nameSpan = hdr.querySelector('.playlist-name');
+		if (nameSpan) nameSpan.textContent = name;
+
+		var deleteBtn = hdr.querySelector('[data-ln-action="remove-playlist"]');
+		if (deleteBtn) deleteBtn.setAttribute('data-ln-playlist-id', id);
 
 		section.querySelector('.track-list').setAttribute('data-ln-track-list', id);
 
@@ -501,6 +554,135 @@
 			badge.textContent = track.loops.length + ' loop' + (track.loops.length > 1 ? 's' : '');
 			indicators.appendChild(badge);
 		}
+	};
+
+	/* ─── Swipe-to-Delete ────────────────────────────────────────── */
+
+	_component.prototype._initSwipeToDelete = function () {
+		var self = this;
+		var THRESHOLD_PX = 30;
+		var COMMIT_RATIO = 0.3;
+		var startX = 0;
+		var startY = 0;
+		var currentLi = null;
+		var contentEl = null;
+		var tracking = false;
+		var swiping = false;
+		var liWidth = 0;
+
+		this.dom.addEventListener('pointerdown', function (e) {
+			// Ignore drag handle (ln-sortable owns that)
+			if (e.target.closest('[data-ln-sortable-handle]')) return;
+			// Ignore buttons
+			if (e.target.closest('button')) return;
+			// Must be on a track item
+			var li = e.target.closest('[data-ln-track]');
+			if (!li) return;
+
+			startX = e.clientX;
+			startY = e.clientY;
+			currentLi = li;
+			contentEl = li.querySelector('.track-content');
+			tracking = true;
+			swiping = false;
+			liWidth = li.offsetWidth;
+		});
+
+		this.dom.addEventListener('pointermove', function (e) {
+			if (!tracking || !currentLi) return;
+
+			var deltaX = e.clientX - startX;
+			var deltaY = e.clientY - startY;
+
+			// Vertical dominant = cancel swipe, allow scroll
+			if (!swiping && Math.abs(deltaY) > Math.abs(deltaX)) {
+				tracking = false;
+				currentLi = null;
+				return;
+			}
+
+			// Only track leftward swipe
+			if (deltaX > 0) {
+				if (swiping && contentEl) {
+					contentEl.style.transform = '';
+					currentLi.removeAttribute('data-ln-swiping');
+				}
+				return;
+			}
+
+			// Start swiping once past threshold
+			if (!swiping && Math.abs(deltaX) > THRESHOLD_PX) {
+				swiping = true;
+				currentLi.setAttribute('data-ln-swiping', '');
+				currentLi.setPointerCapture(e.pointerId);
+			}
+
+			if (swiping && contentEl) {
+				var clampedX = Math.max(deltaX, -liWidth);
+				contentEl.style.transform = 'translateX(' + clampedX + 'px)';
+			}
+		});
+
+		this.dom.addEventListener('pointerup', function (e) {
+			if (!tracking || !currentLi) return;
+
+			var deltaX = e.clientX - startX;
+			var li = currentLi;
+			var content = contentEl;
+
+			tracking = false;
+			currentLi = null;
+			contentEl = null;
+
+			if (!swiping) return;
+
+			var commitThreshold = liWidth * COMMIT_RATIO;
+
+			if (Math.abs(deltaX) >= commitThreshold) {
+				// Commit: animate out → collapse → remove
+				content.style.transition = 'transform 0.2s ease-out';
+				content.style.transform = 'translateX(-100%)';
+
+				var trackIdx = parseInt(li.getAttribute('data-ln-track'), 10);
+				var playlistId = self.currentId;
+
+				content.addEventListener('transitionend', function handler() {
+					content.removeEventListener('transitionend', handler);
+					li.style.maxHeight = li.offsetHeight + 'px';
+					li.offsetHeight; // force reflow
+					li.setAttribute('data-ln-swipe-committed', '');
+
+					li.addEventListener('transitionend', function collapseHandler() {
+						li.removeEventListener('transitionend', collapseHandler);
+						self.removeTrack(playlistId, trackIdx);
+					});
+				});
+			} else {
+				// Snap back
+				content.style.transition = 'transform 0.2s ease-out';
+				content.style.transform = '';
+				li.removeAttribute('data-ln-swiping');
+				content.addEventListener('transitionend', function handler() {
+					content.removeEventListener('transitionend', handler);
+					content.style.transition = '';
+				});
+			}
+
+			swiping = false;
+		});
+
+		this.dom.addEventListener('pointercancel', function () {
+			if (!tracking || !currentLi) return;
+			if (swiping && contentEl) {
+				contentEl.style.transform = '';
+				contentEl.style.transition = '';
+				currentLi.removeAttribute('data-ln-swiping');
+			}
+			tracking = false;
+			swiping = false;
+			currentLi = null;
+			contentEl = null;
+		});
 	};
 
 	/* ─── Switch Playlist ─────────────────────────────────────────── */

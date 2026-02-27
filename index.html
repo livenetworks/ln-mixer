@@ -382,6 +382,32 @@
 	</section>
 
 	<!-- ============================================================
+	     CONFIRM DELETE PLAYLIST MODAL
+	     ============================================================ -->
+	<section class="ln-modal" id="modal-confirm-delete-playlist">
+		<article class="ln-modal__content ln-modal__content--sm">
+			<form data-ln-form="confirm-delete-playlist" data-ln-playlist-id="">
+				<header>
+					<h2>Delete Playlist</h2>
+					<button type="button" class="btn--ghost" data-ln-modal-close>
+						<span class="ln-icon-close"></span>
+					</button>
+				</header>
+				<main>
+					<p data-ln-field="confirm-delete-message">Delete this playlist?</p>
+				</main>
+				<footer>
+					<button type="button" data-ln-modal-close>Cancel</button>
+					<button type="submit" class="btn--danger">
+						<span class="ln-icon-remove ln-icon--sm"></span>
+						<span class="label">Delete</span>
+					</button>
+				</footer>
+			</form>
+		</article>
+	</section>
+
+	<!-- ============================================================
 	     SETTINGS MODAL
 	     ============================================================ -->
 	<section class="ln-modal" id="modal-settings">
@@ -482,26 +508,33 @@
 	     ============================================================ -->
 	<template data-ln-template="track-item">
 		<li data-ln-track>
-			<span class="track-number" data-ln-sortable-handle></span>
-			<article class="track-info">
-				<p class="track-name"></p>
-				<p class="track-artist"></p>
-				<p class="track-duration"></p>
-			</article>
-			<section class="track-meta-row">
-				<p class="track-notes"></p>
-				<nav class="track-indicators"></nav>
+			<section class="track-content">
+				<span class="track-number" data-ln-sortable-handle></span>
+				<article class="track-info">
+					<p class="track-name"></p>
+					<p class="track-artist"></p>
+					<p class="track-duration"></p>
+				</article>
+				<section class="track-meta-row">
+					<p class="track-notes"></p>
+					<nav class="track-indicators"></nav>
+				</section>
+				<nav class="track-load-actions">
+					<button type="button" class="load-btn load-btn--a" data-ln-load-to="a">A</button>
+					<button type="button" class="load-btn load-btn--b" data-ln-load-to="b">B</button>
+				</nav>
 			</section>
-			<nav class="track-load-actions">
-				<button type="button" class="load-btn load-btn--a" data-ln-load-to="a">A</button>
-				<button type="button" class="load-btn load-btn--b" data-ln-load-to="b">B</button>
-			</nav>
 		</li>
 	</template>
 
 	<template data-ln-template="playlist-group">
 		<section class="playlist-group" data-ln-toggle data-ln-playlist-id>
-			<header data-ln-toggle-for data-ln-playlist-toggle></header>
+			<header data-ln-toggle-for data-ln-playlist-toggle>
+				<span class="playlist-name"></span>
+				<button type="button" class="playlist-delete-btn ln-icon-remove"
+					data-ln-action="remove-playlist"
+					aria-label="Delete playlist"></button>
+			</header>
 			<ol class="track-list" data-ln-track-list data-ln-sortable></ol>
 		</section>
 	</template>

@@ -590,6 +590,25 @@
 			self._refreshDeckHighlights();
 		});
 
+		this.dom.addEventListener('ln-playlist:playlist-removed', function (e) {
+			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
+				detail: { type: 'warn', message: 'Playlist "' + e.detail.name + '" deleted' }
+			}));
+
+			// Reset decks if no playlists remain
+			var sidebar = self._getSidebar();
+			if (!sidebar || !sidebar.lnPlaylist || !sidebar.lnPlaylist.currentId) {
+				['a', 'b'].forEach(function (deckId) {
+					var deckEl = self._getDeck(deckId);
+					if (deckEl && deckEl.lnDeck) {
+						deckEl.dispatchEvent(new CustomEvent('ln-deck:request-reset'));
+					}
+				});
+			}
+
+			self._refreshDeckHighlights();
+		});
+
 		// Edit track requested → set form context + populate + open modal
 		this.dom.addEventListener('ln-playlist:open-edit', function (e) {
 			var track = e.detail.track;
@@ -925,6 +944,53 @@
 					}));
 				}
 			}
+		});
+
+		// Remove playlist — open confirmation modal
+		document.addEventListener('click', function (e) {
+			var btn = e.target.closest('[data-ln-action="remove-playlist"]');
+			if (!btn) return;
+
+			e.stopPropagation();
+
+			var playlistId = btn.getAttribute('data-ln-playlist-id');
+			if (!playlistId) return;
+
+			var sidebar = self._getSidebar();
+			if (!sidebar || !sidebar.lnPlaylist) return;
+
+			var playlist = sidebar.lnPlaylist.playlists[playlistId];
+			if (!playlist) return;
+
+			var form = document.querySelector('[data-ln-form="confirm-delete-playlist"]');
+			if (form) form.setAttribute('data-ln-playlist-id', playlistId);
+
+			var msgEl = document.querySelector('[data-ln-field="confirm-delete-message"]');
+			if (msgEl) {
+				var trackCount = playlist.tracks.length;
+				msgEl.textContent = 'Delete playlist \u201C' + playlist.name + '\u201D? This removes ' +
+					trackCount + (trackCount === 1 ? ' track.' : ' tracks.');
+			}
+
+			lnModal.open('modal-confirm-delete-playlist');
+		});
+
+		// Confirm delete playlist
+		document.addEventListener('ln-form:submit', function (e) {
+			if (e.target.getAttribute('data-ln-form') !== 'confirm-delete-playlist') return;
+
+			var form = e.target;
+			var playlistId = form.getAttribute('data-ln-playlist-id');
+			if (!playlistId) return;
+
+			var sidebar = self._getSidebar();
+			if (sidebar) {
+				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-remove-playlist', {
+					detail: { playlistId: playlistId }
+				}));
+			}
+
+			lnModal.close('modal-confirm-delete-playlist');
 		});
 
 		// Add track to playlist (from library dialog) — download-aware
