@@ -24,7 +24,7 @@ DB: `lnDjMixer`, version: 2
 
 | Store | keyPath | Structure |
 |---|---|---|
-| `profiles` | `id` | `{ id, name, playlists: { playlistId: { name, tracks: [] } } }` |
+| `profiles` | `id` | `{ id, name, playlists: { playlistId: { name, tracks: [{ title, artist, duration, durationSec, url, notes, loops: [{ name, startSec, endSec, startPct, endPct }] }] } } }` |
 | `settings` | `key` | `{ key: 'app', apiUrl, brandLogo }` |
 | `audioFiles` | `url` | `{ url, blob: Blob, size, timestamp }` — cached audio files |
 
@@ -80,7 +80,7 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 | `data-ln-load-to="a"` / `"b"` | Sidebar [A] [B] buttons to load track into specific deck |
 | `data-ln-drag-handle` | Drag reorder handle (on `.track-number` span) |
 | `data-ln-transport="play"` / `"stop"` | Transport control buttons (per deck) |
-| `data-ln-cue="mark-start"` / `"mark-end"` / `"loop"` | Cue point and loop controls (per deck) |
+| `data-ln-cue="mark-start"` / `"mark-end"` / `"loop"` | Cue point and loop controls (per deck). Loop button is LED toggle (`.btn--led` with `<mark class="led-indicator">`) |
 | `data-ln-waveform="a"` / `"b"` | Waveform figure container — WaveSurfer renders here (per deck) |
 | `data-ln-audio="a"` / `"b"` | Hidden `<audio>` element inside each deck (WaveSurfer `media` option) |
 | `data-ln-potentiometer="master"` | Master volume slider (controls AudioContext masterGain) |
@@ -89,8 +89,8 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 | `data-ln-playlist-id="..."` | Child playlist group identifier (`<section>`) |
 | `data-ln-playlist-toggle="..."` | Accordion toggle header |
 | `data-ln-track-list="..."` | Track list `<ol>` containers (one per playlist) |
-| `data-ln-dialog="new-playlist"` / `"track-library"` / `"edit-track"` / `"settings"` / `"new-profile"` | Dialog elements |
-| `data-ln-form="new-playlist"` / `"track-library"` / `"edit-track"` / `"settings"` / `"new-profile"` | `<form>` inside each dialog |
+| `data-ln-dialog="new-playlist"` / `"track-library"` / `"edit-track"` / `"settings"` / `"new-profile"` / `"name-loop"` | Dialog elements |
+| `data-ln-form="new-playlist"` / `"track-library"` / `"edit-track"` / `"settings"` / `"new-profile"` / `"name-loop"` | `<form>` inside each dialog |
 | `data-ln-track-index` / `data-ln-playlist-id` | Context attributes on edit-track `<form>` (set by JS, no hidden inputs) |
 | `data-ln-action="..."` | Action buttons (new-playlist, create-playlist, open-library, add-to-playlist, edit-track, save-track-edit, remove-track, open-settings, save-settings, upload-logo, new-profile, create-profile, delete-profile, remove-cached, clear-audio-cache) |
 | `data-ln-setting="api-url"` | Settings form fields |
@@ -107,8 +107,14 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 | `data-ln-cache-size` | Settings `<output>` — shows cached tracks count + size |
 | `data-ln-cached` | Library `<li>` — track audio is cached in IDB |
 | `data-ln-downloading` | Library `<li>` — download in progress |
+| `data-ln-loop-segments="a"` / `"b"` | Loop segment button container below deck controls |
+| `data-ln-loop-index="0"` / `"1"` / ... | Individual loop segment button (JS-generated, per deck) |
+| `data-ln-field="loop-name"` | Loop name input in name-loop dialog |
+| `data-ln-field="loop-range"` | Loop time range display in name-loop dialog |
+| `data-ln-loop-start` / `data-ln-loop-end` | Loop time (sec) context attributes on name-loop `<form>` |
+| `data-ln-loop-start-pct` / `data-ln-loop-end-pct` | Loop percentage context attributes on name-loop `<form>` |
 
-**Layout**: Deck A (orange) + Deck B (blue) stacked vertically on left (~70%), playlist sidebar on right (~30%). Sidebar uses ln-toggle/ln-accordion for one-at-a-time. Each deck has transport + cue + "Opis" (edit track notes) button. Each sidebar track has explicit [A] [B] buttons (48x48px touch targets) to load into a specific deck. Drag & drop reorder via Pointer Events API. "New Playlist" button in sidebar footer.
+**Layout**: Deck A (orange) + Deck B (blue) stacked vertically on left (~70%), playlist sidebar on right (~30%). Sidebar uses ln-toggle/ln-accordion for one-at-a-time. Each deck has transport + cue + Loop LED toggle + "Opis" (edit track notes) button, followed by named loop segment buttons strip. Each sidebar track has explicit [A] [B] buttons (48x48px touch targets) to load into a specific deck. Drag & drop reorder via Pointer Events API. "New Playlist" button in sidebar footer.
 
 ## File structure
 
@@ -134,7 +140,7 @@ ln-dj-mixer/
 
 ## Roadmap
 
-- **Phase 2** (in progress): Profiles + Persistence + Library + Audio
+- **Phase 2** (complete): Profiles + Persistence + Library + Audio
   - [x] IndexedDB persistence layer (profiles, settings stores)
   - [x] Profile CRUD (create, switch, delete)
   - [x] Settings in IDB (API URL, brand logo)
@@ -149,7 +155,7 @@ ln-dj-mixer/
   - [x] Web Audio API: AudioContext + masterGain routing in ln-mixer
   - [x] Auto-detect duration from audio files, persist to IDB
   - [x] Audio caching: download tracks to IDB on add, cache-aware deck loading, ln-progress bar
-  - [ ] Cue points: WaveSurfer Regions, mark-start/mark-end, loop sections
+  - [x] Cue points: mark-start/mark-end, multiple named loop segments
 - **Phase 3**: PWA — Service Worker, manifest.json, offline caching
 
 ## Changelog
@@ -174,6 +180,17 @@ ln-dj-mixer/
 - **ROB-2** `ln-profile.js`, `ln-playlist.js`, `ln-library.js` — `_cloneTemplate()` crashed with null reference if a template element was missing. Added null guard with `console.warn` fallback.
 - **ROB-3** `ln-mixer.js` — `_downloadBlob()` XHR had no timeout. If server hung, `_downloading[url]` stayed `true` forever, blocking re-downloads. Added `xhr.timeout = 120000` (2 min) with proper cleanup in `ontimeout` handler.
 - **ROB-4** `ln-deck.js` — `_render()`, `_onTimeUpdate()`, `_onAudioMetadata()` accessed cached DOM elements without null checks. Added guards on all `this._els.*` references.
+
+### Loop Segments (2026-02-27)
+
+- Multiple named loop segments per track (replaces single cue start/end pair)
+- Track data: `loops: [{ name, startSec, endSec, startPct, endPct }]` — old `cueStart/cueEnd/cueStartPct/cueEndPct/loop` fields removed
+- UX flow: Cue A (mark-start) → Cue B (mark-end) → Name dialog → segment button appears below deck controls
+- Loop LED toggle: `.btn--led` button with `<mark class="led-indicator">`, enables loop enforcement (`_onTimeUpdate` seeks back to `startSec` when `currentTime >= endSec`)
+- Segment buttons: click to activate + seek to start, X to delete
+- Coordinator wiring: `ln-deck:loop-captured` → modal → `ln-playlist:request-add-loop` → persist → `ln-deck:request-set-loops`
+- Sidebar indicators: loop count badge (e.g. "2 loops") in track meta row
+- Files changed: `ln-deck.js`, `ln-playlist.js`, `ln-mixer.js`, `index.html`, `style.css`
 
 ## Available ln-acme Components
 
