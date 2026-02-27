@@ -1818,7 +1818,7 @@ body.ln-modal-open {
 	justify-content: center;
 	background: transparent;
 	border: none;
-	opacity: 0;
+	opacity: 0.3;
 	transition: opacity var(--transition-fast);
 	touch-action: manipulation;
 	margin-left: auto;
@@ -1831,9 +1831,8 @@ body.ln-modal-open {
 	height: 0.85rem;
 }
 
-.playlist-group > header:hover .playlist-delete-btn,
 .playlist-group.open > header .playlist-delete-btn {
-	opacity: 0.4;
+	opacity: 0.5;
 }
 
 .playlist-delete-btn:hover {
