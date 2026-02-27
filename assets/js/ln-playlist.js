@@ -146,6 +146,14 @@
 		this.dom.addEventListener('ln-playlist:request-update-duration', function (e) {
 			self.updateDuration(e.detail.url, e.detail.duration, e.detail.durationSec);
 		});
+
+		this.dom.addEventListener('ln-playlist:request-add-loop', function (e) {
+			self.addLoop(e.detail.playlistId || self.currentId, e.detail.trackIndex, e.detail.loop);
+		});
+
+		this.dom.addEventListener('ln-playlist:request-remove-loop', function (e) {
+			self.removeLoop(e.detail.playlistId || self.currentId, e.detail.trackIndex, e.detail.loopIndex);
+		});
 	};
 
 	/* ─── Load Profile ────────────────────────────────────────────── */
@@ -222,11 +230,6 @@
 			duration: trackData.duration || '',
 			durationSec: trackData.durationSec || 0,
 			url: trackData.url || '',
-			loop: false,
-			cueStart: '',
-			cueEnd: '',
-			cueStartPct: 0,
-			cueEndPct: 0,
 			notes: ''
 		};
 		playlist.tracks.push(newTrack);
@@ -345,6 +348,48 @@
 		return true;
 	};
 
+	_component.prototype.addLoop = function (playlistId, trackIndex, loopData) {
+		if (!this.playlists || !this.playlists[playlistId]) return false;
+		var track = this.playlists[playlistId].tracks[trackIndex];
+		if (!track) return false;
+
+		if (!track.loops) track.loops = [];
+		track.loops.push(loopData);
+
+		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
+		this._updateTrackLoopIndicator(playlistId, trackIndex, track);
+
+		_dispatch(this.dom, 'ln-playlist:loop-added', {
+			playlistId: playlistId,
+			trackIndex: trackIndex,
+			loopIndex: track.loops.length - 1,
+			loops: track.loops
+		});
+
+		return true;
+	};
+
+	_component.prototype.removeLoop = function (playlistId, trackIndex, loopIndex) {
+		if (!this.playlists || !this.playlists[playlistId]) return false;
+		var track = this.playlists[playlistId].tracks[trackIndex];
+		if (!track || !track.loops || loopIndex < 0 || loopIndex >= track.loops.length) return false;
+
+		track.loops.splice(loopIndex, 1);
+		if (track.loops.length === 0) delete track.loops;
+
+		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
+		this._updateTrackLoopIndicator(playlistId, trackIndex, track);
+
+		_dispatch(this.dom, 'ln-playlist:loop-removed', {
+			playlistId: playlistId,
+			trackIndex: trackIndex,
+			loopIndex: loopIndex,
+			loops: track.loops || []
+		});
+
+		return true;
+	};
+
 	_component.prototype.openEditTrack = function (idx) {
 		var playlist = this.getPlaylist();
 		if (!playlist || idx < 0 || idx >= playlist.tracks.length) return;
@@ -428,20 +473,34 @@
 		li.querySelector('.track-notes').textContent = track.notes || '';
 
 		var indicators = li.querySelector('.track-indicators');
-		if (track.loop) {
-			var loopIcon = document.createElement('span');
-			loopIcon.className = 'ln-icon-loop ln-icon--sm indicator-loop';
-			loopIcon.title = 'Loop';
-			indicators.appendChild(loopIcon);
-		}
-		if (track.cueStart || track.cueEnd) {
-			var cueSpan = document.createElement('span');
-			cueSpan.className = 'cue-range';
-			cueSpan.textContent = (track.cueStart || '0:00') + '-' + (track.cueEnd || '0:00');
-			indicators.appendChild(cueSpan);
+		if (track.loops && track.loops.length > 0) {
+			var loopBadge = document.createElement('span');
+			loopBadge.className = 'loop-count-badge';
+			loopBadge.textContent = track.loops.length + ' loop' + (track.loops.length > 1 ? 's' : '');
+			indicators.appendChild(loopBadge);
 		}
 
 		return li;
+	};
+
+	_component.prototype._updateTrackLoopIndicator = function (playlistId, trackIndex, track) {
+		var list = this.dom.querySelector('[data-ln-track-list="' + playlistId + '"]');
+		if (!list) return;
+		var li = list.querySelector('[data-ln-track="' + trackIndex + '"]');
+		if (!li) return;
+
+		var indicators = li.querySelector('.track-indicators');
+		if (!indicators) return;
+
+		var existing = indicators.querySelector('.loop-count-badge');
+		if (existing) existing.remove();
+
+		if (track.loops && track.loops.length > 0) {
+			var badge = document.createElement('span');
+			badge.className = 'loop-count-badge';
+			badge.textContent = track.loops.length + ' loop' + (track.loops.length > 1 ? 's' : '');
+			indicators.appendChild(badge);
+		}
 	};
 
 	/* ─── Switch Playlist ─────────────────────────────────────────── */

@@ -10,6 +10,12 @@
 		return location.protocol === 'file:';
 	}
 
+	function _formatTime(seconds) {
+		var m = Math.floor(seconds / 60);
+		var s = Math.floor(seconds % 60);
+		return m + ':' + (s < 10 ? '0' : '') + s;
+	}
+
 	/* ─── Constructor ─────────────────────────────────────────────── */
 
 	function constructor(domRoot) {
@@ -715,6 +721,61 @@
 			}
 		});
 
+		// ─── Loop segment wiring ─────────────────────────────────────
+
+		// Loop captured → open name-loop modal
+		this.dom.addEventListener('ln-deck:loop-captured', function (e) {
+			var form = document.querySelector('[data-ln-form="name-loop"]');
+			if (!form) return;
+
+			form.setAttribute('data-ln-deck-id', e.detail.deckId);
+			form.setAttribute('data-ln-track-index', e.detail.trackIndex);
+			form.setAttribute('data-ln-loop-start', e.detail.startSec);
+			form.setAttribute('data-ln-loop-end', e.detail.endSec);
+			form.setAttribute('data-ln-loop-start-pct', e.detail.startPct);
+			form.setAttribute('data-ln-loop-end-pct', e.detail.endPct);
+
+			var rangeEl = document.querySelector('[data-ln-field="loop-range"]');
+			if (rangeEl) {
+				rangeEl.textContent = _formatTime(e.detail.startSec) + ' – ' + _formatTime(e.detail.endSec);
+			}
+
+			var nameInput = document.querySelector('[data-ln-field="loop-name"]');
+			if (nameInput) nameInput.value = '';
+
+			lnModal.open('modal-name-loop');
+			if (nameInput) nameInput.focus();
+		});
+
+		// Loop delete requested → remove from playlist + refresh deck
+		this.dom.addEventListener('ln-deck:loop-delete-requested', function (e) {
+			var sidebar = self._getSidebar();
+			if (!sidebar || !sidebar.lnPlaylist) return;
+
+			var playlistId = sidebar.lnPlaylist.currentId;
+			if (!playlistId) return;
+
+			sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-remove-loop', {
+				detail: {
+					playlistId: playlistId,
+					trackIndex: e.detail.trackIndex,
+					loopIndex: e.detail.loopIndex
+				}
+			}));
+
+			// Refresh deck segment buttons
+			var deckEl = self._getDeck(e.detail.deckId);
+			if (deckEl && deckEl.lnDeck && deckEl.lnDeck.track) {
+				deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
+					detail: { loops: deckEl.lnDeck.track.loops || [] }
+				}));
+			}
+
+			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
+				detail: { type: 'info', message: 'Loop removed' }
+			}));
+		});
+
 		// ─── Settings load after profile ready ──────────────────────
 		this.dom.addEventListener('ln-profile:ready', function () {
 			lnDb.open().then(function () {
@@ -947,6 +1008,60 @@
 					detail: { index: idx, playlistId: playlistId, notes: notes }
 				}));
 			}
+		});
+
+		// ─── Name loop form submit ──────────────────────────────────
+
+		document.addEventListener('ln-form:submit', function (e) {
+			if (e.target.getAttribute('data-ln-form') !== 'name-loop') return;
+
+			var form = e.target;
+			var nameInput = document.querySelector('[data-ln-field="loop-name"]');
+			var name = nameInput ? nameInput.value.trim() : '';
+			if (!name) {
+				if (nameInput) nameInput.focus();
+				return;
+			}
+
+			var deckId = form.getAttribute('data-ln-deck-id');
+			var trackIndex = parseInt(form.getAttribute('data-ln-track-index'), 10);
+			var startSec = parseFloat(form.getAttribute('data-ln-loop-start'));
+			var endSec = parseFloat(form.getAttribute('data-ln-loop-end'));
+			var startPct = parseFloat(form.getAttribute('data-ln-loop-start-pct'));
+			var endPct = parseFloat(form.getAttribute('data-ln-loop-end-pct'));
+
+			var loopData = {
+				name: name,
+				startSec: startSec,
+				endSec: endSec,
+				startPct: startPct,
+				endPct: endPct
+			};
+
+			var sidebar = self._getSidebar();
+			if (sidebar && sidebar.lnPlaylist) {
+				var playlistId = sidebar.lnPlaylist.currentId;
+				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-add-loop', {
+					detail: {
+						playlistId: playlistId,
+						trackIndex: trackIndex,
+						loop: loopData
+					}
+				}));
+			}
+
+			// Refresh deck segment buttons
+			var deckEl = self._getDeck(deckId);
+			if (deckEl && deckEl.lnDeck && deckEl.lnDeck.track) {
+				deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
+					detail: { loops: deckEl.lnDeck.track.loops || [] }
+				}));
+			}
+
+			lnModal.close('modal-name-loop');
+			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
+				detail: { type: 'success', message: 'Loop "' + name + '" saved' }
+			}));
 		});
 
 		// Open settings from library empty state
