@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>LN DJ Mixer</title>
+	<link rel="stylesheet" href="./assets/css/style.css" />
+</head>
+<body>
+
+	<form class="player" data-ln-mixer>
+
+		<!-- ============================================================
+		     TOPBAR
+		     ============================================================ -->
+		<header class="topbar">
+			<nav class="topbar-left">
+				<figure class="brand" data-ln-brand hidden>
+					<img src="" alt="Logo" data-ln-brand-logo />
+				</figure>
+			</nav>
+
+			<nav class="profile-bar" data-ln-profile>
+				<button type="button" class="profile-add" data-ln-action="new-profile">
+					<span class="ln-icon-add ln-icon--sm"></span>
+				</button>
+			</nav>
+
+			<fieldset class="volume-control">
+				<legend class="sr-only">Master Volume</legend>
+				<span class="ln-icon-volume ln-icon--sm"></span>
+				<input type="range" id="master-volume" min="0" max="100" value="80"
+					data-ln-potentiometer="master" aria-label="Master Volume" />
+			</fieldset>
+
+			<nav class="topbar-actions">
+				<button type="button" data-ln-action="open-library">
+					<span class="ln-icon-folder"></span>
+					<span class="label">Library</span>
+				</button>
+				<button type="button" data-ln-action="open-settings">
+					<span class="ln-icon-settings"></span>
+					<span class="label">Settings</span>
+				</button>
+			</nav>
+		</header>
+
+		<!-- ============================================================
+		     MAIN AREA
+		     ============================================================ -->
+		<main class="main-area">
+
+			<!-- ====== EMPTY STATE (no profile) ====== -->
+			<section class="empty-state" data-ln-empty-state hidden>
+				<figure class="empty-state-icon">
+					<span class="ln-icon-add"></span>
+				</figure>
+				<h2>Welcome to LN DJ Mixer</h2>
+				<p>Create your first profile to get started.</p>
+				<button type="button" class="empty-state-btn" data-ln-action="new-profile">
+					<span class="ln-icon-add ln-icon--sm"></span>
+					<span class="label">New Profile</span>
+				</button>
+			</section>
+
+			<!-- ====== DECKS (left) ====== -->
+			<section class="decks-panel">
+
+				<!-- DECK A — Now Playing -->
+				<article class="deck deck--a" data-ln-deck="a">
+					<header class="deck-header">
+						<h2>Deck A <mark class="deck-badge">Now Playing</mark></h2>
+					</header>
+
+					<p class="track-title" data-ln-field="title">&mdash;</p>
+					<p class="track-artist" data-ln-field="artist"></p>
+
+					<!-- Waveform -->
+					<figure class="waveform" data-ln-waveform="a">
+						<figcaption class="sr-only">Deck A waveform</figcaption>
+						<mark class="cue-region" style="display: none;"></mark>
+						<mark class="cue-marker cue-marker--start" style="display: none;"></mark>
+						<mark class="cue-marker cue-marker--end" style="display: none;"></mark>
+						<mark class="waveform-progress" style="width: 0%;"></mark>
+						<mark class="waveform-playhead" style="left: 0%;"></mark>
+					</figure>
+
+					<!-- Time -->
+					<output class="time-display">
+						<time class="time-current" data-ln-field="time-current">0:00</time>
+						<span class="time-separator">/</span>
+						<time class="time-total" data-ln-field="time-total">0:00</time>
+					</output>
+
+					<!-- Transport -->
+					<ul class="controls">
+						<li>
+							<button type="button" data-ln-transport="play" data-ln-deck-target="a">
+								<span class="ln-icon-play"></span>
+								<span class="label">Play</span>
+							</button>
+						</li>
+						<li>
+							<button type="button" data-ln-transport="stop" data-ln-deck-target="a">
+								<span class="ln-icon-stop"></span>
+								<span class="label">Stop</span>
+							</button>
+						</li>
+						<li>
+							<button type="button" data-ln-cue="mark-start" data-ln-deck-target="a">
+								<span class="ln-icon-mark"></span>
+								<span class="label">Cue A</span>
+							</button>
+						</li>
+						<li>
+							<button type="button" data-ln-cue="mark-end" data-ln-deck-target="a">
+								<span class="ln-icon-cue"></span>
+								<span class="label">Cue B</span>
+							</button>
+						</li>
+						<li>
+							<button type="button" data-ln-cue="loop" data-ln-deck-target="a">
+								<span class="ln-icon-loop"></span>
+								<span class="label">Loop</span>
+							</button>
+						</li>
+						<li>
+							<button type="button" data-ln-action="edit-track" data-ln-deck-target="a">
+								<span class="ln-icon-edit"></span>
+								<span class="label">Opis</span>
+							</button>
+						</li>
+					</ul>
+					<audio preload="auto" data-ln-audio="a"></audio>
+				</article>
+
+				<!-- DECK B — Next / Cue -->
+				<article class="deck deck--b" data-ln-deck="b">
+					<header class="deck-header">
+						<h2>Deck B <mark class="deck-badge deck-badge--b">Next / Cue</mark></h2>
+					</header>
+
+					<p class="track-title" data-ln-field="title">&mdash;</p>
+					<p class="track-artist" data-ln-field="artist"></p>
+
+					<!-- Waveform -->
+					<figure class="waveform" data-ln-waveform="b">
+						<figcaption class="sr-only">Deck B waveform</figcaption>
+						<mark class="cue-region" style="display: none;"></mark>
+						<mark class="cue-marker cue-marker--start" style="display: none;"></mark>
+						<mark class="cue-marker cue-marker--end" style="display: none;"></mark>
+						<mark class="waveform-progress" style="width: 0%;"></mark>
+						<mark class="waveform-playhead" style="left: 0%;"></mark>
+					</figure>
+
+					<!-- Time -->
+					<output class="time-display">
+						<time class="time-current" data-ln-field="time-current">0:00</time>
+						<span class="time-separator">/</span>
+						<time class="time-total" data-ln-field="time-total">0:00</time>
+					</output>
+
+					<!-- Transport -->
+					<ul class="controls">
+						<li>
+							<button type="button" data-ln-transport="play" data-ln-deck-target="b">
+								<span class="ln-icon-play"></span>
+								<span class="label">Play</span>
+							</button>
+						</li>
+						<li>
+							<button type="button" data-ln-transport="stop" data-ln-deck-target="b">
+								<span class="ln-icon-stop"></span>
+								<span class="label">Stop</span>
+							</button>
+						</li>
+						<li>
+							<button type="button" data-ln-cue="mark-start" data-ln-deck-target="b">
+								<span class="ln-icon-mark"></span>
+								<span class="label">Cue A</span>
+							</button>
+						</li>
+						<li>
+							<button type="button" data-ln-cue="mark-end" data-ln-deck-target="b">
+								<span class="ln-icon-cue"></span>
+								<span class="label">Cue B</span>
+							</button>
+						</li>
+						<li>
+							<button type="button" data-ln-cue="loop" data-ln-deck-target="b">
+								<span class="ln-icon-loop"></span>
+								<span class="label">Loop</span>
+							</button>
+						</li>
+						<li>
+							<button type="button" data-ln-action="edit-track" data-ln-deck-target="b">
+								<span class="ln-icon-edit"></span>
+								<span class="label">Opis</span>
+							</button>
+						</li>
+					</ul>
+					<audio preload="auto" data-ln-audio="b"></audio>
+				</article>
+
+			</section>
+
+			<!-- ====== SIDEBAR (right) ====== -->
+			<aside class="sidebar" data-ln-playlist data-ln-accordion>
+
+				<!-- Playlists rendered by JS from IndexedDB -->
+
+				<footer class="sidebar-footer">
+					<button type="button" data-ln-action="new-playlist">
+						<span class="ln-icon-add"></span>
+						<span class="label">New Playlist</span>
+					</button>
+				</footer>
+
+			</aside>
+
+		</main>
+
+	</form>
+
+	<!-- ============================================================
+	     NEW PLAYLIST MODAL
+	     ============================================================ -->
+	<section class="ln-modal" id="modal-new-playlist">
+		<article class="ln-modal__content">
+			<form data-ln-form="new-playlist">
+				<header>
+					<h2>New Playlist</h2>
+					<button type="button" class="btn--ghost" data-ln-modal-close>
+						<span class="ln-icon-close"></span>
+					</button>
+				</header>
+				<main>
+					<fieldset class="form-field">
+						<label for="new-playlist-name">Playlist Name</label>
+						<input type="text" id="new-playlist-name" placeholder="e.g. Workout Mix" data-ln-field="new-playlist-name" required />
+					</fieldset>
+				</main>
+				<footer>
+					<span></span>
+					<button type="submit" data-ln-action="create-playlist">
+						<span class="ln-icon-add"></span>
+						<span class="label">Create</span>
+					</button>
+				</footer>
+			</form>
+		</article>
+	</section>
+
+	<!-- ============================================================
+	     TRACK LIBRARY MODAL
+	     ============================================================ -->
+	<section class="ln-modal" id="modal-track-library">
+		<article class="ln-modal__content">
+			<form data-ln-form="track-library" data-ln-library>
+				<header>
+					<h2>Track Library</h2>
+					<button type="button" class="btn--ghost" data-ln-modal-close>
+						<span class="ln-icon-close"></span>
+					</button>
+				</header>
+				<main>
+					<fieldset class="library-search" data-ln-search="library-list">
+						<legend class="sr-only">Search tracks</legend>
+						<span class="ln-icon-search ln-icon--sm"></span>
+						<input type="search" placeholder="Search tracks..." data-ln-search-input />
+					</fieldset>
+
+					<ul class="library-list" id="library-list" data-ln-library-list>
+						<!-- Populated by JS from API -->
+					</ul>
+				</main>
+				<footer>
+					<span></span>
+					<button type="button" data-ln-modal-close>
+						Close
+					</button>
+				</footer>
+			</form>
+		</article>
+	</section>
+
+	<!-- ============================================================
+	     EDIT TRACK MODAL
+	     ============================================================ -->
+	<section class="ln-modal" id="modal-edit-track">
+		<article class="ln-modal__content">
+			<form data-ln-form="edit-track" data-ln-track-index="-1" data-ln-playlist-id="">
+				<header>
+					<h2>Edit Track</h2>
+					<button type="button" class="btn--ghost" data-ln-modal-close>
+						<span class="ln-icon-close"></span>
+					</button>
+				</header>
+				<main>
+					<p class="edit-track-title" data-ln-field="edit-track-title"></p>
+					<p class="edit-track-artist" data-ln-field="edit-track-artist"></p>
+					<fieldset class="form-field">
+						<label for="edit-track-notes">Notes</label>
+						<input type="text" id="edit-track-notes" name="notes" data-ln-field="edit-track-notes"
+							placeholder="e.g. Blindfold removal moment" />
+					</fieldset>
+				</main>
+				<footer>
+					<button type="button" class="btn--danger" data-ln-action="remove-track">
+						<span class="ln-icon-remove ln-icon--sm"></span>
+						<span class="label">Remove</span>
+					</button>
+					<button type="submit" data-ln-action="save-track-edit">
+						Save
+					</button>
+				</footer>
+			</form>
+		</article>
+	</section>
+
+	<!-- ============================================================
+	     SETTINGS MODAL
+	     ============================================================ -->
+	<section class="ln-modal" id="modal-settings">
+		<article class="ln-modal__content">
+			<form data-ln-form="settings">
+				<header>
+					<h2>Settings</h2>
+					<button type="button" class="btn--ghost" data-ln-modal-close>
+						<span class="ln-icon-close"></span>
+					</button>
+				</header>
+				<main>
+					<section class="settings-form">
+						<fieldset class="form-field">
+							<label for="settings-api-url">Library API URL</label>
+							<input type="url" id="settings-api-url" name="api-url" data-ln-setting="api-url"
+								placeholder="https://yourserver.com/api/tracks.php" />
+							<p class="field-hint">Base URL for the remote track library API</p>
+						</fieldset>
+
+						<fieldset class="form-field">
+							<label>Logo</label>
+							<section class="logo-preview">
+								<figure class="logo-placeholder" data-ln-logo-preview>
+									<span>No logo</span>
+								</figure>
+								<nav>
+									<button type="button" data-ln-action="upload-logo">
+										<span class="ln-icon-upload ln-icon--sm"></span>
+										<span class="label">Choose Image</span>
+									</button>
+								</nav>
+							</section>
+							<input type="file" accept="image/*" data-ln-logo-input hidden />
+							<p class="field-hint">Shown in the topbar. Square image recommended (64x64px or larger)</p>
+						</fieldset>
+
+						<fieldset class="form-field">
+							<label>Audio Cache</label>
+							<section class="cache-info">
+								<output data-ln-cache-size>No cached tracks</output>
+								<button type="button" data-ln-action="clear-audio-cache">
+									<span class="ln-icon-remove ln-icon--sm"></span>
+									<span class="label">Clear Cache</span>
+								</button>
+							</section>
+							<p class="field-hint">Downloaded audio files stored locally for offline playback</p>
+						</fieldset>
+					</section>
+				</main>
+				<footer>
+					<button type="button" class="btn--danger" data-ln-action="delete-profile">
+						<span class="ln-icon-remove ln-icon--sm"></span>
+						<span class="label">Delete Profile</span>
+					</button>
+					<button type="submit" data-ln-action="save-settings">
+						Save
+					</button>
+				</footer>
+			</form>
+		</article>
+	</section>
+
+	<!-- ============================================================
+	     NEW PROFILE MODAL
+	     ============================================================ -->
+	<section class="ln-modal" id="modal-new-profile">
+		<article class="ln-modal__content">
+			<form data-ln-form="new-profile">
+				<header>
+					<h2>New Profile</h2>
+					<button type="button" class="btn--ghost" data-ln-modal-close>
+						<span class="ln-icon-close"></span>
+					</button>
+				</header>
+				<main>
+					<fieldset class="form-field">
+						<label for="new-profile-name">Profile Name</label>
+						<input type="text" id="new-profile-name" name="profile-name" placeholder="e.g. My Setup" data-ln-field="new-profile-name" required />
+					</fieldset>
+				</main>
+				<footer>
+					<span></span>
+					<button type="submit" data-ln-action="create-profile">
+						<span class="ln-icon-add"></span>
+						<span class="label">Create</span>
+					</button>
+				</footer>
+			</form>
+		</article>
+	</section>
+
+	<!-- Toast notification -->
+	<ul data-ln-toast data-ln-toast-timeout="2000" data-ln-toast-max="3"></ul>
+
+	<!-- ============================================================
+	     TEMPLATES (inert, cloned by JS components)
+	     ============================================================ -->
+	<template data-ln-template="track-item">
+		<li data-ln-track>
+			<span class="track-number" data-ln-sortable-handle></span>
+			<article class="track-info">
+				<p class="track-name"></p>
+				<p class="track-artist"></p>
+				<p class="track-duration"></p>
+			</article>
+			<section class="track-meta-row">
+				<p class="track-notes"></p>
+				<nav class="track-indicators"></nav>
+			</section>
+			<nav class="track-load-actions">
+				<button type="button" class="load-btn load-btn--a" data-ln-load-to="a">A</button>
+				<button type="button" class="load-btn load-btn--b" data-ln-load-to="b">B</button>
+			</nav>
+		</li>
+	</template>
+
+	<template data-ln-template="playlist-group">
+		<section class="playlist-group" data-ln-toggle data-ln-playlist-id>
+			<header data-ln-toggle-for data-ln-playlist-toggle></header>
+			<ol class="track-list" data-ln-track-list data-ln-sortable></ol>
+		</section>
+	</template>
+
+	<template data-ln-template="profile-btn">
+		<button type="button" class="profile-btn" data-ln-profile-id></button>
+	</template>
+
+	<template data-ln-template="library-item">
+		<li data-ln-library-track>
+			<article class="library-track-info">
+				<p class="track-name"></p>
+				<p class="track-artist"></p>
+			</article>
+			<button type="button" class="library-cached-badge" data-ln-action="remove-cached" hidden>
+				<span class="ln-icon-check ln-icon--sm"></span>
+			</button>
+			<figure class="library-download-progress" data-ln-progress hidden
+				role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+				<mark data-ln-progress="0"></mark>
+			</figure>
+			<button type="button" data-ln-action="add-to-playlist">
+				<span class="ln-icon-add ln-icon--sm"></span> Add
+			</button>
+		</li>
+	</template>
+
+	<script src="./ln-acme/js/ln-toggle/ln-toggle.js"></script>
+	<script src="./ln-acme/js/ln-accordion/ln-accordion.js"></script>
+	<script src="./ln-acme/js/ln-modal/ln-modal.js"></script>
+	<script src="./ln-acme/js/ln-toast/ln-toast.js"></script>
+	<script src="./ln-acme/js/ln-search/ln-search.js"></script>
+	<script src="./ln-acme/js/ln-sortable/ln-sortable.js"></script>
+	<script src="./ln-acme/js/ln-progress/ln-progress.js"></script>
+	<script src="./assets/js/ln-db.js"></script>
+	<script src="./assets/js/ln-profile.js"></script>
+	<script src="./assets/js/ln-playlist.js"></script>
+	<script src="./assets/js/ln-settings.js"></script>
+	<script src="./assets/js/ln-library.js"></script>
+	<script src="./assets/js/wavesurfer.min.js"></script>
+	<script src="./assets/js/ln-deck.js"></script>
+	<script src="./assets/js/ln-mixer.js"></script>
+
+	<script>
+		document.addEventListener("submit", function(e) {
+			e.preventDefault();
+			var form = e.target;
+			if (form.hasAttribute('data-ln-form')) {
+				form.dispatchEvent(new CustomEvent('ln-form:submit', { bubbles: true, detail: { form: form } }));
+			}
+		}, true);
+	</script>
+
+</body>
+</html>

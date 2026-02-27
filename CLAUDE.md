@@ -6,11 +6,8 @@ Target: tablet (10"), offline-capable, touch-optimized.
 
 ## How to run
 
-Open `v2/index.html` in a browser. No build step, no server required.
+Open `index.html` in a browser. No build step, no server required.
 Use Chrome DevTools device mode (tablet landscape) for the intended experience.
-
-- `v1/` — Phase 1 DJ mixer prototype (archived)
-- `v2/` — Current version (Phase 2 — IndexedDB persistence, WaveSurfer audio playback)
 
 ## Architecture
 
@@ -74,7 +71,7 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 - Action buttons that trigger save/create MUST only go through form submit path — NOT duplicated in click handlers (avoids double-toast bug)
 - `type="button"` for all non-submit actions (open dialogs, remove, upload, etc.)
 
-## v2 Data Attributes
+## Data Attributes
 
 | Attribute | Purpose |
 |---|---|
@@ -118,43 +115,21 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 ```
 ln-dj-mixer/
   CLAUDE.md               ← this file
+  index.html              — HTML (empty state, all content rendered by JS from IDB)
   api/
     index.php             — PHP track library API (scans /music/, returns JSON)
   music/                  — audio files (Artist - Title.mp3 format)
-  v2/                     ← current
-    index.html            — HTML (empty state, all content rendered by JS from IDB)
-    assets/
-      css/style.css       — tokens, icons, layout, components
-      js/ln-db.js         — shared IndexedDB module (window.lnDb)
-      js/ln-profile.js    — profile CRUD component
-      js/ln-playlist.js   — playlist/track management component
-      js/ln-settings.js   — settings module (API URL, branding — window.lnSettings)
-      js/ln-library.js    — track library component (fetch from API, search, populate)
-      js/wavesurfer.min.js — WaveSurfer.js v7 (waveform rendering)
-      js/ln-deck.js       — deck component (WaveSurfer + audio playback, transport, cue)
-      js/ln-mixer.js      — event coordinator (bridges components, AudioContext routing)
-      img/placeholder.svg
-  v1/                     ← archived Phase 1
-    index.html
-    assets/
-      css/style.css
-      css/icons.css
-      js/lnAudioRouter.js — Web Audio API routing
-      js/lnDeck.js        — deck file loading
-      js/lnFileAccess.js  — File System Access API
-      js/lnFiles.js       — track list rendering
-      js/lnLoadDeck.js    — load-to-deck buttons
-      js/lnLoadFolder.js  — folder picker
-      js/lnPotentiometer.js — range slider component
-      js/lnTrackCache.js  — IndexedDB metadata cache
-      js/lnTransport.js   — play/stop controls
-      js/lnVisible.js     — tab switching
-      js/lnWaveform.js    — WaveSurfer integration
-      js/wavesurfer.min.js
-      js/idb-keyval-6.2.1-compat.min.js
-      js/jsmediatags.min.js
-      img/placeholder.svg
-      tracks/             — sample .m4a files
+  assets/
+    css/style.css         — tokens, icons, layout, components
+    js/ln-db.js           — shared IndexedDB module (window.lnDb)
+    js/ln-profile.js      — profile CRUD component
+    js/ln-playlist.js     — playlist/track management component
+    js/ln-settings.js     — settings module (API URL, branding — window.lnSettings)
+    js/ln-library.js      — track library component (fetch from API, search, populate)
+    js/wavesurfer.min.js  — WaveSurfer.js v7 (waveform rendering)
+    js/ln-deck.js         — deck component (WaveSurfer + audio playback, transport, cue)
+    js/ln-mixer.js        — event coordinator (bridges components, AudioContext routing)
+    img/placeholder.svg
 ```
 
 ## Roadmap
