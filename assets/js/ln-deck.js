@@ -61,6 +61,7 @@
 
 		// Loop state
 		this._pendingLoopStart = null; // seconds — set on mark-start
+		this._pendingCueBtn = null;    // Cue A button reference for active state
 		this._activeLoopIndex = -1;    // index into track.loops[]
 		this._loopEnabled = false;     // LED toggle
 
@@ -209,13 +210,18 @@
 
 		if (action === 'mark-start') {
 			this._pendingLoopStart = currentTime;
+			if (this._pendingCueBtn) this._pendingCueBtn.classList.remove('active');
+			this._pendingCueBtn = btn;
 			btn.classList.add('active');
-			setTimeout(function () { btn.classList.remove('active'); }, 300);
 		} else if (action === 'mark-end') {
 			if (this._pendingLoopStart === null) return;
 			var startSec = this._pendingLoopStart;
 			var endSec = currentTime;
 			this._pendingLoopStart = null;
+			if (this._pendingCueBtn) {
+				this._pendingCueBtn.classList.remove('active');
+				this._pendingCueBtn = null;
+			}
 
 			// Swap if needed
 			if (endSec < startSec) {
@@ -390,6 +396,7 @@
 
 		// Reset loop state
 		this._pendingLoopStart = null;
+		if (this._pendingCueBtn) { this._pendingCueBtn.classList.remove('active'); this._pendingCueBtn = null; }
 		this._activeLoopIndex = -1;
 		this._loopEnabled = false;
 		if (this._els.loopBtn) {
@@ -470,6 +477,7 @@
 
 		// Reset loop state
 		this._pendingLoopStart = null;
+		if (this._pendingCueBtn) { this._pendingCueBtn.classList.remove('active'); this._pendingCueBtn = null; }
 		this._activeLoopIndex = -1;
 		this._loopEnabled = false;
 		if (this._els.loopBtn) {
