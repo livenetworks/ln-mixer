@@ -89,9 +89,11 @@
 	   EVENT BINDING
 	   ==================================================================== */
 
-	_component.prototype._getWaveform = function () {
+	_component.prototype._dispatchWaveform = function (eventName, detail) {
 		var el = this._els.waveformEl;
-		return (el && el.lnWaveform) ? el.lnWaveform : null;
+		if (el) {
+			el.dispatchEvent(new CustomEvent(eventName, { bubbles: false, detail: detail || {} }));
+		}
 	};
 
 	_component.prototype._bindEvents = function () {
@@ -225,8 +227,9 @@
 			if (this._pendingCueBtn) this._pendingCueBtn.classList.remove('active');
 			this._pendingCueBtn = btn;
 			btn.classList.add('active');
-			var wf = this._getWaveform();
-			if (wf) wf.setPendingCue((currentTime / duration) * 100);
+			this._dispatchWaveform('ln-waveform:request-set-pending-cue', {
+				percent: (currentTime / duration) * 100
+			});
 		} else if (action === 'mark-end') {
 			if (this._pendingLoopStart === null) return;
 			var startSec = this._pendingLoopStart;
@@ -236,8 +239,7 @@
 				this._pendingCueBtn.classList.remove('active');
 				this._pendingCueBtn = null;
 			}
-			var wf = this._getWaveform();
-			if (wf) wf.clearPendingCue();
+			this._dispatchWaveform('ln-waveform:request-clear-pending-cue');
 
 			// Swap if needed
 			if (endSec < startSec) {
@@ -292,9 +294,10 @@
 		});
 
 		// Export peaks if freshly generated (not pre-loaded from cache)
-		var wf = this._getWaveform();
-		if (wf && !wf.hasCachedPeaks()) {
-			var peaks = wf.exportPeaks();
+		var wfEl = this._els.waveformEl;
+		var wfInst = (wfEl && wfEl.lnWaveform) ? wfEl.lnWaveform : null;
+		if (wfInst && !wfInst.hasCachedPeaks()) {
+			var peaks = wfInst.exportPeaks();
 			if (peaks && peaks.length > 0) {
 				_dispatch(this.dom, 'ln-deck:peaks-ready', {
 					deckId: this.deckId,
@@ -313,8 +316,7 @@
 
 		this.progress = (currentTime / duration) * 100;
 		if (this._els.timeCurrent) this._els.timeCurrent.textContent = _formatTime(currentTime);
-		var wf = this._getWaveform();
-		if (wf) wf.setProgress(this.progress);
+		this._dispatchWaveform('ln-waveform:request-set-progress', { percent: this.progress });
 
 		// Loop enforcement
 		if (this._loopEnabled && this._activeLoopIndex >= 0 && this.track.loops) {
@@ -343,8 +345,7 @@
 	_component.prototype.loadTrack = function (index, trackData, peaks, peaksDuration) {
 		if (this.trackIndex === index) return;
 
-		var wf = this._getWaveform();
-		if (wf) wf.destroy();
+		this._dispatchWaveform('ln-waveform:request-destroy');
 		this.trackIndex = index;
 		this.track = trackData || null;
 		this.progress = 0;
@@ -367,8 +368,11 @@
 		if (this.track && this.track.url && this._audio) {
 			this._audio.src = this.track.url;
 			this._audio.load();
-			wf = this._getWaveform();
-			if (wf) wf.init(this._audio, peaks, peaksDuration);
+			this._dispatchWaveform('ln-waveform:request-init', {
+				audio: this._audio,
+				peaks: peaks,
+				peaksDuration: peaksDuration
+			});
 		}
 
 		_dispatch(this.dom, 'ln-deck:loaded', {
@@ -426,8 +430,7 @@
 	};
 
 	_component.prototype.reset = function () {
-		var wf = this._getWaveform();
-		if (wf) wf.destroy();
+		this._dispatchWaveform('ln-waveform:request-destroy');
 		if (this._audio) {
 			this._audio.removeAttribute('src');
 			this._audio.load();
@@ -506,14 +509,13 @@
 	_component.prototype._render = function () {
 		var e = this._els;
 		var track = this.track;
-		var wf = this._getWaveform();
 
 		if (!track) {
 			if (e.title) e.title.textContent = '\u2014';
 			if (e.artist) e.artist.textContent = '\u2014';
 			if (e.timeCurrent) e.timeCurrent.textContent = '0:00';
 			if (e.timeTotal) e.timeTotal.textContent = '0:00';
-			if (wf) wf.clearAll();
+			this._dispatchWaveform('ln-waveform:request-clear-all');
 			return;
 		}
 
@@ -524,24 +526,24 @@
 		var currentSec = Math.floor(track.durationSec * (this.progress / 100));
 		if (e.timeCurrent) e.timeCurrent.textContent = _formatTime(currentSec);
 
-		if (wf) wf.setProgress(this.progress);
+		this._dispatchWaveform('ln-waveform:request-set-progress', { percent: this.progress });
 
 		this._updateActiveRegionOnWaveform();
 	};
 
 	_component.prototype._updateActiveRegionOnWaveform = function () {
-		var wf = this._getWaveform();
-		if (!wf) return;
-
 		var loop = null;
 		if (this._activeLoopIndex >= 0 && this.track && this.track.loops) {
 			loop = this.track.loops[this._activeLoopIndex];
 		}
 
 		if (loop) {
-			wf.setRegion(loop.startPct, loop.endPct);
+			this._dispatchWaveform('ln-waveform:request-set-region', {
+				startPct: loop.startPct,
+				endPct: loop.endPct
+			});
 		} else {
-			wf.clearRegion();
+			this._dispatchWaveform('ln-waveform:request-clear-region');
 		}
 	};
 

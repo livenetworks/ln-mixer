@@ -65,8 +65,6 @@
 		this.dom = dom;
 		dom[DOM_ATTRIBUTE] = this;
 
-		this.deckId = dom.getAttribute(DOM_SELECTOR);
-
 		// State
 		this._surfer = null;
 		this._audio = null;
@@ -135,6 +133,32 @@
 				}
 			}
 		}, { passive: true });
+
+		// Request events (from parent component)
+		this.dom.addEventListener('ln-waveform:request-init', function (e) {
+			self.init(e.detail.audio, e.detail.peaks, e.detail.peaksDuration);
+		});
+		this.dom.addEventListener('ln-waveform:request-destroy', function () {
+			self.destroy();
+		});
+		this.dom.addEventListener('ln-waveform:request-set-progress', function (e) {
+			self.setProgress(e.detail.percent);
+		});
+		this.dom.addEventListener('ln-waveform:request-set-region', function (e) {
+			self.setRegion(e.detail.startPct, e.detail.endPct);
+		});
+		this.dom.addEventListener('ln-waveform:request-clear-region', function () {
+			self.clearRegion();
+		});
+		this.dom.addEventListener('ln-waveform:request-clear-all', function () {
+			self.clearAll();
+		});
+		this.dom.addEventListener('ln-waveform:request-set-pending-cue', function (e) {
+			self.setPendingCue(e.detail.percent);
+		});
+		this.dom.addEventListener('ln-waveform:request-clear-pending-cue', function () {
+			self.clearPendingCue();
+		});
 	};
 
 	/* ====================================================================
@@ -148,7 +172,7 @@
 		this._audio = audio;
 
 		var self = this;
-		var progressColor = this.deckId === 'b' ? '#44aaff' : '#ffa500';
+		var progressColor = getComputedStyle(this.dom).getPropertyValue('--deck-color').trim() || '#ffa500';
 
 		var opts = {
 			container: this.dom,
