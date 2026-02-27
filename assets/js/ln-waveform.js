@@ -205,9 +205,16 @@
 
 		// WaveSurfer events → ln-waveform CustomEvents
 		this._surfer.on('ready', function () {
-			self._duration = audio.duration || 0;
+			self._duration = self._surfer.getDuration() || audio.duration || 0;
 			self._renderTimeline();
 			_dispatch(self.dom, 'ln-waveform:ready', { duration: self._duration });
+		});
+
+		this._surfer.on('decode', function (duration) {
+			if (!self._duration && duration > 0) {
+				self._duration = duration;
+				self._renderTimeline();
+			}
 		});
 
 		this._surfer.on('timeupdate', function (currentTime) {
