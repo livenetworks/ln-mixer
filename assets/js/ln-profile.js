@@ -35,6 +35,10 @@
 		if (!_tmplCache[name]) {
 			_tmplCache[name] = document.querySelector('[data-ln-template="' + name + '"]');
 		}
+		if (!_tmplCache[name]) {
+			console.warn('ln-profile: template "' + name + '" not found');
+			return document.createDocumentFragment();
+		}
 		return _tmplCache[name].content.cloneNode(true);
 	}
 
@@ -66,9 +70,6 @@
 		this.currentId = null;
 
 		this.addBtn = dom.querySelector('[data-ln-action="new-profile"]');
-		this.emptyState = document.querySelector('[data-ln-empty-state]');
-		this.decksPanel = document.querySelector('.decks-panel');
-		this.sidebar = document.querySelector('.sidebar');
 
 		this._bindEvents();
 
@@ -114,7 +115,6 @@
 		});
 
 		this._renderButtons();
-		this._updateEmptyState();
 
 		var keys = Object.keys(this.profiles);
 		if (keys.length > 0) {
@@ -155,12 +155,6 @@
 		});
 	};
 
-	_component.prototype._updateEmptyState = function () {
-		var hasProfiles = Object.keys(this.profiles).length > 0;
-		if (this.emptyState) this.emptyState.hidden = hasProfiles;
-		if (this.decksPanel) this.decksPanel.hidden = !hasProfiles;
-		if (this.sidebar) this.sidebar.hidden = !hasProfiles;
-	};
 
 	/* ─── Public Methods ──────────────────────────────────────────── */
 
@@ -183,7 +177,6 @@
 		this.profiles[id] = { id: id, name: name, playlists: {} };
 
 		this._renderButtons();
-		this._updateEmptyState();
 		this.switchTo(id);
 
 		_dispatch(this.dom, 'ln-profile:created', {
@@ -200,7 +193,6 @@
 		delete this.profiles[id];
 
 		this._renderButtons();
-		this._updateEmptyState();
 
 		var remaining = Object.keys(this.profiles);
 		if (remaining.length > 0) {

@@ -152,6 +152,29 @@ ln-dj-mixer/
   - [ ] Cue points: WaveSurfer Regions, mark-start/mark-end, loop sections
 - **Phase 3**: PWA — Service Worker, manifest.json, offline caching
 
+## Changelog
+
+### Code Review (2026-02-27)
+
+**Bugs fixed:**
+
+- **BUG-1** `ln-db.js` — `_opening` promise was never reset on `onerror`, causing all subsequent `open()` calls to return a stale rejected promise. Fix: reset `_opening = null` in error handler.
+- **BUG-2** `style.css` — `--surface-bg` and `--text-primary` custom properties were used in `.empty-state-icon` and `.library-no-api-icon` but never defined in `:root`. Fix: added `--surface-bg: #222` and `--text-primary: #eee` to design tokens.
+- **BUG-3** `api/index.php` — `$baseUrl` hardcoded to domain root, producing wrong music URLs when app runs in a subdirectory (e.g. `/ln-mixer/`). Fix: derive base path from `dirname(dirname(SCRIPT_NAME))`.
+
+**Architecture (ln-acme principles):**
+
+- **ARCH-1** `ln-profile.js` → `ln-mixer.js` — `_updateEmptyState()` was in the profile component, directly toggling `hidden` on empty-state, decks-panel, and sidebar elements. This is coordinator UI work. Moved to `ln-mixer.js` where it reacts to `ln-profile:ready`, `ln-profile:created`, and `ln-profile:deleted` events.
+- **ARCH-2** `ln-playlist.js` → `ln-mixer.js` — `openEditTrack()` reached into `document` to set `data-ln-track-index` and `data-ln-playlist-id` on the edit-track `<form>`. This form attribute wiring belongs in the coordinator. Moved to `ln-mixer.js` `ln-playlist:open-edit` handler; component now only dispatches the event with detail data.
+- **ARCH-3** `ln-playlist.js` — `ln-toggle:open` listener was on `document` (global), capturing toggle events from anywhere. Scoped to `this.dom` so only sidebar toggles trigger playlist switching.
+
+**Robustness:**
+
+- **ROB-1** `ln-db.js` — All CRUD methods (`get`, `getAll`, `getAllKeys`, `put`, `delete`, `clear`) accessed `_db` directly without null check. If called before `open()`, they threw `TypeError`. Fix: added `_ensureDb()` helper that auto-opens if needed.
+- **ROB-2** `ln-profile.js`, `ln-playlist.js`, `ln-library.js` — `_cloneTemplate()` crashed with null reference if a template element was missing. Added null guard with `console.warn` fallback.
+- **ROB-3** `ln-mixer.js` — `_downloadBlob()` XHR had no timeout. If server hung, `_downloading[url]` stayed `true` forever, blocking re-downloads. Added `xhr.timeout = 120000` (2 min) with proper cleanup in `ontimeout` handler.
+- **ROB-4** `ln-deck.js` — `_render()`, `_onTimeUpdate()`, `_onAudioMetadata()` accessed cached DOM elements without null checks. Added guards on all `this._els.*` references.
+
 ## Available ln-acme Components
 
 Located at `c:\Users\Dalibor Sojic\ln-acme\js\`:

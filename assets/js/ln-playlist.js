@@ -35,6 +35,10 @@
 		if (!_tmplCache[name]) {
 			_tmplCache[name] = document.querySelector('[data-ln-template="' + name + '"]');
 		}
+		if (!_tmplCache[name]) {
+			console.warn('ln-playlist: template "' + name + '" not found');
+			return document.createDocumentFragment();
+		}
 		return _tmplCache[name].content.cloneNode(true);
 	}
 
@@ -89,7 +93,7 @@
 		});
 
 		// Playlist accordion — switch playlist when ln-toggle opens
-		document.addEventListener('ln-toggle:open', function (e) {
+		this.dom.addEventListener('ln-toggle:open', function (e) {
 			var playlistId = e.target.getAttribute('data-ln-playlist-id');
 			if (playlistId) {
 				self._switchPlaylist(playlistId);
@@ -346,13 +350,6 @@
 		if (!playlist || idx < 0 || idx >= playlist.tracks.length) return;
 
 		var track = playlist.tracks[idx];
-
-		// Set context on form element
-		var form = document.querySelector('[data-ln-form="edit-track"]');
-		if (form) {
-			form.setAttribute('data-ln-track-index', idx);
-			form.setAttribute('data-ln-playlist-id', this.currentId);
-		}
 
 		_dispatch(this.dom, 'ln-playlist:open-edit', {
 			index: idx,

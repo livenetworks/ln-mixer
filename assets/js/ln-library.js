@@ -13,6 +13,10 @@
 		if (!_tmplCache[name]) {
 			_tmplCache[name] = document.querySelector('[data-ln-template="' + name + '"]');
 		}
+		if (!_tmplCache[name]) {
+			console.warn('ln-library: template "' + name + '" not found');
+			return document.createDocumentFragment();
+		}
 		return _tmplCache[name].content.cloneNode(true);
 	}
 

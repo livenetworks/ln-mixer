@@ -17,9 +17,11 @@ if (!is_dir($musicDir)) {
     exit;
 }
 
-// Auto-detect base URL
+// Auto-detect base URL (accounts for subdirectory installs)
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
+$scriptDir = dirname(dirname($_SERVER['SCRIPT_NAME']));
+$basePath = ($scriptDir === '/' || $scriptDir === '\\') ? '' : $scriptDir;
+$baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath;
 
 $files = scandir($musicDir);
 $tracks = [];

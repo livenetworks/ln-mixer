@@ -69,6 +69,21 @@
 		});
 	};
 
+	/* ─── Empty State (coordinator owns UI visibility) ───────────── */
+
+	_component.prototype._updateEmptyState = function () {
+		var nav = this._getNav();
+		var hasProfiles = nav && nav.lnProfile && Object.keys(nav.lnProfile.profiles).length > 0;
+
+		var emptyState = this.dom.querySelector('[data-ln-empty-state]');
+		var decksPanel = this.dom.querySelector('.decks-panel');
+		var sidebar = this._getSidebar();
+
+		if (emptyState) emptyState.hidden = hasProfiles;
+		if (decksPanel) decksPanel.hidden = !hasProfiles;
+		if (sidebar) sidebar.hidden = !hasProfiles;
+	};
+
 	/* ─── Child Component Queries (scoped to this.dom) ───────────── */
 
 	_component.prototype._getNav = function () {
@@ -199,6 +214,20 @@
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', url, true);
 		xhr.responseType = 'blob';
+		xhr.timeout = 120000;
+
+		xhr.ontimeout = function () {
+			delete self._downloading[url];
+			delete self._downloadProgress[url];
+			self._updateGlobalProgress();
+
+			if (libraryEl) {
+				libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
+					detail: { url: url, success: false }
+				}));
+			}
+			if (callback) callback(false);
+		};
 
 		xhr.onprogress = function (e) {
 			if (e.lengthComputable) {
@@ -489,6 +518,7 @@
 		// ─── Profile event reactions (toasts, modal close) ───────────
 
 		this.dom.addEventListener('ln-profile:created', function (e) {
+			self._updateEmptyState();
 			lnDb.put('profiles', e.detail.profile);
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: { type: 'success', message: 'Profile created' }
@@ -496,11 +526,17 @@
 		});
 
 		this.dom.addEventListener('ln-profile:deleted', function (e) {
+			self._updateEmptyState();
 			lnDb.delete('profiles', e.detail.profileId);
 			lnModal.close('modal-settings');
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: { type: 'info', message: 'Profile deleted' }
 			}));
+		});
+
+		// ─── Profile ready — update empty state ──────────────────────
+		this.dom.addEventListener('ln-profile:ready', function () {
+			self._updateEmptyState();
 		});
 
 		// ─── Profile init — load from DB ─────────────────────────────
@@ -548,9 +584,15 @@
 			self._refreshDeckHighlights();
 		});
 
-		// Edit track requested → populate form + open modal
+		// Edit track requested → set form context + populate + open modal
 		this.dom.addEventListener('ln-playlist:open-edit', function (e) {
 			var track = e.detail.track;
+
+			var form = document.querySelector('[data-ln-form="edit-track"]');
+			if (form) {
+				form.setAttribute('data-ln-track-index', e.detail.index);
+				form.setAttribute('data-ln-playlist-id', e.detail.playlistId);
+			}
 
 			var titleEl = document.querySelector('[data-ln-field="edit-track-title"]');
 			var artistEl = document.querySelector('[data-ln-field="edit-track-artist"]');

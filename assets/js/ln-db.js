@@ -36,6 +36,7 @@
 			};
 
 			req.onerror = function (e) {
+				_opening = null;
 				reject(e.target.error);
 			};
 		});
@@ -43,63 +44,80 @@
 		return _opening;
 	}
 
+	function _ensureDb() {
+		if (_db) return Promise.resolve(_db);
+		return open();
+	}
+
 	function get(storeName, key) {
-		return new Promise(function (resolve, reject) {
-			var tx = _db.transaction(storeName, 'readonly');
-			var store = tx.objectStore(storeName);
-			var req = store.get(key);
-			req.onsuccess = function () { resolve(req.result || null); };
-			req.onerror = function () { reject(req.error); };
+		return _ensureDb().then(function () {
+			return new Promise(function (resolve, reject) {
+				var tx = _db.transaction(storeName, 'readonly');
+				var store = tx.objectStore(storeName);
+				var req = store.get(key);
+				req.onsuccess = function () { resolve(req.result || null); };
+				req.onerror = function () { reject(req.error); };
+			});
 		});
 	}
 
 	function getAll(storeName) {
-		return new Promise(function (resolve, reject) {
-			var tx = _db.transaction(storeName, 'readonly');
-			var store = tx.objectStore(storeName);
-			var req = store.getAll();
-			req.onsuccess = function () { resolve(req.result || []); };
-			req.onerror = function () { reject(req.error); };
+		return _ensureDb().then(function () {
+			return new Promise(function (resolve, reject) {
+				var tx = _db.transaction(storeName, 'readonly');
+				var store = tx.objectStore(storeName);
+				var req = store.getAll();
+				req.onsuccess = function () { resolve(req.result || []); };
+				req.onerror = function () { reject(req.error); };
+			});
 		});
 	}
 
 	function getAllKeys(storeName) {
-		return new Promise(function (resolve, reject) {
-			var tx = _db.transaction(storeName, 'readonly');
-			var store = tx.objectStore(storeName);
-			var req = store.getAllKeys();
-			req.onsuccess = function () { resolve(req.result || []); };
-			req.onerror = function () { reject(req.error); };
+		return _ensureDb().then(function () {
+			return new Promise(function (resolve, reject) {
+				var tx = _db.transaction(storeName, 'readonly');
+				var store = tx.objectStore(storeName);
+				var req = store.getAllKeys();
+				req.onsuccess = function () { resolve(req.result || []); };
+				req.onerror = function () { reject(req.error); };
+			});
 		});
 	}
 
 	function put(storeName, value) {
-		return new Promise(function (resolve, reject) {
-			var tx = _db.transaction(storeName, 'readwrite');
-			var store = tx.objectStore(storeName);
-			var req = store.put(value);
-			req.onsuccess = function () { resolve(); };
-			req.onerror = function () { reject(req.error); };
+		return _ensureDb().then(function () {
+			return new Promise(function (resolve, reject) {
+				var tx = _db.transaction(storeName, 'readwrite');
+				var store = tx.objectStore(storeName);
+				var req = store.put(value);
+				req.onsuccess = function () { resolve(); };
+				req.onerror = function () { reject(req.error); };
+			});
 		});
 	}
 
 	function del(storeName, key) {
-		return new Promise(function (resolve, reject) {
-			var tx = _db.transaction(storeName, 'readwrite');
-			var store = tx.objectStore(storeName);
-			var req = store.delete(key);
-			req.onsuccess = function () { resolve(); };
-			req.onerror = function () { reject(req.error); };
+		return _ensureDb().then(function () {
+			return new Promise(function (resolve, reject) {
+				var tx = _db.transaction(storeName, 'readwrite');
+				var store = tx.objectStore(storeName);
+				var req = store.delete(key);
+				req.onsuccess = function () { resolve(); };
+				req.onerror = function () { reject(req.error); };
+			});
 		});
 	}
 
 	function clear(storeName) {
-		return new Promise(function (resolve, reject) {
-			var tx = _db.transaction(storeName, 'readwrite');
-			var store = tx.objectStore(storeName);
-			var req = store.clear();
-			req.onsuccess = function () { resolve(); };
-			req.onerror = function () { reject(req.error); };
+		return _ensureDb().then(function () {
+			return new Promise(function (resolve, reject) {
+				var tx = _db.transaction(storeName, 'readwrite');
+				var store = tx.objectStore(storeName);
+				var req = store.clear();
+				req.onsuccess = function () { resolve(); };
+				req.onerror = function () { reject(req.error); };
+			});
 		});
 	}
 
