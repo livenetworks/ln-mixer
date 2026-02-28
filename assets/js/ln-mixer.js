@@ -829,7 +829,7 @@
 				var val = volumeSlider.value;
 				var pct = val + '%';
 				volumeSlider.style.background =
-					'linear-gradient(to right, var(--accent) ' + pct + ', var(--track-bg) ' + pct + ')';
+					'linear-gradient(to right, hsl(var(--accent)) ' + pct + ', var(--button-bg) ' + pct + ')';
 				if (self._masterGain) {
 					self._masterGain.gain.value = val / 100;
 				}

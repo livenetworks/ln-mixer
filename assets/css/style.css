@@ -20,8 +20,9 @@
 	--text-dim: #666;
 	--highlight: #ffa;
 
-	/* Accent — HSL values (orange); override in .deck--b for blue */
+	/* Accent — HSL values; override --accent in .deck--b */
 	--accent: 39 100% 50%;
+	--accent-b: 210 100% 63%;
 	--accent-active: 32 100% 50%;
 
 	/* Functional colors — HSL values */
@@ -29,7 +30,6 @@
 	--loop: 153 55% 53%;
 
 	/* Interactive */
-	--track-bg: #333;
 	--button-bg: #333;
 	--button-hover: #444;
 	--button-border: #444;
@@ -78,6 +78,14 @@
 	--spacing-sm: var(--gap-sm);
 	--text-base: 1rem;
 	--font-semibold: 600;
+
+	/* ln-acme toast token mapping */
+	--ln-toast-bg: var(--surface);
+	--ln-toast-fg: var(--text);
+	--ln-toast-fg-muted: var(--text-muted);
+	--ln-toast-border: var(--border-color);
+	--ln-toast-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+	--ln-toast-info: hsl(var(--accent));
 }
 
 /* ==========================================================================
@@ -140,7 +148,7 @@ fieldset {
 	right: 0;
 	height: 4px;
 	z-index: 10;
-	background: var(--track-bg);
+	background: var(--button-bg);
 	overflow: hidden;
 	margin: 0;
 	pointer-events: none;
@@ -245,7 +253,7 @@ fieldset {
 	-webkit-appearance: none;
 	width: 120px;
 	height: 4px;
-	background: var(--track-bg);
+	background: var(--button-bg);
 	border-radius: 2px;
 	outline: none;
 	cursor: pointer;
@@ -287,7 +295,7 @@ fieldset {
 	color: var(--text-muted);
 }
 
-.empty-state-icon {
+.icon-circle {
 	width: 64px;
 	height: 64px;
 	border-radius: 50%;
@@ -298,7 +306,7 @@ fieldset {
 	margin: 0;
 }
 
-.empty-state-icon .ln-icon-add::before {
+.icon-circle [class*="ln-icon-"]::before {
 	width: 32px;
 	height: 32px;
 	opacity: 0.5;
@@ -315,7 +323,7 @@ fieldset {
 	margin: 0;
 }
 
-.empty-state-btn {
+.action-btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.4rem;
@@ -331,11 +339,11 @@ fieldset {
 	min-height: 48px;
 }
 
-.empty-state-btn:hover {
+.action-btn:hover {
 	filter: brightness(1.1);
 }
 
-.empty-state-btn .ln-icon-add::before {
+.action-btn [class*="ln-icon-"]::before {
 	filter: brightness(0);
 }
 
@@ -365,7 +373,7 @@ fieldset {
 }
 
 .deck--b {
-	--accent: 210 100% 63%;
+	--accent: var(--accent-b);
 	--deck-color: hsl(var(--accent));
 }
 
@@ -879,22 +887,22 @@ fieldset {
 
 /* Active on Deck B */
 .track-list > li.active-b > .track-content {
-	background: hsl(210 100% 63% / 0.15);
-	border-left: 3px solid hsl(210 100% 63%);
+	background: hsl(var(--accent-b) / 0.15);
+	border-left: 3px solid hsl(var(--accent-b));
 }
 
 .track-list > li.active-b .track-name {
-	color: hsl(210 100% 63%);
+	color: hsl(var(--accent-b));
 }
 
 .track-list .active-b .track-number {
-	color: hsl(210 100% 63%);
+	color: hsl(var(--accent-b));
 	font-weight: 700;
 }
 
 /* Both decks on same track */
 .track-list > li.active-a.active-b > .track-content {
-	background: linear-gradient(90deg, hsl(var(--accent) / 0.15), hsl(210 100% 63% / 0.15));
+	background: linear-gradient(90deg, hsl(var(--accent) / 0.15), hsl(var(--accent-b) / 0.15));
 	border-left: 3px solid hsl(var(--accent));
 }
 
@@ -943,17 +951,17 @@ fieldset {
 }
 
 .load-btn--b {
-	background: hsl(210 100% 63% / 0.15);
-	border: 2px solid hsl(210 100% 63%);
-	color: hsl(210 100% 63%);
+	background: hsl(var(--accent-b) / 0.15);
+	border: 2px solid hsl(var(--accent-b));
+	color: hsl(var(--accent-b));
 }
 
 .load-btn--b:hover {
-	background: hsl(210 100% 63% / 0.3);
+	background: hsl(var(--accent-b) / 0.3);
 }
 
 .load-btn--b.load-btn--loaded {
-	background: hsl(210 100% 63%);
+	background: hsl(var(--accent-b));
 	color: #000;
 	cursor: default;
 	pointer-events: none;
@@ -1183,7 +1191,8 @@ button.active .led-indicator {
 	font-weight: 600;
 }
 
-.form-field input[type="text"] {
+.form-field input[type="text"],
+.form-field input[type="url"] {
 	background: var(--input-bg);
 	border: 1px solid var(--input-border);
 	border-radius: var(--radius-sm);
@@ -1191,9 +1200,10 @@ button.active .led-indicator {
 	padding: 0.5rem 0.75rem;
 	font-size: 0.9rem;
 	font-family: var(--font-main);
+	width: 100%;
 }
 
-.form-field input[type="text"]::placeholder {
+.form-field input::placeholder {
 	color: var(--text-dim);
 }
 
@@ -1274,7 +1284,7 @@ button.active .led-indicator {
 	height: 4px;
 	width: 100%;
 	border-radius: 0;
-	background: var(--track-bg);
+	background: var(--button-bg);
 	overflow: hidden;
 	margin: 0;
 }
@@ -1339,23 +1349,6 @@ button.active .led-indicator {
 	gap: var(--gap-sm);
 }
 
-.library-no-api-icon {
-	width: 64px;
-	height: 64px;
-	border-radius: 50%;
-	background: var(--surface-raised);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin: 0;
-}
-
-.library-no-api-icon [class*="ln-icon-"]::before {
-	width: 32px;
-	height: 32px;
-	opacity: 0.5;
-}
-
 .library-no-api h3 {
 	font-size: 1.125rem;
 	color: var(--text);
@@ -1367,52 +1360,12 @@ button.active .led-indicator {
 	margin: 0;
 }
 
-.library-no-api-btn {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.4rem;
-	padding: 0.75rem 1.5rem;
-	background: hsl(var(--accent));
-	color: var(--bg);
-	border: none;
-	border-radius: var(--radius);
-	font-size: 0.95rem;
-	font-weight: 600;
-	cursor: pointer;
-	touch-action: manipulation;
-	min-height: 48px;
-}
-
-.library-no-api-btn:hover {
-	filter: brightness(1.1);
-}
-
-.library-no-api-btn [class*="ln-icon-"]::before {
-	filter: brightness(0);
-}
-
 /* --- Settings Dialog --- */
 
 .settings-form {
 	display: flex;
 	flex-direction: column;
 	gap: var(--gap-lg);
-}
-
-.settings-form .form-field input[type="url"],
-.settings-form .form-field input[type="text"] {
-	background: var(--input-bg);
-	border: 1px solid var(--input-border);
-	border-radius: var(--radius-sm);
-	color: var(--text);
-	padding: 0.5rem 0.75rem;
-	font-size: 0.9rem;
-	font-family: var(--font-main);
-	width: 100%;
-}
-
-.settings-form .form-field input::placeholder {
-	color: var(--text-dim);
 }
 
 .settings-form .form-field .field-hint {
@@ -1467,15 +1420,6 @@ button.active .led-indicator {
 }
 
 /* --- Toast — overrides (base from ln-acme-toast.css) --- */
-
-:root {
-	--ln-toast-bg: var(--surface);
-	--ln-toast-fg: var(--text);
-	--ln-toast-fg-muted: var(--text-muted);
-	--ln-toast-border: var(--border-color);
-	--ln-toast-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-	--ln-toast-info: hsl(var(--accent));
-}
 
 [data-ln-toast] {
 	top: auto;
