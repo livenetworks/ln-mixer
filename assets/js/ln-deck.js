@@ -580,7 +580,7 @@
 			removeBtn.className = 'loop-seg-remove';
 			removeBtn.title = 'Remove loop';
 			var removeIcon = document.createElement('span');
-			removeIcon.className = 'ln-icon-close';
+			removeIcon.className = 'ln-icon-close--white';
 			removeBtn.appendChild(removeIcon);
 
 			btn.appendChild(removeBtn);
@@ -609,11 +609,11 @@
 		var label = btn.querySelector('.label');
 
 		if (playing) {
-			if (icon) icon.className = 'ln-icon-pause';
+			if (icon) icon.className = 'ln-icon-pause--white';
 			if (label) label.textContent = 'Pause';
 			btn.classList.add('active');
 		} else {
-			if (icon) icon.className = 'ln-icon-play';
+			if (icon) icon.className = 'ln-icon-play--white';
 			if (label) label.textContent = 'Play';
 			btn.classList.remove('active');
 		}

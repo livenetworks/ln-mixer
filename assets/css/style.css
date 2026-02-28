@@ -33,8 +33,6 @@
 	--cue-color: #ff4444;
 	--cue-dim: rgba(255, 68, 68, 0.15);
 	--loop-color: #44cc88;
-	--dialog-bg: #1e1e1e;
-	--dialog-overlay: rgba(0, 0, 0, 0.75);
 	--surface-bg: #222;
 	--text-primary: #eee;
 	--input-bg: #2a2a2a;
@@ -62,73 +60,27 @@
 	--transition-fast: 0.15s ease;
 	--transition-base: 0.25s ease;
 
-	/* Icons (SVG data URIs) */
-	--icon-play: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='5 3 19 12 5 21 5 3'/%3E%3C/svg%3E");
-	--icon-pause: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='6' y='4' width='4' height='16'/%3E%3Crect x='14' y='4' width='4' height='16'/%3E%3C/svg%3E");
-	--icon-stop: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='4' width='16' height='16' rx='2'/%3E%3C/svg%3E");
-	--icon-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z'/%3E%3C/svg%3E");
-	--icon-cue: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
-	--icon-loop: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='17 1 21 5 17 9'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpolyline points='7 23 3 19 7 15'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E");
-	--icon-edit: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/%3E%3Cpath d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/%3E%3C/svg%3E");
-	--icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
-	--icon-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E");
-	--icon-up: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='18 15 12 9 6 15'/%3E%3C/svg%3E");
-	--icon-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-	--icon-remove: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 6 5 6 21 6'/%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/%3E%3C/svg%3E");
-	--icon-add: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='5' x2='12' y2='19'/%3E%3Cline x1='5' y1='12' x2='19' y2='12'/%3E%3C/svg%3E");
-	--icon-music: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18V5l12-2v13'/%3E%3Ccircle cx='6' cy='18' r='3'/%3E%3Ccircle cx='18' cy='16' r='3'/%3E%3C/svg%3E");
-	--icon-volume: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'/%3E%3Cpath d='M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3C/svg%3E");
-	--icon-folder: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E");
-	--icon-next: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='5 4 15 12 5 20 5 4'/%3E%3Cline x1='19' y1='5' x2='19' y2='19'/%3E%3C/svg%3E");
-	--icon-drag: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3E%3Ccircle cx='9' cy='6' r='1.5'/%3E%3Ccircle cx='15' cy='6' r='1.5'/%3E%3Ccircle cx='9' cy='12' r='1.5'/%3E%3Ccircle cx='15' cy='12' r='1.5'/%3E%3Ccircle cx='9' cy='18' r='1.5'/%3E%3Ccircle cx='15' cy='18' r='1.5'/%3E%3C/svg%3E");
-	--icon-settings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z'/%3E%3C/svg%3E");
-	--icon-upload: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
-	--icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2322c55e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
-	--icon-zoom-in: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3Cline x1='11' y1='8' x2='11' y2='14'/%3E%3Cline x1='8' y1='11' x2='14' y2='11'/%3E%3C/svg%3E");
-	--icon-zoom-out: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3Cline x1='8' y1='11' x2='14' y2='11'/%3E%3C/svg%3E");
+	/* ln-acme token mapping (dark theme values) */
+	--color-bg-primary: #1e1e1e;
+	--color-bg-secondary: #252525;
+	--color-bg-body: #111;
+	--color-border: #2a2a2a;
+	--color-text-primary: #eee;
+	--color-text-muted: #999;
+	--color-primary: #ffa500;
+	--color-primary-hover: #ff8c00;
+	--color-primary-light: rgba(255, 165, 0, 0.15);
+	--color-error: #dc2626;
+	--color-error-hover: #b91c1c;
+	--z-modal: 1000;
+	--radius-md: 6px;
+	--shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+	--spacing-lg: 1.5rem;
+	--spacing-sm: 0.5rem;
+	--text-base: 1rem;
+	--text-lg: 1.125rem;
+	--font-semibold: 600;
 }
-
-/* ==========================================================================
-   2. ICON SYSTEM
-   ========================================================================== */
-
-[class*="ln-icon-"]::before {
-	content: '';
-	display: inline-block;
-	width: 1.25rem;
-	height: 1.25rem;
-	flex-shrink: 0;
-	background-size: contain;
-	background-repeat: no-repeat;
-	background-position: center;
-}
-
-.ln-icon-play::before    { background-image: var(--icon-play); }
-.ln-icon-pause::before   { background-image: var(--icon-pause); }
-.ln-icon-stop::before    { background-image: var(--icon-stop); }
-.ln-icon-mark::before    { background-image: var(--icon-mark); }
-.ln-icon-cue::before     { background-image: var(--icon-cue); }
-.ln-icon-loop::before    { background-image: var(--icon-loop); }
-.ln-icon-edit::before    { background-image: var(--icon-edit); }
-.ln-icon-search::before  { background-image: var(--icon-search); }
-.ln-icon-close::before   { background-image: var(--icon-close); }
-.ln-icon-up::before      { background-image: var(--icon-up); }
-.ln-icon-down::before    { background-image: var(--icon-down); }
-.ln-icon-remove::before  { background-image: var(--icon-remove); }
-.ln-icon-add::before     { background-image: var(--icon-add); }
-.ln-icon-music::before   { background-image: var(--icon-music); }
-.ln-icon-volume::before  { background-image: var(--icon-volume); }
-.ln-icon-folder::before  { background-image: var(--icon-folder); }
-.ln-icon-next::before    { background-image: var(--icon-next); }
-.ln-icon-drag::before     { background-image: var(--icon-drag); }
-.ln-icon-settings::before { background-image: var(--icon-settings); }
-.ln-icon-upload::before   { background-image: var(--icon-upload); }
-.ln-icon-check::before    { background-image: var(--icon-check); }
-.ln-icon-zoom-in::before  { background-image: var(--icon-zoom-in); }
-.ln-icon-zoom-out::before { background-image: var(--icon-zoom-out); }
-
-.ln-icon--sm::before { width: 1rem; height: 1rem; }
-.ln-icon--lg::before { width: 1.5rem; height: 1.5rem; }
 
 /* ==========================================================================
    3. RESET & BASE
@@ -723,7 +675,7 @@ fieldset {
 	width: 0.75rem;
 	height: 0.75rem;
 	margin-right: var(--gap-sm);
-	background-image: var(--icon-down);
+	background-image: var(--icon-chevron-down-white);
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -802,7 +754,7 @@ fieldset {
 	display: block;
 	width: 0.75rem;
 	height: 0.75rem;
-	background-image: var(--icon-drag);
+	background-image: var(--icon-drag-white);
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -1212,67 +1164,28 @@ button.active .led-indicator {
 }
 
 /* ==========================================================================
-   8. MODALS (ln-modal)
+   8. MODALS — overrides (base from ln-acme-modal.css)
    ========================================================================== */
 
 .ln-modal {
-	display: none;
-	position: fixed;
-	inset: 0;
-	background: var(--dialog-overlay);
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
-	z-index: 1000;
-	align-items: center;
-	justify-content: center;
-	opacity: 0;
-	transition: opacity var(--transition-fast);
-}
-
-.ln-modal--open {
-	display: flex;
-	opacity: 1;
+	background-color: rgba(0, 0, 0, 0.75);
 }
 
 .ln-modal__content {
-	background: var(--dialog-bg);
-	color: var(--text);
-	border: 1px solid #444;
-	border-radius: var(--radius);
 	max-width: 700px;
 	width: 90vw;
 	max-height: 85vh;
 	overflow: hidden;
-	animation: ln-modal-slideIn 0.2s ease;
-	display: grid;
-	grid-template-rows: auto 1fr auto;
-}
-
-@keyframes ln-modal-slideIn {
-	from { transform: translateY(-30px); opacity: 0; }
-	to { transform: translateY(0); opacity: 1; }
-}
-
-body.ln-modal-open {
-	overflow: hidden;
-}
-
-.ln-modal header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: var(--gap-md) var(--gap-lg);
-	border-bottom: 1px solid var(--border-color);
 }
 
 .ln-modal header h2 {
-	font-size: 1.1rem;
-	color: var(--text);
+	font-size: var(--text-base);
+	font-weight: var(--font-semibold);
+	color: var(--color-text-primary);
+	margin: 0;
 }
 
 .ln-modal main {
-	padding: var(--gap-md) var(--gap-lg);
-	overflow-y: auto;
 	max-height: 60vh;
 }
 
@@ -1281,15 +1194,8 @@ body.ln-modal-open {
 }
 
 .ln-modal footer {
-	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: var(--gap-md) var(--gap-lg);
-	border-top: 1px solid var(--border-color);
-}
-
-.ln-modal__content--sm {
-	max-width: 400px;
 }
 
 /* --- Loop Range Display --- */

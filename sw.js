@@ -3,12 +3,13 @@
    Strategy: cache-first for app shell, network-first for API
    ==================================================================== */
 
-var CACHE_NAME = 'ln-mixer-v3';
+var CACHE_NAME = 'ln-mixer-v4';
 
 var APP_SHELL = [
 	'./',
 	'./index.html',
 	'./assets/css/style.css',
+	'./assets/css/ln-acme-modal.css',
 	'./assets/js/ln-db.js',
 	'./assets/js/ln-profile.js',
 	'./assets/js/ln-playlist.js',
@@ -30,7 +31,8 @@ var LN_ACME = [
 	'./ln-acme/js/ln-toast/ln-toast.js',
 	'./ln-acme/js/ln-search/ln-search.js',
 	'./ln-acme/js/ln-sortable/ln-sortable.js',
-	'./ln-acme/js/ln-progress/ln-progress.js'
+	'./ln-acme/js/ln-progress/ln-progress.js',
+	'./ln-acme/dist/ln-acme-icons.css'
 ];
 
 /* ─── Install ─────────────────────────────────────────────────────── */

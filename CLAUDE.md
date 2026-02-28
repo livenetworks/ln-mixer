@@ -46,7 +46,8 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 - Each `<dialog>` wraps content in `<form method="dialog" data-ln-form="...">` — identity + context via `data-ln-*` on the form (no hidden inputs)
 
 ### CSS
-- `.ln-icon-*` classes for all icons — SVG data URIs in `::before` pseudo-elements, NO emojis
+- `.ln-icon-*` classes for all icons — sourced from `ln-acme/dist/ln-acme-icons.css` (Feather Icons, SVG data URIs in `::before` pseudo-elements, NO emojis)
+- Dark theme overrides in `:root` redirect `--icon-{name}-gray` → `var(--icon-{name}-white)` so ln-acme gray icons render white on dark bg
 - CSS custom properties (`--var`) for all design tokens
 - Dark theme with `--accent: #ffa500`
 - Touch targets minimum 44x44px
@@ -128,7 +129,7 @@ ln-dj-mixer/
     index.php             — PHP track library API (scans /music/, returns JSON)
   music/                  — audio files (Artist - Title.mp3 format)
   assets/
-    css/style.css         — tokens, icons, layout, components
+    css/style.css         — tokens, layout, components (icons from ln-acme)
     js/ln-db.js           — shared IndexedDB module (window.lnDb)
     js/ln-profile.js      — profile CRUD component
     js/ln-playlist.js     — playlist/track management component
@@ -141,6 +142,8 @@ ln-dj-mixer/
     img/placeholder.svg
     img/icon.svg          — PWA app icon (SVG, 512x512 viewBox)
   manifest.webmanifest    — PWA manifest (app name, icon, display mode)
+  ln-acme/
+    dist/ln-acme-icons.css  — icon system (Feather Icons, built from ln-acme SCSS)
   sw.js                   — Service Worker (app shell caching, offline support)
 ```
 
@@ -170,6 +173,19 @@ ln-dj-mixer/
   - [x] App icon (`assets/img/icon.svg`)
 
 ## Changelog
+
+### Unified Icon System — Feather Icons in ln-acme (2026-02-28)
+
+- **All icons unified in ln-acme** using Feather Icons (stroke-based, 24x24 viewBox, stroke-width 2, round linecap/linejoin)
+- **`ln-acme/scss/config/_icons.scss`** fully rewritten: ~50 icons, each with gray (`#374151`) + white variants
+- Replaced all Heroicons-style SVGs with Feather equivalents
+- Added 23 mixer-specific icons to ln-acme: play, pause, stop, mark, cue, loop, music, volume, next, folder, zoom-in, zoom-out, drag, chevron-up, chevron-down
+- **Icons-only build**: `ln-acme/scss/icons-only.scss` → `dist/ln-acme-icons.css` (46KB), avoids importing full ln-acme.css
+- **Mixer dark-theme strategy**: `:root` overrides redirect `--icon-{name}-gray` → `var(--icon-{name}-white)` so ln-acme gray icons render white
+- Special overrides: `--icon-drag-gray` uses mid-gray fill (`#666`), `--icon-check-gray` uses green stroke (`#22c55e`)
+- Removed all icon definitions and `.ln-icon-*` classes from mixer `style.css` — now sourced from ln-acme
+- SW: cache bumped to v4, `ln-acme-icons.css` added to LN_ACME cache array
+- Files changed: `ln-acme/scss/config/_icons.scss`, `ln-acme/scss/icons-only.scss` (new), `ln-acme/package.json`, `index.html`, `style.css`, `sw.js`, `CLAUDE.md`
 
 ### Waveform Component Extraction + Zoom + Timeline (2026-02-27)
 

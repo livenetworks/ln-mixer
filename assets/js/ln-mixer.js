@@ -346,7 +346,7 @@
 		btn.textContent = 'Added!';
 		btn.disabled = true;
 		setTimeout(function () {
-			btn.innerHTML = '<span class="ln-icon-add ln-icon--sm"></span> Add';
+			btn.innerHTML = '<span class="ln-icon-add--white ln-icon--sm"></span> Add';
 			btn.disabled = false;
 		}, 1200);
 	};

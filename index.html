@@ -10,6 +10,8 @@
 	<link rel="manifest" href="./manifest.webmanifest" />
 	<link rel="apple-touch-icon" href="./assets/img/icon.svg" />
 	<title>LN DJ Mixer</title>
+	<link rel="stylesheet" href="./ln-acme/dist/ln-acme-icons.css" />
+	<link rel="stylesheet" href="./assets/css/ln-acme-modal.css" />
 	<link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 <body>
@@ -28,24 +30,24 @@
 
 			<nav class="profile-bar" data-ln-profile>
 				<button type="button" class="profile-add" data-ln-action="new-profile">
-					<span class="ln-icon-add ln-icon--sm"></span>
+					<span class="ln-icon-add--white ln-icon--sm"></span>
 				</button>
 			</nav>
 
 			<fieldset class="volume-control">
 				<legend class="sr-only">Master Volume</legend>
-				<span class="ln-icon-volume ln-icon--sm"></span>
+				<span class="ln-icon-volume--white ln-icon--sm"></span>
 				<input type="range" id="master-volume" min="0" max="100" value="80"
 					data-ln-potentiometer="master" aria-label="Master Volume" />
 			</fieldset>
 
 			<nav class="topbar-actions">
 				<button type="button" data-ln-action="open-library">
-					<span class="ln-icon-folder"></span>
+					<span class="ln-icon-folder--white"></span>
 					<span class="label">Library</span>
 				</button>
 				<button type="button" data-ln-action="open-settings">
-					<span class="ln-icon-settings"></span>
+					<span class="ln-icon-settings--white"></span>
 					<span class="label">Settings</span>
 				</button>
 			</nav>
@@ -64,12 +66,12 @@
 			<!-- ====== EMPTY STATE (no profile) ====== -->
 			<section class="empty-state" data-ln-empty-state hidden>
 				<figure class="empty-state-icon">
-					<span class="ln-icon-add"></span>
+					<span class="ln-icon-add--white"></span>
 				</figure>
 				<h2>Welcome to LN DJ Mixer</h2>
 				<p>Create your first profile to get started.</p>
 				<button type="button" class="empty-state-btn" data-ln-action="new-profile">
-					<span class="ln-icon-add ln-icon--sm"></span>
+					<span class="ln-icon-add--white ln-icon--sm"></span>
 					<span class="label">New Profile</span>
 				</button>
 			</section>
@@ -99,8 +101,8 @@
 							<nav class="waveform-timeline" aria-hidden="true"></nav>
 						</figure>
 						<nav class="waveform-zoom">
-							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"><span class="ln-icon-zoom-in"></span></button>
-							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"><span class="ln-icon-zoom-out"></span></button>
+							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"><span class="ln-icon-zoom-in--white"></span></button>
+							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"><span class="ln-icon-zoom-out--white"></span></button>
 						</nav>
 					</fieldset>
 
@@ -115,38 +117,38 @@
 					<ul class="controls">
 						<li>
 							<button type="button" data-ln-transport="play" data-ln-deck-target="a">
-								<span class="ln-icon-play"></span>
+								<span class="ln-icon-play--white"></span>
 								<span class="label">Play</span>
 							</button>
 						</li>
 						<li>
 							<button type="button" data-ln-transport="stop" data-ln-deck-target="a">
-								<span class="ln-icon-stop"></span>
+								<span class="ln-icon-stop--white"></span>
 								<span class="label">Stop</span>
 							</button>
 						</li>
 						<li>
 							<button type="button" data-ln-cue="mark-start" data-ln-deck-target="a">
-								<span class="ln-icon-mark"></span>
+								<span class="ln-icon-mark--white"></span>
 								<span class="label">Cue A</span>
 							</button>
 						</li>
 						<li>
 							<button type="button" data-ln-cue="mark-end" data-ln-deck-target="a">
-								<span class="ln-icon-cue"></span>
+								<span class="ln-icon-cue--white"></span>
 								<span class="label">Cue B</span>
 							</button>
 						</li>
 						<li>
 							<button type="button" class="btn--led" data-ln-cue="loop" data-ln-deck-target="a" aria-pressed="false">
 								<mark class="led-indicator"></mark>
-								<span class="ln-icon-loop"></span>
+								<span class="ln-icon-loop--white"></span>
 								<span class="label">Loop</span>
 							</button>
 						</li>
 						<li>
 							<button type="button" data-ln-action="edit-track" data-ln-deck-target="a">
-								<span class="ln-icon-edit"></span>
+								<span class="ln-icon-edit--white"></span>
 								<span class="label">Opis</span>
 							</button>
 						</li>
@@ -177,8 +179,8 @@
 							<nav class="waveform-timeline" aria-hidden="true"></nav>
 						</figure>
 						<nav class="waveform-zoom">
-							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"><span class="ln-icon-zoom-in"></span></button>
-							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"><span class="ln-icon-zoom-out"></span></button>
+							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"><span class="ln-icon-zoom-in--white"></span></button>
+							<button type="button" class="btn btn--sm btn--ghost" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"><span class="ln-icon-zoom-out--white"></span></button>
 						</nav>
 					</fieldset>
 
@@ -193,38 +195,38 @@
 					<ul class="controls">
 						<li>
 							<button type="button" data-ln-transport="play" data-ln-deck-target="b">
-								<span class="ln-icon-play"></span>
+								<span class="ln-icon-play--white"></span>
 								<span class="label">Play</span>
 							</button>
 						</li>
 						<li>
 							<button type="button" data-ln-transport="stop" data-ln-deck-target="b">
-								<span class="ln-icon-stop"></span>
+								<span class="ln-icon-stop--white"></span>
 								<span class="label">Stop</span>
 							</button>
 						</li>
 						<li>
 							<button type="button" data-ln-cue="mark-start" data-ln-deck-target="b">
-								<span class="ln-icon-mark"></span>
+								<span class="ln-icon-mark--white"></span>
 								<span class="label">Cue A</span>
 							</button>
 						</li>
 						<li>
 							<button type="button" data-ln-cue="mark-end" data-ln-deck-target="b">
-								<span class="ln-icon-cue"></span>
+								<span class="ln-icon-cue--white"></span>
 								<span class="label">Cue B</span>
 							</button>
 						</li>
 						<li>
 							<button type="button" class="btn--led" data-ln-cue="loop" data-ln-deck-target="b" aria-pressed="false">
 								<mark class="led-indicator"></mark>
-								<span class="ln-icon-loop"></span>
+								<span class="ln-icon-loop--white"></span>
 								<span class="label">Loop</span>
 							</button>
 						</li>
 						<li>
 							<button type="button" data-ln-action="edit-track" data-ln-deck-target="b">
-								<span class="ln-icon-edit"></span>
+								<span class="ln-icon-edit--white"></span>
 								<span class="label">Opis</span>
 							</button>
 						</li>
@@ -242,7 +244,7 @@
 
 				<footer class="sidebar-footer">
 					<button type="button" data-ln-action="new-playlist">
-						<span class="ln-icon-add"></span>
+						<span class="ln-icon-add--white"></span>
 						<span class="label">New Playlist</span>
 					</button>
 				</footer>
@@ -262,7 +264,7 @@
 				<header>
 					<h2>New Playlist</h2>
 					<button type="button" class="btn--ghost" data-ln-modal-close>
-						<span class="ln-icon-close"></span>
+						<span class="ln-icon-close--white"></span>
 					</button>
 				</header>
 				<main>
@@ -274,7 +276,7 @@
 				<footer>
 					<span></span>
 					<button type="submit" data-ln-action="create-playlist">
-						<span class="ln-icon-add"></span>
+						<span class="ln-icon-add--white"></span>
 						<span class="label">Create</span>
 					</button>
 				</footer>
@@ -291,13 +293,13 @@
 				<header>
 					<h2>Track Library</h2>
 					<button type="button" class="btn--ghost" data-ln-modal-close>
-						<span class="ln-icon-close"></span>
+						<span class="ln-icon-close--white"></span>
 					</button>
 				</header>
 				<main>
 					<fieldset class="library-search" data-ln-search="library-list">
 						<legend class="sr-only">Search tracks</legend>
-						<span class="ln-icon-search ln-icon--sm"></span>
+						<span class="ln-icon-search--white ln-icon--sm"></span>
 						<input type="search" placeholder="Search tracks..." data-ln-search-input />
 					</fieldset>
 
@@ -324,7 +326,7 @@
 				<header>
 					<h2>Edit Track</h2>
 					<button type="button" class="btn--ghost" data-ln-modal-close>
-						<span class="ln-icon-close"></span>
+						<span class="ln-icon-close--white"></span>
 					</button>
 				</header>
 				<main>
@@ -338,7 +340,7 @@
 				</main>
 				<footer>
 					<button type="button" class="btn--danger" data-ln-action="remove-track">
-						<span class="ln-icon-remove ln-icon--sm"></span>
+						<span class="ln-icon-remove--white ln-icon--sm"></span>
 						<span class="label">Remove</span>
 					</button>
 					<button type="submit" data-ln-action="save-track-edit">
@@ -360,7 +362,7 @@
 				<header>
 					<h2>Name Loop Segment</h2>
 					<button type="button" class="btn--ghost" data-ln-modal-close>
-						<span class="ln-icon-close"></span>
+						<span class="ln-icon-close--white"></span>
 					</button>
 				</header>
 				<main>
@@ -373,7 +375,7 @@
 				<footer>
 					<span></span>
 					<button type="submit">
-						<span class="ln-icon-add ln-icon--sm"></span>
+						<span class="ln-icon-add--white ln-icon--sm"></span>
 						<span class="label">Save Loop</span>
 					</button>
 				</footer>
@@ -390,7 +392,7 @@
 				<header>
 					<h2>Delete Playlist</h2>
 					<button type="button" class="btn--ghost" data-ln-modal-close>
-						<span class="ln-icon-close"></span>
+						<span class="ln-icon-close--white"></span>
 					</button>
 				</header>
 				<main>
@@ -399,7 +401,7 @@
 				<footer>
 					<button type="button" data-ln-modal-close>Cancel</button>
 					<button type="submit" class="btn--danger">
-						<span class="ln-icon-remove ln-icon--sm"></span>
+						<span class="ln-icon-remove--white ln-icon--sm"></span>
 						<span class="label">Delete</span>
 					</button>
 				</footer>
@@ -416,7 +418,7 @@
 				<header>
 					<h2>Settings</h2>
 					<button type="button" class="btn--ghost" data-ln-modal-close>
-						<span class="ln-icon-close"></span>
+						<span class="ln-icon-close--white"></span>
 					</button>
 				</header>
 				<main>
@@ -436,7 +438,7 @@
 								</figure>
 								<nav>
 									<button type="button" data-ln-action="upload-logo">
-										<span class="ln-icon-upload ln-icon--sm"></span>
+										<span class="ln-icon-upload--white ln-icon--sm"></span>
 										<span class="label">Choose Image</span>
 									</button>
 								</nav>
@@ -450,7 +452,7 @@
 							<section class="cache-info">
 								<output data-ln-cache-size>No cached tracks</output>
 								<button type="button" data-ln-action="clear-audio-cache">
-									<span class="ln-icon-remove ln-icon--sm"></span>
+									<span class="ln-icon-remove--white ln-icon--sm"></span>
 									<span class="label">Clear Cache</span>
 								</button>
 							</section>
@@ -460,7 +462,7 @@
 				</main>
 				<footer>
 					<button type="button" class="btn--danger" data-ln-action="delete-profile">
-						<span class="ln-icon-remove ln-icon--sm"></span>
+						<span class="ln-icon-remove--white ln-icon--sm"></span>
 						<span class="label">Delete Profile</span>
 					</button>
 					<button type="submit" data-ln-action="save-settings">
@@ -480,7 +482,7 @@
 				<header>
 					<h2>New Profile</h2>
 					<button type="button" class="btn--ghost" data-ln-modal-close>
-						<span class="ln-icon-close"></span>
+						<span class="ln-icon-close--white"></span>
 					</button>
 				</header>
 				<main>
@@ -492,7 +494,7 @@
 				<footer>
 					<span></span>
 					<button type="submit" data-ln-action="create-profile">
-						<span class="ln-icon-add"></span>
+						<span class="ln-icon-add--white"></span>
 						<span class="label">Create</span>
 					</button>
 				</footer>
@@ -531,7 +533,7 @@
 		<section class="playlist-group" data-ln-toggle data-ln-playlist-id>
 			<header data-ln-toggle-for data-ln-playlist-toggle>
 				<span class="playlist-name"></span>
-				<button type="button" class="playlist-delete-btn ln-icon-remove"
+				<button type="button" class="playlist-delete-btn ln-icon-remove--white"
 					data-ln-action="remove-playlist"
 					aria-label="Delete playlist"></button>
 			</header>
@@ -550,10 +552,10 @@
 				<p class="track-artist"></p>
 			</article>
 			<button type="button" data-ln-action="add-to-playlist">
-				<span class="ln-icon-add ln-icon--sm"></span> Add
+				<span class="ln-icon-add--white ln-icon--sm"></span> Add
 			</button>
 			<button type="button" class="library-uncache-btn" data-ln-action="remove-cached">
-				<span class="ln-icon-remove ln-icon--sm"></span>
+				<span class="ln-icon-remove--white ln-icon--sm"></span>
 			</button>
 			<figure class="library-download-progress" data-ln-progress
 				role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">

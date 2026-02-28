@@ -321,7 +321,7 @@
 		var icon = document.createElement('figure');
 		icon.className = 'library-no-api-icon';
 		var span = document.createElement('span');
-		span.className = 'ln-icon-settings';
+		span.className = 'ln-icon-settings--white';
 		icon.appendChild(span);
 
 		var title = document.createElement('h3');
@@ -335,7 +335,7 @@
 		btn.className = 'library-no-api-btn';
 		btn.setAttribute('data-ln-action', 'open-settings-from-library');
 		var btnIcon = document.createElement('span');
-		btnIcon.className = 'ln-icon-settings ln-icon--sm';
+		btnIcon.className = 'ln-icon-settings--white ln-icon--sm';
 		var btnLabel = document.createElement('span');
 		btnLabel.className = 'label';
 		btnLabel.textContent = 'Open Settings';
