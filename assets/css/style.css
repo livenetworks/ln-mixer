@@ -447,58 +447,9 @@ fieldset {
 	background: none;
 }
 
-.waveform-progress {
-	position: absolute;
-	inset: 0;
-	z-index: 2;
-	background: hsl(var(--accent) /0.08);
-	pointer-events: none;
-	transition: width 0.1s linear;
-}
-
-.waveform-playhead {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	z-index: 2;
-	width: 2px;
-	background: #fff;
-	box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
-	pointer-events: none;
-	transition: left 0.1s linear;
-}
-
-.cue-marker {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	z-index: 2;
-	width: 2px;
-	pointer-events: none;
-}
-
-.cue-marker--start { background: hsl(var(--cue)); }
-.cue-marker--end { background: hsl(var(--cue)); opacity: 0.6; }
-
-.cue-region {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	z-index: 2;
-	background: hsl(var(--cue) /0.15);
-	pointer-events: none;
-}
-
-.cue-marker--pending {
-	background: hsl(var(--cue));
-	opacity: 0.8;
-	animation: cue-pulse 1s ease-in-out infinite;
-}
-
-@keyframes cue-pulse {
-	0%, 100% { opacity: 0.8; }
-	50% { opacity: 0.3; }
-}
+/* Overlay styles (.waveform-progress, .waveform-playhead, .cue-marker-*, .cue-region)
+   are inline in ln-waveform.js — WaveSurfer Shadow DOM blocks document CSS classes.
+   CSS custom properties (--accent, --cue) DO penetrate Shadow DOM. */
 
 /* --- Waveform Container + Zoom --- */
 

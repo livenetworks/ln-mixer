@@ -244,27 +244,27 @@
 		this._clearTimeline();
 	};
 
+	// Inline styles required — overlays are relocated into WaveSurfer's Shadow DOM wrapper,
+	// document-level CSS classes cannot reach them. CSS custom properties DO penetrate Shadow DOM.
+	var _OVERLAY_BASE = 'position:absolute;top:0;bottom:0;pointer-events:none;z-index:2;';
+
 	_component.prototype.setProgress = function (percent) {
-		if (this._els.progress) this._els.progress.style.width = percent + '%';
-		if (this._els.playhead) this._els.playhead.style.left = percent + '%';
+		if (this._els.progress) this._els.progress.style.cssText = _OVERLAY_BASE + 'left:0;width:' + percent + '%;background:hsl(var(--accent)/0.08);transition:width 0.1s linear;';
+		if (this._els.playhead) this._els.playhead.style.cssText = _OVERLAY_BASE + 'left:' + percent + '%;width:2px;background:#fff;box-shadow:0 0 6px rgba(255,255,255,0.5);transition:left 0.1s linear;';
 	};
 
 	_component.prototype.setRegion = function (startPct, endPct) {
 		var e = this._els;
-		if (e.cueStart) { e.cueStart.style.left = startPct + '%'; e.cueStart.style.display = ''; }
-		if (e.cueEnd) { e.cueEnd.style.left = endPct + '%'; e.cueEnd.style.display = ''; }
-		if (e.cueRegion) {
-			e.cueRegion.style.left = startPct + '%';
-			e.cueRegion.style.width = (endPct - startPct) + '%';
-			e.cueRegion.style.display = '';
-		}
+		if (e.cueStart) e.cueStart.style.cssText = _OVERLAY_BASE + 'left:' + startPct + '%;width:2px;background:hsl(var(--cue));';
+		if (e.cueEnd) e.cueEnd.style.cssText = _OVERLAY_BASE + 'left:' + endPct + '%;width:2px;background:hsl(var(--cue));opacity:0.6;';
+		if (e.cueRegion) e.cueRegion.style.cssText = _OVERLAY_BASE + 'left:' + startPct + '%;width:' + (endPct - startPct) + '%;background:hsl(var(--cue)/0.15);';
 	};
 
 	_component.prototype.clearRegion = function () {
 		var e = this._els;
-		if (e.cueStart) e.cueStart.style.display = 'none';
-		if (e.cueEnd) e.cueEnd.style.display = 'none';
-		if (e.cueRegion) e.cueRegion.style.display = 'none';
+		if (e.cueStart) e.cueStart.style.cssText = 'display:none;';
+		if (e.cueEnd) e.cueEnd.style.cssText = 'display:none;';
+		if (e.cueRegion) e.cueRegion.style.cssText = 'display:none;';
 	};
 
 	_component.prototype.clearAll = function () {
@@ -275,14 +275,13 @@
 
 	_component.prototype.setPendingCue = function (pct) {
 		if (this._els.cuePending) {
-			this._els.cuePending.style.left = pct + '%';
-			this._els.cuePending.style.display = '';
+			this._els.cuePending.style.cssText = _OVERLAY_BASE + 'left:' + pct + '%;width:2px;background:hsl(var(--cue));opacity:0.8;';
 		}
 	};
 
 	_component.prototype.clearPendingCue = function () {
 		if (this._els.cuePending) {
-			this._els.cuePending.style.display = 'none';
+			this._els.cuePending.style.cssText = 'display:none;';
 		}
 	};
 
