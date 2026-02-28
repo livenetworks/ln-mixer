@@ -35,7 +35,7 @@ var LN_ACME = [
 	'./ln-acme/js/ln-search/ln-search.js',
 	'./ln-acme/js/ln-sortable/ln-sortable.js',
 	'./ln-acme/js/ln-progress/ln-progress.js',
-	'./ln-acme/dist/ln-acme-icons.css'
+	'./assets/css/ln-acme-icons.css'
 ];
 
 /* ─── Install ─────────────────────────────────────────────────────── */
