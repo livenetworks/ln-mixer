@@ -324,7 +324,6 @@
 			var minPxPerSec = (containerWidth / this._duration) * factor;
 			this._surfer.zoom(minPxPerSec);
 		}
-		this._renderTimeline();
 		this.dom.classList.toggle('waveform--zoomed', this._zoomLevel > 0);
 	};
 
@@ -375,8 +374,7 @@
 		this._clearTimeline();
 
 		var duration = this._duration;
-		var factor = this._zoomFactors[this._zoomLevel] || 1;
-		var containerWidth = this.dom.clientWidth * factor;
+		var containerWidth = this.dom.clientWidth;
 		var pxPerSec = containerWidth / duration;
 
 		// Pick nice tick interval (~80px between major ticks)
