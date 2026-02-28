@@ -58,6 +58,7 @@
 		this._loading = false;
 
 		this._list = dom.querySelector('[data-ln-library-list]');
+		this._noApi = dom.querySelector('[data-ln-library-no-api]');
 		this._search = dom.querySelector('[data-ln-search]');
 
 		this._bindEvents();
@@ -125,6 +126,7 @@
 		}
 
 		this._loading = true;
+		this._hideNoApi();
 		var self = this;
 
 		// Show loading state
@@ -311,42 +313,14 @@
 	};
 
 	_component.prototype._showNoApi = function () {
-		if (!this._list) return;
-		this._list.innerHTML = '';
+		if (this._noApi) this._noApi.hidden = false;
+		if (this._list) this._list.hidden = true;
 		if (this._search) this._search.hidden = true;
+	};
 
-		var li = document.createElement('li');
-		li.className = 'library-no-api';
-
-		var icon = document.createElement('figure');
-		icon.className = 'library-no-api-icon';
-		var span = document.createElement('span');
-		span.className = 'ln-icon-settings--white';
-		icon.appendChild(span);
-
-		var title = document.createElement('h3');
-		title.textContent = 'No API configured';
-
-		var desc = document.createElement('p');
-		desc.textContent = 'Set the Library API URL in Settings to load tracks.';
-
-		var btn = document.createElement('button');
-		btn.type = 'button';
-		btn.className = 'library-no-api-btn';
-		btn.setAttribute('data-ln-action', 'open-settings-from-library');
-		var btnIcon = document.createElement('span');
-		btnIcon.className = 'ln-icon-settings--white ln-icon--sm';
-		var btnLabel = document.createElement('span');
-		btnLabel.className = 'label';
-		btnLabel.textContent = 'Open Settings';
-		btn.appendChild(btnIcon);
-		btn.appendChild(btnLabel);
-
-		li.appendChild(icon);
-		li.appendChild(title);
-		li.appendChild(desc);
-		li.appendChild(btn);
-		this._list.appendChild(li);
+	_component.prototype._hideNoApi = function () {
+		if (this._noApi) this._noApi.hidden = true;
+		if (this._list) this._list.hidden = false;
 	};
 
 	/* ─── DOM Observer ────────────────────────────────────────────── */

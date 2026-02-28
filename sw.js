@@ -10,6 +10,7 @@ var APP_SHELL = [
 	'./index.html',
 	'./assets/css/style.css',
 	'./assets/css/ln-acme-modal.css',
+	'./assets/css/ln-acme-toast.css',
 	'./assets/js/ln-db.js',
 	'./assets/js/ln-profile.js',
 	'./assets/js/ln-playlist.js',

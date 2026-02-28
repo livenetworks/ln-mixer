@@ -12,6 +12,7 @@
 	<title>LN DJ Mixer</title>
 	<link rel="stylesheet" href="./ln-acme/dist/ln-acme-icons.css" />
 	<link rel="stylesheet" href="./assets/css/ln-acme-modal.css" />
+	<link rel="stylesheet" href="./assets/css/ln-acme-toast.css" />
 	<link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 <body>
@@ -297,6 +298,18 @@
 					</button>
 				</header>
 				<main>
+					<section class="library-no-api" data-ln-library-no-api hidden>
+						<figure class="library-no-api-icon">
+							<span class="ln-icon-settings--white"></span>
+						</figure>
+						<h3>No API configured</h3>
+						<p>Set the Library API URL in Settings to load tracks.</p>
+						<button type="button" class="library-no-api-btn" data-ln-action="open-settings-from-library">
+							<span class="ln-icon-settings--white ln-icon--sm"></span>
+							<span class="label">Open Settings</span>
+						</button>
+					</section>
+
 					<fieldset class="library-search" data-ln-search="library-list">
 						<legend class="sr-only">Search tracks</legend>
 						<span class="ln-icon-search--white ln-icon--sm"></span>
