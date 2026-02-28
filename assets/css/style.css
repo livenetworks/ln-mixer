@@ -597,8 +597,8 @@ fieldset {
 }
 
 .waveform-zoom button {
-	min-width: 28px;
-	min-height: 28px;
+	min-width: var(--touch-min);
+	min-height: var(--touch-min);
 	padding: 2px;
 	background: rgba(0, 0, 0, 0.6);
 	border-radius: var(--radius);
@@ -639,6 +639,7 @@ fieldset {
 	top: 0;
 	left: 2px;
 	font-size: 0.65rem;
+	font-family: var(--font-mono);
 	color: var(--text-dim);
 	white-space: nowrap;
 }
