@@ -3,7 +3,7 @@
    Strategy: cache-first for app shell, network-first for API
    ==================================================================== */
 
-var CACHE_NAME = 'ln-mixer-v5';
+var CACHE_NAME = 'ln-mixer-v7';
 
 var APP_SHELL = [
 	'./',

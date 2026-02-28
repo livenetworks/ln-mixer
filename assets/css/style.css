@@ -8,33 +8,32 @@
    ========================================================================== */
 
 :root {
-	/* Colors */
+	/* Surfaces */
 	--bg: #111;
-	--panel-bg: #1a1a1a;
-	--sidebar-bg: #181818;
-	--topbar-bg: #1a1a1a;
+	--surface: #1a1a1a;
+	--surface-raised: #222;
+	--surface-sunken: #181818;
+
+	/* Text */
 	--text: #eee;
 	--text-muted: #999;
 	--text-dim: #666;
 	--highlight: #ffa;
-	--accent: #ffa500;
-	--accent-active: #ff8c00;
-	--accent-dim: rgba(255, 165, 0, 0.15);
-	--accent-glow: rgba(255, 165, 0, 0.3);
-	--deck-b-color: #44aaff;
-	--deck-b-dim: rgba(68, 170, 255, 0.15);
-	--deck-b-glow: rgba(68, 170, 255, 0.3);
+
+	/* Accent — HSL values (orange); override in .deck--b for blue */
+	--accent: 39 100% 50%;
+	--accent-active: 32 100% 50%;
+
+	/* Functional colors — HSL values */
+	--cue: 0 100% 63%;
+	--loop: 153 55% 53%;
+
+	/* Interactive */
 	--track-bg: #333;
 	--button-bg: #333;
 	--button-hover: #444;
-	--button-active: #ffa500;
 	--button-border: #444;
 	--border-color: #2a2a2a;
-	--cue-color: #ff4444;
-	--cue-dim: rgba(255, 68, 68, 0.15);
-	--loop-color: #44cc88;
-	--surface-bg: #222;
-	--text-primary: #eee;
 	--input-bg: #2a2a2a;
 	--input-border: #444;
 
@@ -60,25 +59,24 @@
 	--transition-fast: 0.15s ease;
 	--transition-base: 0.25s ease;
 
-	/* ln-acme token mapping (dark theme values) */
-	--color-bg-primary: #1e1e1e;
-	--color-bg-secondary: #252525;
-	--color-bg-body: #111;
-	--color-border: #2a2a2a;
-	--color-text-primary: #eee;
-	--color-text-muted: #999;
-	--color-primary: #ffa500;
-	--color-primary-hover: #ff8c00;
-	--color-primary-light: rgba(255, 165, 0, 0.15);
+	/* ln-acme token mapping (consumed by ln-acme-modal.css, ln-acme-toast.css) */
+	--color-bg-primary: var(--surface);
+	--color-bg-secondary: var(--surface-raised);
+	--color-bg-body: var(--bg);
+	--color-border: var(--border-color);
+	--color-text-primary: var(--text);
+	--color-text-muted: var(--text-muted);
+	--color-primary: hsl(var(--accent));
+	--color-primary-hover: hsl(var(--accent-active));
+	--color-primary-light: hsl(var(--accent) / 0.15);
 	--color-error: #dc2626;
 	--color-error-hover: #b91c1c;
 	--z-modal: 1000;
-	--radius-md: 6px;
+	--radius-md: var(--radius);
 	--shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
-	--spacing-lg: 1.5rem;
-	--spacing-sm: 0.5rem;
+	--spacing-lg: var(--gap-lg);
+	--spacing-sm: var(--gap-sm);
 	--text-base: 1rem;
-	--text-lg: 1.125rem;
 	--font-semibold: 600;
 }
 
@@ -152,7 +150,7 @@ fieldset {
 	display: block;
 	height: 100%;
 	width: 0;
-	background: var(--accent);
+	background: hsl(var(--accent));
 	border-radius: 0;
 	transition: width 0.15s ease;
 }
@@ -164,7 +162,7 @@ fieldset {
 	align-items: center;
 	gap: var(--gap-lg);
 	padding: 0 var(--gap-md);
-	background: var(--topbar-bg);
+	background: var(--surface);
 	border-bottom: 1px solid var(--border-color);
 }
 
@@ -211,9 +209,9 @@ fieldset {
 }
 
 .profile-btn.active {
-	background: var(--accent);
+	background: hsl(var(--accent));
 	color: #000;
-	border-color: var(--accent);
+	border-color: hsl(var(--accent));
 	font-weight: 700;
 }
 
@@ -232,8 +230,8 @@ fieldset {
 }
 
 .profile-add:hover {
-	border-color: var(--accent);
-	color: var(--accent);
+	border-color: hsl(var(--accent));
+	color: hsl(var(--accent));
 }
 
 .volume-control {
@@ -258,7 +256,7 @@ fieldset {
 	width: 16px;
 	height: 16px;
 	border-radius: 50%;
-	background: var(--accent);
+	background: hsl(var(--accent));
 	cursor: pointer;
 }
 
@@ -293,7 +291,7 @@ fieldset {
 	width: 64px;
 	height: 64px;
 	border-radius: 50%;
-	background: var(--surface-bg);
+	background: var(--surface-raised);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -308,7 +306,7 @@ fieldset {
 
 .empty-state h2 {
 	font-size: 1.25rem;
-	color: var(--text-primary);
+	color: var(--text);
 	margin: 0;
 }
 
@@ -322,7 +320,7 @@ fieldset {
 	align-items: center;
 	gap: 0.4rem;
 	padding: 0.75rem 1.5rem;
-	background: var(--accent);
+	background: hsl(var(--accent));
 	color: var(--bg);
 	border: none;
 	border-radius: var(--radius);
@@ -356,18 +354,19 @@ fieldset {
 /* --- Individual Deck --- */
 
 .deck {
-	--deck-color: var(--accent);
+	--deck-color: hsl(var(--accent));
 	display: flex;
 	flex-direction: column;
 	gap: var(--gap-sm);
 	padding: var(--gap-md) var(--gap-lg);
-	background: var(--panel-bg);
+	background: var(--surface);
 	flex: 1;
 	min-height: 0;
 }
 
 .deck--b {
-	--deck-color: var(--deck-b-color);
+	--accent: 210 100% 63%;
+	--deck-color: hsl(var(--accent));
 }
 
 .deck-header {
@@ -389,14 +388,9 @@ fieldset {
 	letter-spacing: 0.08em;
 	padding: 0.15rem 0.5rem;
 	border-radius: 2px;
-	background: var(--accent-dim);
-	color: var(--accent);
+	background: hsl(var(--accent) /0.15);
+	color: hsl(var(--accent));
 	font-weight: 700;
-}
-
-.deck-badge--b {
-	background: var(--deck-b-dim);
-	color: var(--deck-b-color);
 }
 
 /* --- Track Info in Deck --- */
@@ -449,13 +443,9 @@ fieldset {
 	position: absolute;
 	inset: 0;
 	z-index: 2;
-	background: rgba(255, 165, 0, 0.08);
+	background: hsl(var(--accent) /0.08);
 	pointer-events: none;
 	transition: width 0.1s linear;
-}
-
-.deck--b .waveform-progress {
-	background: rgba(68, 170, 255, 0.06);
 }
 
 .waveform-playhead {
@@ -479,20 +469,20 @@ fieldset {
 	pointer-events: none;
 }
 
-.cue-marker--start { background: var(--cue-color); }
-.cue-marker--end { background: var(--cue-color); opacity: 0.6; }
+.cue-marker--start { background: hsl(var(--cue)); }
+.cue-marker--end { background: hsl(var(--cue)); opacity: 0.6; }
 
 .cue-region {
 	position: absolute;
 	top: 0;
 	bottom: 0;
 	z-index: 2;
-	background: var(--cue-dim);
+	background: hsl(var(--cue) /0.15);
 	pointer-events: none;
 }
 
 .cue-marker--pending {
-	background: var(--cue-color);
+	background: hsl(var(--cue));
 	opacity: 0.8;
 	animation: cue-pulse 1s ease-in-out infinite;
 }
@@ -631,7 +621,7 @@ fieldset {
    ========================================================================== */
 
 .sidebar {
-	background: var(--sidebar-bg);
+	background: var(--surface-sunken);
 	border-left: 1px solid var(--border-color);
 	display: flex;
 	flex-direction: column;
@@ -665,8 +655,8 @@ fieldset {
 }
 
 .playlist-group.open > header {
-	color: var(--accent);
-	background: var(--accent-dim);
+	color: hsl(var(--accent));
+	background: hsl(var(--accent) /0.15);
 }
 
 .playlist-group > header::before {
@@ -725,7 +715,7 @@ fieldset {
 	column-gap: var(--gap-sm);
 	row-gap: 2px;
 	padding: var(--gap-sm) var(--gap-md);
-	background: var(--sidebar-bg);
+	background: var(--surface-sunken);
 	align-items: center;
 }
 
@@ -776,16 +766,16 @@ fieldset {
 }
 
 .track-list > li.ln-sortable--dragging > .track-content {
-	background: var(--panel-bg);
+	background: var(--surface);
 }
 
 /* Drop indicator line (ln-sortable component) */
 .track-list > li.ln-sortable--drop-before {
-	box-shadow: inset 0 2px 0 0 var(--accent);
+	box-shadow: inset 0 2px 0 0 hsl(var(--accent));
 }
 
 .track-list > li.ln-sortable--drop-after {
-	box-shadow: inset 0 -2px 0 0 var(--accent);
+	box-shadow: inset 0 -2px 0 0 hsl(var(--accent));
 }
 
 .track-info {
@@ -854,7 +844,7 @@ fieldset {
 }
 
 .indicator-loop {
-	color: var(--loop-color);
+	color: hsl(var(--loop));
 }
 
 .indicator-loop::before {
@@ -865,47 +855,47 @@ fieldset {
 
 .loop-count-badge {
 	font-size: 0.6rem;
-	color: var(--loop-color);
+	color: hsl(var(--loop));
 	font-family: var(--font-mono);
-	background: rgba(68, 204, 136, 0.1);
+	background: hsl(var(--loop) /0.1);
 	padding: 0.1rem 0.3rem;
 	border-radius: 2px;
 }
 
 /* Active on Deck A */
 .track-list > li.active-a > .track-content {
-	background: var(--accent-dim);
-	border-left: 3px solid var(--accent);
+	background: hsl(var(--accent) /0.15);
+	border-left: 3px solid hsl(var(--accent));
 }
 
 .track-list > li.active-a .track-name {
-	color: var(--accent);
+	color: hsl(var(--accent));
 }
 
 .track-list .active-a .track-number {
-	color: var(--accent);
+	color: hsl(var(--accent));
 	font-weight: 700;
 }
 
 /* Active on Deck B */
 .track-list > li.active-b > .track-content {
-	background: var(--deck-b-dim);
-	border-left: 3px solid var(--deck-b-color);
+	background: hsl(210 100% 63% / 0.15);
+	border-left: 3px solid hsl(210 100% 63%);
 }
 
 .track-list > li.active-b .track-name {
-	color: var(--deck-b-color);
+	color: hsl(210 100% 63%);
 }
 
 .track-list .active-b .track-number {
-	color: var(--deck-b-color);
+	color: hsl(210 100% 63%);
 	font-weight: 700;
 }
 
 /* Both decks on same track */
 .track-list > li.active-a.active-b > .track-content {
-	background: linear-gradient(90deg, var(--accent-dim), var(--deck-b-dim));
-	border-left: 3px solid var(--accent);
+	background: linear-gradient(90deg, hsl(var(--accent) / 0.15), hsl(210 100% 63% / 0.15));
+	border-left: 3px solid hsl(var(--accent));
 }
 
 /* --- Load-to-Deck Buttons in Sidebar --- */
@@ -936,34 +926,34 @@ fieldset {
 }
 
 .load-btn--a {
-	background: rgba(255, 165, 0, 0.15);
-	border: 2px solid var(--accent);
-	color: var(--accent);
+	background: hsl(var(--accent) /0.15);
+	border: 2px solid hsl(var(--accent));
+	color: hsl(var(--accent));
 }
 
 .load-btn--a:hover {
-	background: rgba(255, 165, 0, 0.3);
+	background: hsl(var(--accent) /0.3);
 }
 
 .load-btn--a.load-btn--loaded {
-	background: var(--accent);
+	background: hsl(var(--accent));
 	color: #000;
 	cursor: default;
 	pointer-events: none;
 }
 
 .load-btn--b {
-	background: rgba(68, 170, 255, 0.15);
-	border: 2px solid var(--deck-b-color);
-	color: var(--deck-b-color);
+	background: hsl(210 100% 63% / 0.15);
+	border: 2px solid hsl(210 100% 63%);
+	color: hsl(210 100% 63%);
 }
 
 .load-btn--b:hover {
-	background: rgba(68, 170, 255, 0.3);
+	background: hsl(210 100% 63% / 0.3);
 }
 
 .load-btn--b.load-btn--loaded {
-	background: var(--deck-b-color);
+	background: hsl(210 100% 63%);
 	color: #000;
 	cursor: default;
 	pointer-events: none;
@@ -995,19 +985,13 @@ button:hover {
 }
 
 button.active {
-	background: var(--button-active);
+	background: hsl(var(--accent));
 	color: #000;
-	border-color: var(--accent-active);
+	border-color: hsl(var(--accent-active));
 }
 
 button.active [class*="ln-icon-"]::before {
 	filter: brightness(0);
-}
-
-/* Deck B active buttons use blue */
-.deck--b button.active {
-	background: var(--deck-b-color);
-	border-color: var(--deck-b-color);
 }
 
 button.btn--sm {
@@ -1025,8 +1009,8 @@ button.btn--ghost:hover {
 }
 
 button.btn--danger:hover {
-	background: rgba(255, 68, 68, 0.2);
-	border-color: var(--cue-color);
+	background: hsl(var(--cue) /0.2);
+	border-color: hsl(var(--cue));
 }
 
 /* --- LED Button (Loop toggle) --- */
@@ -1050,13 +1034,8 @@ button.btn--danger:hover {
 }
 
 button.active .led-indicator {
-	background: var(--loop-color);
-	box-shadow: 0 0 8px var(--loop-color), 0 0 16px rgba(68, 204, 136, 0.3);
-}
-
-.deck--b button.active .led-indicator {
-	background: var(--deck-b-color);
-	box-shadow: 0 0 8px var(--deck-b-color), 0 0 16px rgba(68, 170, 255, 0.3);
+	background: hsl(var(--accent));
+	box-shadow: 0 0 8px hsl(var(--accent)), 0 0 16px hsl(var(--accent) / 0.3);
 }
 
 /* --- Loop Segment Buttons Strip --- */
@@ -1082,8 +1061,8 @@ button.active .led-indicator {
 	letter-spacing: 0.04em;
 	border-radius: var(--radius);
 	background: transparent;
-	border: 1px solid var(--loop-color);
-	color: var(--loop-color);
+	border: 1px solid hsl(var(--accent));
+	color: hsl(var(--accent));
 	cursor: pointer;
 	touch-action: manipulation;
 	min-height: 44px;
@@ -1105,38 +1084,18 @@ button.active .led-indicator {
 }
 
 .loop-seg-btn:hover {
-	background: rgba(68, 204, 136, 0.15);
+	background: hsl(var(--accent) / 0.15);
 }
 
 .loop-seg-btn.active {
-	background: rgba(68, 204, 136, 0.2);
-	border-color: var(--loop-color);
-	color: var(--loop-color);
+	background: hsl(var(--accent) / 0.2);
+	border-color: hsl(var(--accent));
+	color: hsl(var(--accent));
 }
 
 .loop-seg-btn.active .led-indicator {
-	background: var(--loop-color);
-	box-shadow: 0 0 8px var(--loop-color), 0 0 16px rgba(68, 204, 136, 0.3);
-}
-
-.deck--b .loop-seg-btn {
-	border-color: var(--deck-b-color);
-	color: var(--deck-b-color);
-}
-
-.deck--b .loop-seg-btn:hover {
-	background: rgba(68, 170, 255, 0.15);
-}
-
-.deck--b .loop-seg-btn.active {
-	background: rgba(68, 170, 255, 0.2);
-	border-color: var(--deck-b-color);
-	color: var(--deck-b-color);
-}
-
-.deck--b .loop-seg-btn.active .led-indicator {
-	background: var(--deck-b-color);
-	box-shadow: 0 0 8px var(--deck-b-color), 0 0 16px rgba(68, 170, 255, 0.3);
+	background: hsl(var(--accent));
+	box-shadow: 0 0 8px hsl(var(--accent)), 0 0 16px hsl(var(--accent) / 0.3);
 }
 
 .loop-seg-remove {
@@ -1144,9 +1103,9 @@ button.active .led-indicator {
 	align-items: center;
 	justify-content: center;
 	padding: 0;
-	background: rgba(255, 68, 68, 0.15);
+	background: hsl(var(--cue) /0.15);
 	border: none;
-	border-left: 1px solid rgba(255, 68, 68, 0.3);
+	border-left: 1px solid hsl(var(--cue) /0.3);
 	min-width: 40px;
 	min-height: auto;
 	cursor: pointer;
@@ -1160,7 +1119,7 @@ button.active .led-indicator {
 }
 
 .loop-seg-remove:hover {
-	background: rgba(255, 68, 68, 0.35);
+	background: hsl(var(--cue) /0.35);
 }
 
 /* ==========================================================================
@@ -1206,7 +1165,7 @@ button.active .led-indicator {
 	display: block;
 	font-family: var(--font-mono);
 	font-size: 1.1rem;
-	color: var(--loop-color);
+	color: hsl(var(--loop));
 	margin-bottom: var(--gap-md);
 }
 
@@ -1324,14 +1283,14 @@ button.active .led-indicator {
 	display: block;
 	height: 100%;
 	width: 0;
-	background: var(--accent);
+	background: hsl(var(--accent));
 	border-radius: 0;
 	transition: width 0.15s ease;
 }
 
 /* Cached state: green bar at 100% */
 .library-list > li[data-ln-cached] .library-download-progress > [data-ln-progress] {
-	background: #22c55e;
+	background: hsl(var(--loop));
 }
 
 /* Uncache button — positioned at end of row 1, only when cached */
@@ -1349,7 +1308,7 @@ button.active .led-indicator {
 
 .library-uncache-btn:hover,
 .library-uncache-btn:active {
-	background: rgba(255, 68, 68, 0.2);
+	background: hsl(var(--cue) /0.2);
 }
 
 .library-uncache-btn .ln-icon-remove::before {
@@ -1384,7 +1343,7 @@ button.active .led-indicator {
 	width: 64px;
 	height: 64px;
 	border-radius: 50%;
-	background: var(--surface-bg);
+	background: var(--surface-raised);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1399,7 +1358,7 @@ button.active .led-indicator {
 
 .library-no-api h3 {
 	font-size: 1.125rem;
-	color: var(--text-primary);
+	color: var(--text);
 	margin: 0;
 }
 
@@ -1413,7 +1372,7 @@ button.active .led-indicator {
 	align-items: center;
 	gap: 0.4rem;
 	padding: 0.75rem 1.5rem;
-	background: var(--accent);
+	background: hsl(var(--accent));
 	color: var(--bg);
 	border: none;
 	border-radius: var(--radius);
@@ -1510,12 +1469,12 @@ button.active .led-indicator {
 /* --- Toast — overrides (base from ln-acme-toast.css) --- */
 
 :root {
-	--ln-toast-bg: var(--panel-bg);
+	--ln-toast-bg: var(--surface);
 	--ln-toast-fg: var(--text);
 	--ln-toast-fg-muted: var(--text-muted);
 	--ln-toast-border: var(--border-color);
 	--ln-toast-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-	--ln-toast-info: var(--accent);
+	--ln-toast-info: hsl(var(--accent));
 }
 
 [data-ln-toast] {
@@ -1586,14 +1545,14 @@ button.active .led-indicator {
 }
 
 @keyframes flash-added {
-	0%   { background: var(--accent-glow); }
-	100% { background: var(--sidebar-bg); }
+	0%   { background: hsl(var(--accent) /0.3); }
+	100% { background: var(--surface-sunken); }
 }
 
 /* --- Swipe-to-Delete --- */
 
 .track-list > li[data-ln-swiping] {
-	background: var(--cue-color);
+	background: hsl(var(--cue));
 }
 
 .track-list > li[data-ln-swiping] .track-content {
