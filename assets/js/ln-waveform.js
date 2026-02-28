@@ -84,6 +84,12 @@
 			timeline:   dom.querySelector('.waveform-timeline')
 		};
 
+		// Move timeline to fieldset container (outside figure overflow)
+		var container = dom.closest('.waveform-container');
+		if (container && this._els.timeline) {
+			container.appendChild(this._els.timeline);
+		}
+
 		this._bindEvents();
 
 		return this;
@@ -338,7 +344,6 @@
 		if (!wrapper) return;
 
 		wrapper.style.position = 'relative';
-		wrapper.style.paddingBottom = '20px';
 
 		var els = this._els;
 		if (els.cueRegion) wrapper.appendChild(els.cueRegion);
@@ -347,7 +352,6 @@
 		if (els.cuePending) wrapper.appendChild(els.cuePending);
 		if (els.progress) wrapper.appendChild(els.progress);
 		if (els.playhead) wrapper.appendChild(els.playhead);
-		if (els.timeline) wrapper.appendChild(els.timeline);
 	};
 
 	_component.prototype._restoreOverlays = function () {
@@ -358,7 +362,6 @@
 		if (els.cuePending) this.dom.appendChild(els.cuePending);
 		if (els.progress) this.dom.appendChild(els.progress);
 		if (els.playhead) this.dom.appendChild(els.playhead);
-		if (els.timeline) this.dom.appendChild(els.timeline);
 	};
 
 	/* ====================================================================
