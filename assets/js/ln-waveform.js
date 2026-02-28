@@ -101,7 +101,6 @@
 		if (container) {
 			container.addEventListener('click', function (e) {
 				var zoomBtn = e.target.closest('[data-ln-zoom]');
-				console.log('[zoom-click]', zoomBtn ? zoomBtn.getAttribute('data-ln-zoom') : 'miss', e.target.tagName, e.target.className);
 				if (zoomBtn) {
 					self.zoom(zoomBtn.getAttribute('data-ln-zoom'));
 				}
@@ -299,7 +298,6 @@
 	};
 
 	_component.prototype.zoom = function (direction) {
-		console.log('[zoom]', direction, 'surfer:', !!this._surfer, 'duration:', this._duration, 'level:', this._zoomLevel);
 		if (!this._surfer || !this._duration) return;
 
 		if (direction === 'in' && this._zoomLevel < this._zoomFactors.length - 1) {
@@ -311,10 +309,15 @@
 		}
 
 		var factor = this._zoomFactors[this._zoomLevel];
-		var containerWidth = this.dom.clientWidth;
-		var minPxPerSec = (containerWidth / this._duration) * factor;
 
-		this._surfer.zoom(minPxPerSec);
+		if (factor === 1) {
+			// Reset to fit-to-container (avoids 1-2px residual scroll)
+			this._surfer.zoom(0);
+		} else {
+			var containerWidth = this.dom.clientWidth;
+			var minPxPerSec = (containerWidth / this._duration) * factor;
+			this._surfer.zoom(minPxPerSec);
+		}
 		this._renderTimeline();
 		this.dom.classList.toggle('waveform--zoomed', this._zoomLevel > 0);
 	};
