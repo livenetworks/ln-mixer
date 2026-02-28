@@ -338,6 +338,7 @@
 		if (!wrapper) return;
 
 		wrapper.style.position = 'relative';
+		wrapper.style.paddingBottom = '20px';
 
 		var els = this._els;
 		if (els.cueRegion) wrapper.appendChild(els.cueRegion);
