@@ -379,10 +379,18 @@
 
 		this._clearTimeline();
 
+		// Inline styles required — overlays are relocated into WaveSurfer's Shadow DOM wrapper,
+		// document-level CSS classes cannot reach them. CSS custom properties DO penetrate Shadow DOM.
+		timeline.style.cssText = 'position:absolute;top:var(--waveform-height);left:0;width:100%;height:20px;pointer-events:none;z-index:3;';
+
 		var duration = this._duration;
 		var wrapper = this._getWrapper();
 		var containerWidth = wrapper ? wrapper.scrollWidth : this.dom.clientWidth;
 		var pxPerSec = containerWidth / duration;
+
+		var dimColor = 'rgba(255,255,255,0.15)';
+		var brightColor = 'rgba(255,255,255,0.3)';
+		var textColor = 'rgba(255,255,255,0.4)';
 
 		// Pick nice tick interval (~80px between major ticks)
 		var rawInterval = 80 / pxPerSec;
@@ -397,11 +405,16 @@
 			var isMajor = Math.abs(t % majorInterval) < 0.01 || Math.abs(majorInterval - (t % majorInterval)) < 0.01;
 
 			var tick = document.createElement('span');
-			tick.className = isMajor ? 'waveform-tick waveform-tick--major' : 'waveform-tick waveform-tick--minor';
-			tick.style.left = ((t / duration) * 100) + '%';
+			var leftPct = ((t / duration) * 100) + '%';
 
 			if (isMajor) {
-				tick.setAttribute('data-time', _formatTime(t));
+				tick.style.cssText = 'position:absolute;bottom:0;width:1px;height:10px;left:' + leftPct + ';background:' + brightColor + ';';
+				var label = document.createElement('span');
+				label.textContent = _formatTime(t);
+				label.style.cssText = 'position:absolute;top:-12px;left:2px;font-size:0.65rem;color:' + textColor + ';white-space:nowrap;font-family:monospace;';
+				tick.appendChild(label);
+			} else {
+				tick.style.cssText = 'position:absolute;bottom:0;width:1px;height:5px;left:' + leftPct + ';background:' + dimColor + ';';
 			}
 
 			timeline.appendChild(tick);
