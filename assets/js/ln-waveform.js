@@ -346,7 +346,6 @@
 		if (els.cuePending) wrapper.appendChild(els.cuePending);
 		if (els.progress) wrapper.appendChild(els.progress);
 		if (els.playhead) wrapper.appendChild(els.playhead);
-		if (els.timeline) wrapper.appendChild(els.timeline);
 	};
 
 	_component.prototype._restoreOverlays = function () {
@@ -357,7 +356,6 @@
 		if (els.cuePending) this.dom.appendChild(els.cuePending);
 		if (els.progress) this.dom.appendChild(els.progress);
 		if (els.playhead) this.dom.appendChild(els.playhead);
-		if (els.timeline) this.dom.appendChild(els.timeline);
 	};
 
 	/* ====================================================================
