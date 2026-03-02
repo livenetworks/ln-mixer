@@ -300,6 +300,7 @@
 			if (li) {
 				var notesP = li.querySelector('.track-notes');
 				if (notesP) notesP.textContent = data.notes || '';
+				li.classList.toggle('has-notes', !!data.notes);
 			}
 		}
 
@@ -541,6 +542,7 @@
 		li.querySelector('.track-artist').textContent = catalogEntry.artist || '';
 		li.querySelector('.track-duration').textContent = catalogEntry.duration || '';
 		li.querySelector('.track-notes').textContent = segment.notes || '';
+		if (segment.notes) li.classList.add('has-notes');
 
 		var indicators = li.querySelector('.track-indicators');
 		if (segment.loops && segment.loops.length > 0) {

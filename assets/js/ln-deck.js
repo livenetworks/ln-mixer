@@ -325,6 +325,12 @@
 	};
 
 	_component.prototype._onEnded = function () {
+		if (this._loopEnabled && this._activeLoopIndex < 0 && this._audio) {
+			this._audio.currentTime = 0;
+			this._audio.play();
+			return;
+		}
+
 		this.progress = 100;
 		this.isPlaying = false;
 		this._updatePlayButton(false);

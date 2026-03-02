@@ -151,6 +151,10 @@ fieldset {
 	user-select: none;
 }
 
+.app-footer a {
+	color: hsl(var(--accent));
+}
+
 /* --- Global Download Progress Bar --- */
 
 .global-progress {
@@ -835,6 +839,31 @@ fieldset {
 	color: var(--text-dim);
 	font-style: italic;
 }
+
+/* When notes present: notes become primary label, track info becomes secondary */
+li.has-notes .track-meta-row { grid-row: 1; }
+li.has-notes .track-info     { grid-row: 2; }
+
+li.has-notes .track-notes {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--text);
+	font-style: normal;
+}
+li.has-notes .track-name {
+	font-size: 0.75rem;
+	font-weight: 400;
+	color: var(--text-muted);
+}
+li.has-notes .track-artist {
+	font-size: 0.7rem;
+	color: var(--text-dim);
+}
+
+.track-list > li.active-a.has-notes .track-notes { color: hsl(var(--accent)); }
+.track-list > li.active-b.has-notes .track-notes { color: hsl(var(--accent-b)); }
+.track-list > li.active-a.has-notes .track-name  { color: var(--text-muted); }
+.track-list > li.active-b.has-notes .track-name  { color: var(--text-muted); }
 
 /* --- Edit Track Dialog --- */
 
