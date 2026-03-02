@@ -214,6 +214,9 @@
 				self._duration = duration;
 				self._renderTimeline();
 			}
+			if (!self._hasCachedPeaks) {
+				_dispatch(self.dom, 'ln-waveform:decoded', { duration: duration });
+			}
 		});
 
 		this._surfer.on('timeupdate', function (currentTime) {

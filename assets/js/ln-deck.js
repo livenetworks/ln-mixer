@@ -104,6 +104,10 @@
 			self._onAudioMetadata();
 		});
 
+		this.dom.addEventListener('ln-waveform:decoded', function (e) {
+			self._exportPeaks(e.detail.duration);
+		});
+
 		this.dom.addEventListener('ln-waveform:timeupdate', function (e) {
 			self._onTimeUpdate(e.detail.currentTime);
 		});
@@ -292,20 +296,23 @@
 			durationSec: duration,
 			duration: this.track.duration
 		});
+	};
 
-		// Export peaks if freshly generated (not pre-loaded from cache)
+	_component.prototype._exportPeaks = function (decodedDuration) {
+		if (!this.track) return;
 		var wfEl = this._els.waveformEl;
 		var wfInst = (wfEl && wfEl.lnWaveform) ? wfEl.lnWaveform : null;
-		if (wfInst && !wfInst.hasCachedPeaks()) {
-			var peaks = wfInst.exportPeaks();
-			if (peaks && peaks.length > 0) {
-				_dispatch(this.dom, 'ln-deck:peaks-ready', {
-					deckId: this.deckId,
-					trackUrl: this.track._originalUrl || this.track.url,
-					peaks: peaks,
-					peaksDuration: duration
-				});
-			}
+		if (!wfInst) return;
+
+		var peaks = wfInst.exportPeaks();
+		if (peaks && peaks.length > 0) {
+			var duration = decodedDuration || (this._audio && this._audio.duration) || 0;
+			_dispatch(this.dom, 'ln-deck:peaks-ready', {
+				deckId: this.deckId,
+				trackUrl: this.track._originalUrl || this.track.url,
+				peaks: peaks,
+				peaksDuration: duration
+			});
 		}
 	};
 
