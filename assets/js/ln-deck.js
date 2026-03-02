@@ -100,8 +100,8 @@
 		var self = this;
 
 		// ln-waveform events (bubble up from <figure>)
-		this.dom.addEventListener('ln-waveform:ready', function () {
-			self._onAudioMetadata();
+		this.dom.addEventListener('ln-waveform:ready', function (e) {
+			self._onAudioMetadata(e.detail.duration);
 		});
 
 		this.dom.addEventListener('ln-waveform:timeupdate', function (e) {
@@ -111,6 +111,13 @@
 		this.dom.addEventListener('ln-waveform:finish', function () {
 			self._onEnded();
 		});
+
+		// Audio metadata fallback (fires when <audio> has loaded enough to know duration)
+		if (this._audio) {
+			this._audio.addEventListener('loadedmetadata', function () {
+				self._onAudioMetadata();
+			});
+		}
 
 		// Click delegation within this deck root
 		this.dom.addEventListener('click', function (e) {
@@ -277,10 +284,13 @@
 	   AUDIO EVENT HANDLERS
 	   ==================================================================== */
 
-	_component.prototype._onAudioMetadata = function () {
-		if (!this._audio || !this.track) return;
-		var duration = this._audio.duration;
-		if (!duration || !isFinite(duration) || duration <= 0) return;
+	_component.prototype._onAudioMetadata = function (durationHint) {
+		if (!this.track) return;
+		var duration = (this._audio && isFinite(this._audio.duration) && this._audio.duration > 0)
+			? this._audio.duration
+			: (durationHint > 0 ? durationHint : 0);
+		if (!duration) return;
+		if (this.track.durationSec > 0 && this.track.durationSec === duration) return;
 
 		this.track.durationSec = duration;
 		this.track.duration = _formatTime(duration);
