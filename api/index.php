@@ -23,18 +23,21 @@ $scriptDir = dirname(dirname($_SERVER['SCRIPT_NAME']));
 $basePath = ($scriptDir === '/' || $scriptDir === '\\') ? '' : $scriptDir;
 $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath;
 
-$files = scandir($musicDir);
+$iterator = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($musicDir, RecursiveDirectoryIterator::SKIP_DOTS)
+);
+
 $tracks = [];
 
-foreach ($files as $file) {
-    if ($file === '.' || $file === '..') {
+foreach ($iterator as $fileInfo) {
+    if ($fileInfo->isDir()) {
         continue;
     }
 
-    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+    $ext = strtolower($fileInfo->getExtension());
 
     if (in_array($ext, $allowedExtensions, true)) {
-        $name = pathinfo($file, PATHINFO_FILENAME);
+        $name = $fileInfo->getBasename('.' . $fileInfo->getExtension());
 
         // Parse "Artist - Title" format
         if (strpos($name, ' - ') !== false) {
@@ -44,10 +47,14 @@ foreach ($files as $file) {
             $title = $name;
         }
 
+        // Relative path from music dir for URL
+        $relativePath = str_replace('\\', '/', substr($fileInfo->getPathname(), strlen($musicDir) + 1));
+        $urlParts = array_map('rawurlencode', explode('/', $relativePath));
+
         $tracks[] = [
             'artist' => trim($artist),
             'title'  => trim($title),
-            'url'    => $baseUrl . '/music/' . rawurlencode($file)
+            'url'    => $baseUrl . '/music/' . implode('/', $urlParts)
         ];
     }
 }
