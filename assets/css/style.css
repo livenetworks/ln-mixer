@@ -133,10 +133,22 @@ fieldset {
 
 .player {
 	display: grid;
-	grid-template-rows: var(--topbar-height) 1fr;
+	grid-template-rows: var(--topbar-height) 1fr auto;
 	height: 100vh;
 	overflow: hidden;
 	position: relative;
+}
+
+/* --- App Footer --- */
+
+.app-footer {
+	padding: var(--gap-xs) var(--gap-md);
+	border-top: 1px solid var(--border-color);
+	text-align: center;
+	color: var(--text-dim);
+	font-size: 0.7rem;
+	letter-spacing: 0.04em;
+	user-select: none;
 }
 
 /* --- Global Download Progress Bar --- */

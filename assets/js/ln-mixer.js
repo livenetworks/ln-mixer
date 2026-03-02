@@ -653,6 +653,16 @@
 			self._loadTrackToDeck(e.detail.deckId, e.detail.trackIndex, e.detail.track);
 		});
 
+		// Exclusive play — stop all other decks (accordion-style)
+		this.dom.addEventListener('ln-deck:played', function (e) {
+			var allDecks = self.dom.querySelectorAll('[data-ln-deck]');
+			allDecks.forEach(function (deck) {
+				if (deck !== e.target) {
+					deck.dispatchEvent(new CustomEvent('ln-deck:request-stop'));
+				}
+			});
+		});
+
 		// Deck loaded → update sidebar highlight + connect audio routing
 		this.dom.addEventListener('ln-deck:loaded', function (e) {
 			var sidebar = self._getSidebar();
