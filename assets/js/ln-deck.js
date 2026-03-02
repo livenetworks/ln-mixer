@@ -289,6 +289,7 @@
 		_dispatch(this.dom, 'ln-deck:duration-detected', {
 			deckId: this.deckId,
 			trackIndex: this.trackIndex,
+			trackUrl: this.track._originalUrl || this.track.url,
 			durationSec: duration,
 			duration: this.track.duration
 		});

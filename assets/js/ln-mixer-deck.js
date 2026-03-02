@@ -130,23 +130,14 @@
 			}
 		});
 
-		// Duration auto-detected → update all matching tracks in sidebar + persist
+		// Duration auto-detected → forward to sidebar (updates all matching tracks)
 		this.dom.addEventListener('ln-deck:duration-detected', function (e) {
 			var sidebar = self._getSidebar();
-			if (!sidebar || !sidebar.lnPlaylist) return;
-
-			var playlist = sidebar.lnPlaylist.getPlaylist();
-			if (!playlist || !playlist.tracks) return;
-
-			var idx = e.detail.trackIndex;
-			if (idx < 0 || idx >= playlist.tracks.length) return;
-
-			var track = playlist.tracks[idx];
-			if (!track.url) return;
+			if (!sidebar || !e.detail.trackUrl) return;
 
 			sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-update-duration', {
 				detail: {
-					url: track.url,
+					url: e.detail.trackUrl,
 					duration: e.detail.duration,
 					durationSec: e.detail.durationSec
 				}
