@@ -483,6 +483,47 @@
 							</section>
 							<p class="field-hint">Downloaded audio files stored locally for offline playback</p>
 						</fieldset>
+
+						<fieldset class="form-field">
+							<label>Data Transfer</label>
+							<section class="transfer-actions">
+								<button type="button" data-ln-action="export-data">
+									<span class="ln-icon-download--white ln-icon--sm"></span>
+									<span class="label">Export</span>
+								</button>
+								<button type="button" data-ln-action="import-file">
+									<span class="ln-icon-upload--white ln-icon--sm"></span>
+									<span class="label">Import File</span>
+								</button>
+							</section>
+							<input type="file" accept=".json,application/json" data-ln-import-file hidden />
+							<p class="field-hint">Export all profiles and settings as JSON, or import from a file</p>
+						</fieldset>
+
+						<fieldset class="form-field">
+							<label>Import from URL</label>
+							<section class="import-url-row">
+								<input type="url" placeholder="https://example.com/mixer-data.json" data-ln-field="import-url" />
+								<button type="button" data-ln-action="import-from-url">
+									<span class="ln-icon-download--white ln-icon--sm"></span>
+									<span class="label">Fetch</span>
+								</button>
+							</section>
+							<output data-ln-transfer-status hidden></output>
+							<p class="field-hint">Paste a URL to a hosted JSON export file</p>
+						</fieldset>
+
+						<fieldset class="form-field">
+							<label>Batch Download</label>
+							<section class="cache-info">
+								<output data-ln-batch-status>Download all track audio for offline use</output>
+								<button type="button" data-ln-action="batch-download">
+									<span class="ln-icon-download--white ln-icon--sm"></span>
+									<span class="label">Download All</span>
+								</button>
+							</section>
+							<p class="field-hint">Downloads audio files from original URLs (useful after import)</p>
+						</fieldset>
 					</section>
 				</main>
 				<footer>
@@ -609,6 +650,7 @@
 	<script src="./assets/js/ln-mixer-cache.js"></script>
 	<script src="./assets/js/ln-mixer-deck.js"></script>
 	<script src="./assets/js/ln-mixer-settings.js"></script>
+	<script src="./assets/js/ln-mixer-transfer.js"></script>
 
 	<script>
 		document.addEventListener("submit", function(e) {

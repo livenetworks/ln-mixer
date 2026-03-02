@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"lnSettings.hydrate\\\\|get.*settings\\\\|load.*settings\" /c/laragon/www/ln-mixer/assets/js/*.js)"
+    ]
+  }
+}

@@ -137,6 +137,7 @@
 		this._bindLibraryReactions();
 		this._bindCacheActions();
 		this._bindSettingsActions();
+		this._bindTransferActions();
 	};
 
 	/* ─── DOM Observer ────────────────────────────────────────────── */

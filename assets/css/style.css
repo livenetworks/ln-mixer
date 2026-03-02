@@ -1421,6 +1421,54 @@ button.active .led-indicator {
 	white-space: nowrap;
 }
 
+/* --- Settings: Data Transfer --- */
+
+.transfer-actions {
+	display: flex;
+	gap: var(--gap-sm);
+}
+
+.transfer-actions button {
+	flex: 1;
+}
+
+.import-url-row {
+	display: flex;
+	gap: var(--gap-sm);
+	align-items: center;
+}
+
+.import-url-row input[type="url"] {
+	flex: 1;
+	background: var(--input-bg);
+	border: 1px solid var(--input-border);
+	border-radius: var(--radius-sm);
+	color: var(--text);
+	padding: 0.5rem 0.75rem;
+	font-size: 0.9rem;
+	font-family: var(--font-main);
+}
+
+.import-url-row input[type="url"]::placeholder {
+	color: var(--text-dim);
+}
+
+.import-url-row button {
+	white-space: nowrap;
+}
+
+[data-ln-transfer-status] {
+	display: block;
+	font-size: 0.8rem;
+	color: hsl(var(--accent));
+	margin-top: var(--gap-xs);
+	font-style: italic;
+}
+
+[data-ln-transfer-status][hidden] {
+	display: none;
+}
+
 /* --- Toast — overrides (base from ln-acme-toast.css) --- */
 
 [data-ln-toast] {
