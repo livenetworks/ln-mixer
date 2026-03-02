@@ -288,7 +288,6 @@ fieldset {
 }
 
 .autoplay-control .btn--led {
-	font-size: 0.75rem;
 	padding: 0.3rem 0.75rem 0.3rem 1.6rem;
 	border-radius: var(--radius);
 	background: var(--button-bg);
@@ -330,21 +329,18 @@ fieldset {
 	color: var(--text-muted);
 }
 
-.icon-circle {
+.empty-state h2::before,
+.library-no-api h3::before {
+	content: '';
+	display: block;
 	width: 64px;
 	height: 64px;
 	border-radius: 50%;
-	background: var(--surface-raised);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin: 0;
-}
-
-.icon-circle [class*="ln-icon-"]::before {
-	width: 32px;
-	height: 32px;
+	background-color: var(--surface-raised);
+	background-size: 32px 32px;
+	background-position: center;
 	opacity: 0.5;
+	margin: 0 auto var(--gap-md);
 }
 
 .empty-state h2 {
@@ -378,7 +374,7 @@ fieldset {
 	filter: brightness(1.1);
 }
 
-.action-btn [class*="ln-icon-"]::before {
+.action-btn::before {
 	filter: brightness(0);
 }
 
@@ -624,6 +620,11 @@ fieldset {
 	display: flex;
 	gap: var(--gap-sm);
 	flex-wrap: wrap;
+}
+
+/* Play and Pause share same min-width to prevent layout shift on swap */
+.controls [data-ln-transport="play"] {
+	min-width: 5rem;
 }
 
 /* ==========================================================================
@@ -1000,7 +1001,7 @@ button.active {
 	border-color: hsl(var(--accent-active));
 }
 
-button.active [class*="ln-icon-"]::before {
+button.active::before {
 	filter: brightness(0);
 }
 
@@ -1030,7 +1031,8 @@ button.btn--danger:hover {
 	padding-left: 1.6rem;
 }
 
-.led-indicator {
+.btn--led::after {
+	content: '';
 	position: absolute;
 	left: 0.5rem;
 	top: 50%;
@@ -1043,7 +1045,7 @@ button.btn--danger:hover {
 	transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-button.active .led-indicator {
+button.btn--led.active::after {
 	background: hsl(var(--accent));
 	box-shadow: 0 0 8px hsl(var(--accent)), 0 0 16px hsl(var(--accent) / 0.3);
 }
@@ -1089,8 +1091,18 @@ button.active .led-indicator {
 	padding-left: 1.4rem;
 }
 
-.loop-seg-btn .led-indicator {
+.loop-seg-btn::before {
+	content: '';
+	position: absolute;
 	left: 0.45rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--text-dim);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .loop-seg-btn:hover {
@@ -1103,7 +1115,7 @@ button.active .led-indicator {
 	color: hsl(var(--accent));
 }
 
-.loop-seg-btn.active .led-indicator {
+.loop-seg-btn.active::before {
 	background: hsl(var(--accent));
 	box-shadow: 0 0 8px hsl(var(--accent)), 0 0 16px hsl(var(--accent) / 0.3);
 }
@@ -1122,7 +1134,7 @@ button.active .led-indicator {
 	transition: background var(--transition-fast);
 }
 
-.loop-seg-remove .ln-icon-close::before {
+.loop-seg-remove::before {
 	width: 0.9rem;
 	height: 0.9rem;
 	filter: brightness(0) saturate(100%) invert(40%) sepia(80%) saturate(2000%) hue-rotate(335deg);
@@ -1323,7 +1335,7 @@ button.active .led-indicator {
 	background: hsl(var(--cue) /0.2);
 }
 
-.library-uncache-btn .ln-icon-remove::before {
+.library-uncache-btn::before {
 	width: 0.85rem;
 	height: 0.85rem;
 }

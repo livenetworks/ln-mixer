@@ -75,7 +75,8 @@
 			timeCurrent: dom.querySelector('[data-ln-field="time-current"]'),
 			timeTotal:   dom.querySelector('[data-ln-field="time-total"]'),
 			waveformEl:  dom.querySelector('[data-ln-waveform]'),
-			playBtn:     dom.querySelector('[data-ln-transport="play"]'),
+			playBtn:     dom.querySelectorAll('[data-ln-transport="play"]')[0],
+		pauseBtn:    dom.querySelectorAll('[data-ln-transport="play"]')[1],
 			loopBtn:     dom.querySelector('[data-ln-cue="loop"]'),
 			loopSegments: dom.querySelector('[data-ln-loop-segments]')
 		};
@@ -560,24 +561,14 @@
 
 			var label = document.createElement('span');
 			label.className = 'loop-seg-label';
-
-			var led = document.createElement('mark');
-			led.className = 'led-indicator';
-			label.appendChild(led);
-
-			var nameSpan = document.createElement('span');
-			nameSpan.textContent = loop.name;
-			label.appendChild(nameSpan);
+			label.textContent = loop.name;
 
 			btn.appendChild(label);
 
 			var removeBtn = document.createElement('button');
 			removeBtn.type = 'button';
-			removeBtn.className = 'loop-seg-remove';
+			removeBtn.className = 'loop-seg-remove ln-icon-close--white';
 			removeBtn.title = 'Remove loop';
-			var removeIcon = document.createElement('span');
-			removeIcon.className = 'ln-icon-close--white';
-			removeBtn.appendChild(removeIcon);
 
 			btn.appendChild(removeBtn);
 
@@ -598,21 +589,12 @@
 	};
 
 	_component.prototype._updatePlayButton = function (playing) {
-		var btn = this._els.playBtn;
-		if (!btn) return;
+		var playBtn = this._els.playBtn;
+		var pauseBtn = this._els.pauseBtn;
+		if (!playBtn || !pauseBtn) return;
 
-		var icon = btn.querySelector('[class*="ln-icon-"]');
-		var label = btn.querySelector('.label');
-
-		if (playing) {
-			if (icon) icon.className = 'ln-icon-pause--white';
-			if (label) label.textContent = 'Pause';
-			btn.classList.add('active');
-		} else {
-			if (icon) icon.className = 'ln-icon-play--white';
-			if (label) label.textContent = 'Play';
-			btn.classList.remove('active');
-		}
+		playBtn.hidden = playing;
+		pauseBtn.hidden = !playing;
 	};
 
 	/* ====================================================================

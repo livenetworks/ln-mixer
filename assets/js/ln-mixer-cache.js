@@ -198,7 +198,7 @@
 		btn.textContent = 'Added!';
 		btn.disabled = true;
 		setTimeout(function () {
-			btn.innerHTML = '<span class="ln-icon-add--white ln-icon--sm"></span> Add';
+			btn.textContent = 'Add';
 			btn.disabled = false;
 		}, 1200);
 	};
