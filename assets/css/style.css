@@ -302,6 +302,10 @@ fieldset {
 	background: hsl(var(--accent) / 0.1);
 }
 
+.autoplay-control .btn--led.active::before {
+	filter: brightness(0) saturate(100%) invert(51%) sepia(98%) saturate(880%) hue-rotate(3deg);
+}
+
 .topbar-actions {
 	display: flex;
 	gap: var(--gap-sm);
@@ -359,7 +363,7 @@ fieldset {
 	align-items: center;
 	gap: 0.4rem;
 	padding: 0.75rem 1.5rem;
-	background: hsl(var(--accent));
+	background: hsl(var(--accent) / 0.5);
 	color: var(--bg);
 	border: none;
 	border-radius: var(--radius);
@@ -371,7 +375,7 @@ fieldset {
 }
 
 .action-btn:hover {
-	filter: brightness(1.1);
+	background: hsl(var(--accent) / 0.85);
 }
 
 .action-btn::before {
@@ -1003,6 +1007,16 @@ button.active {
 
 button.active::before {
 	filter: brightness(0);
+}
+
+button[type="submit"] {
+	background: hsl(var(--accent) / 0.5);
+	border-color: hsl(var(--accent));
+	color: #000;
+}
+
+button[type="submit"]:hover {
+	background: hsl(var(--accent) / 0.85);
 }
 
 button.btn--sm {
