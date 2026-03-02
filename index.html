@@ -42,6 +42,14 @@
 					data-ln-potentiometer="master" aria-label="Master Volume" />
 			</fieldset>
 
+			<nav class="autoplay-control">
+				<button type="button" class="btn--led" data-ln-action="toggle-autoplay" aria-pressed="false">
+					<mark class="led-indicator"></mark>
+					<span class="ln-icon-next--white ln-icon--sm"></span>
+					<span class="label">Auto</span>
+				</button>
+			</nav>
+
 			<nav class="topbar-actions">
 				<button type="button" data-ln-action="open-library">
 					<span class="ln-icon-folder--white"></span>
@@ -597,6 +605,10 @@
 	<script src="./assets/js/ln-waveform.js"></script>
 	<script src="./assets/js/ln-deck.js"></script>
 	<script src="./assets/js/ln-mixer.js"></script>
+	<script src="./assets/js/ln-mixer-audio.js"></script>
+	<script src="./assets/js/ln-mixer-cache.js"></script>
+	<script src="./assets/js/ln-mixer-deck.js"></script>
+	<script src="./assets/js/ln-mixer-settings.js"></script>
 
 	<script>
 		document.addEventListener("submit", function(e) {

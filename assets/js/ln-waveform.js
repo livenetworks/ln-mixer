@@ -205,6 +205,7 @@
 		// WaveSurfer events → ln-waveform CustomEvents
 		this._surfer.on('ready', function () {
 			self._duration = self._surfer.getDuration() || audio.duration || 0;
+			self.dom.classList.remove('waveform--decoding');
 			self._renderTimeline();
 			_dispatch(self.dom, 'ln-waveform:ready', { duration: self._duration });
 		});
@@ -213,9 +214,6 @@
 			if (!self._duration && duration > 0) {
 				self._duration = duration;
 				self._renderTimeline();
-			}
-			if (!self._hasCachedPeaks) {
-				_dispatch(self.dom, 'ln-waveform:decoded', { duration: duration });
 			}
 		});
 

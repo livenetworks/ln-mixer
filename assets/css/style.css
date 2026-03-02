@@ -280,6 +280,29 @@ fieldset {
 	cursor: pointer;
 }
 
+/* --- Autoplay Toggle (topbar) --- */
+
+.autoplay-control {
+	display: flex;
+	align-items: center;
+}
+
+.autoplay-control .btn--led {
+	font-size: 0.75rem;
+	padding: 0.3rem 0.75rem 0.3rem 1.6rem;
+	border-radius: var(--radius);
+	background: var(--button-bg);
+	border: 1px solid var(--button-border);
+	color: var(--text-muted);
+	min-height: var(--touch-min);
+}
+
+.autoplay-control .btn--led.active {
+	border-color: hsl(var(--accent));
+	color: hsl(var(--accent));
+	background: hsl(var(--accent) / 0.1);
+}
+
 .topbar-actions {
 	display: flex;
 	gap: var(--gap-sm);
@@ -458,6 +481,22 @@ fieldset {
 .waveform--loaded {
 	background: none;
 }
+
+.waveform--decoding::after {
+	content: '';
+	position: absolute;
+	top: 50%; left: 50%;
+	width: 32px; height: 32px;
+	margin: -16px 0 0 -16px;
+	border: 3px solid rgba(255, 255, 255, 0.15);
+	border-top-color: var(--accent);
+	border-radius: 50%;
+	animation: waveform-spin 0.8s linear infinite;
+	z-index: 10;
+	pointer-events: none;
+}
+
+@keyframes waveform-spin { to { transform: rotate(360deg); } }
 
 /* Overlay styles (.waveform-progress, .waveform-playhead, .cue-marker-*, .cue-region)
    are inline in ln-waveform.js — WaveSurfer Shadow DOM blocks document CSS classes.
