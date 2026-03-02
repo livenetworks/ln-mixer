@@ -174,7 +174,7 @@
 		var base = _generateId(name);
 		var id = _uniqueId(base, this.profiles);
 
-		this.profiles[id] = { id: id, name: name, playlists: {} };
+		this.profiles[id] = { id: id, name: name };
 
 		this._renderButtons();
 		this.switchTo(id);

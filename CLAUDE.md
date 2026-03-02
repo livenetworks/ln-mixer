@@ -20,17 +20,21 @@ Use Chrome DevTools device mode (tablet landscape) for the intended experience.
 
 ### IndexedDB Schema
 
-DB: `lnDjMixer`, version: 2
+DB: `lnDjMixer`, version: 3
 
-| Store | keyPath | Structure |
-|---|---|---|
-| `profiles` | `id` | `{ id, name, playlists: { playlistId: { name, tracks: [{ title, artist, duration, durationSec, url, notes, loops: [{ name, startSec, endSec, startPct, endPct }] }] } } }` |
-| `settings` | `key` | `{ key: 'app', apiUrl, brandLogo }` |
-| `audioFiles` | `url` | `{ url, blob: Blob, size, timestamp }` — cached audio files |
+| Store | keyPath | Indexes | Structure |
+|---|---|---|---|
+| `profiles` | `id` | — | `{ id, name }` — slim profile metadata |
+| `tracks` | `url` | — | `{ url, title, artist, duration, durationSec, peaks?, peaksDuration? }` — shared track catalog |
+| `playlists` | `id` | `profileId` | `{ id, profileId, name, segments: [{ url, notes, loops: [{ name, startSec, endSec, startPct, endPct }] }] }` |
+| `settings` | `key` | — | `{ key: 'app', apiUrl, brandLogo }` |
+| `audioFiles` | `url` | — | `{ url, blob: Blob, size, timestamp }` — cached audio blobs only |
+
+**Design:** `tracks` store is the shared music catalog (title, artist, duration, peaks). `playlists.segments` reference tracks by `url` and contain playlist-specific data (notes, loops, order). Peaks live in `tracks`, not `audioFiles`. Playlist IDs are globally unique, prefixed with `profileId--`.
 
 ### Init Flow
 
-`lnDb.open()` → `ln-profile._loadFromDb()` → render profile buttons → `ln-profile:switched` → `ln-mixer` sets `data-ln-playlist-profile` → `ln-playlist.loadProfile()` → rebuild sidebar
+`lnDb.open()` → migration v2→v3 (if needed) → `ln-profile._loadFromDb()` → render profile buttons → `ln-profile:switched` → coordinator loads playlists by `profileId` index + resolves track catalog → `ln-playlist.loadProfile(profileId, playlists, trackCatalog)` → rebuild sidebar
 
 Empty state: no profiles, no playlists — user starts by pressing [+] to create a profile.
 
@@ -173,6 +177,25 @@ ln-dj-mixer/
   - [x] App icon (`assets/img/icon.svg`)
 
 ## Changelog
+
+### IDB Schema Normalization (2026-03-02)
+
+- **Normalized IndexedDB schema** from 3 stores to 5: `profiles`, `tracks`, `playlists`, `settings`, `audioFiles`
+- **New `tracks` store** (keyPath: `url`) — shared music catalog with title, artist, duration, peaks
+- **New `playlists` store** (keyPath: `id`, index: `profileId`) — playlist segments reference tracks by URL
+- **Profiles slimmed** to `{ id, name }` — no longer contain nested playlists
+- **Segments** replace nested tracks arrays: `{ url, notes, loops }` — playlist-specific data only
+- **Peaks moved** from `audioFiles` to `tracks` store — `audioFiles` is now blob-only cache
+- **Individual playlist saves** — `ln-playlist:changed` writes single playlist record (not full profile rewrite)
+- **Cascade delete** — profile deletion removes all associated playlists via `deleteByIndex`
+- **Track catalog** — ln-playlist receives `trackCatalog` map from coordinator for rendering
+- **Duration/peaks** write directly to `tracks` store (no more scanning all playlists)
+- **Migration v2→v3** — automatic on first open: extracts tracks, converts playlists, moves peaks, slims profiles
+- **Export/import v2** — separate `profiles`, `tracks`, `playlists` arrays; backward-compatible with v1 import
+- **New `lnDb` methods** — `getAllByIndex(store, index, value)`, `deleteByIndex(store, index, value)`
+- **Playlist IDs** globally unique: prefixed with `profileId--` (migration + new creation)
+- SW: cache bumped to v12
+- Files changed: `ln-db.js`, `ln-profile.js`, `ln-playlist.js`, `ln-mixer-settings.js`, `ln-mixer-cache.js`, `ln-mixer-deck.js`, `ln-mixer-transfer.js`, `sw.js`, `CLAUDE.md`
 
 ### Unified Icon System — Feather Icons in ln-acme (2026-02-28)
 

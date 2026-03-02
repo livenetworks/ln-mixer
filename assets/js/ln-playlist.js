@@ -69,6 +69,7 @@
 		dom[DOM_ATTRIBUTE] = this;
 
 		this.playlists = null;
+		this.trackCatalog = {};
 		this.currentId = null;
 		this.profileId = null;
 		this.deckHighlight = { a: -1, b: -1 };
@@ -113,11 +114,11 @@
 		});
 
 		this.dom.addEventListener('ln-playlist:request-add-track', function (e) {
-			self.addTrack(e.detail);
+			self.addSegment(e.detail);
 		});
 
 		this.dom.addEventListener('ln-playlist:request-edit-track', function (e) {
-			self.editTrack(
+			self.editSegment(
 				e.detail.playlistId || self.currentId,
 				e.detail.index,
 				{ notes: e.detail.notes }
@@ -125,7 +126,7 @@
 		});
 
 		this.dom.addEventListener('ln-playlist:request-remove-track', function (e) {
-			self.removeTrack(
+			self.removeSegment(
 				e.detail.playlistId || self.currentId,
 				e.detail.index
 			);
@@ -140,11 +141,11 @@
 		});
 
 		this.dom.addEventListener('ln-playlist:request-load-profile', function (e) {
-			self.loadProfile(e.detail.profileId, e.detail.playlists);
+			self.loadProfile(e.detail.profileId, e.detail.playlists, e.detail.trackCatalog);
 		});
 
-		this.dom.addEventListener('ln-playlist:request-update-duration', function (e) {
-			self.updateDuration(e.detail.url, e.detail.duration, e.detail.durationSec);
+		this.dom.addEventListener('ln-playlist:request-update-catalog', function (e) {
+			self.updateCatalog(e.detail.url, e.detail.track);
 		});
 
 		this.dom.addEventListener('ln-playlist:request-add-loop', function (e) {
@@ -164,11 +165,12 @@
 
 	/* ─── Load Profile ────────────────────────────────────────────── */
 
-	_component.prototype.loadProfile = function (profileId, playlists) {
+	_component.prototype.loadProfile = function (profileId, playlists, trackCatalog) {
 		this.profileId = profileId;
 		this.currentId = null;
 		this.deckHighlight = { a: -1, b: -1 };
 		this.playlists = playlists || null;
+		this.trackCatalog = trackCatalog || {};
 		this._rebuild();
 	};
 
@@ -182,7 +184,18 @@
 	_component.prototype.getTrack = function (index) {
 		var playlist = this.getPlaylist();
 		if (!playlist) return null;
-		return (index >= 0 && index < playlist.tracks.length) ? playlist.tracks[index] : null;
+		var segment = (index >= 0 && index < playlist.segments.length) ? playlist.segments[index] : null;
+		if (!segment) return null;
+		var catalogEntry = this.trackCatalog[segment.url] || {};
+		return {
+			url: segment.url,
+			title: catalogEntry.title || '',
+			artist: catalogEntry.artist || '',
+			duration: catalogEntry.duration || '',
+			durationSec: catalogEntry.durationSec || 0,
+			notes: segment.notes || '',
+			loops: segment.loops || []
+		};
 	};
 
 	_component.prototype.highlightDeck = function (deckId, index) {
@@ -201,11 +214,11 @@
 		if (!name || !this.playlists) return null;
 
 		var base = _generateId(name);
-		var id = _uniqueId(base, this.playlists);
+		var id = _uniqueId(this.profileId + '--' + base, this.playlists);
 
-		this.playlists[id] = { name: name, tracks: [] };
+		this.playlists[id] = { id: id, profileId: this.profileId, name: name, segments: [] };
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
+		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: id });
 
 		// Create accordion section in sidebar
 		var section = this._buildPlaylistGroup(id, name, false);
@@ -226,52 +239,59 @@
 		return id;
 	};
 
-	_component.prototype.addTrack = function (trackData) {
+	_component.prototype.addSegment = function (trackData) {
 		var playlist = this.getPlaylist();
 		if (!playlist) return -1;
 
-		var newTrack = {
-			title: trackData.title,
-			artist: trackData.artist,
-			duration: trackData.duration || '',
-			durationSec: trackData.durationSec || 0,
+		var newSegment = {
 			url: trackData.url || '',
 			notes: ''
 		};
-		playlist.tracks.push(newTrack);
+		playlist.segments.push(newSegment);
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
+		// Update track catalog with metadata from coordinator
+		if (trackData.url) {
+			this.trackCatalog[trackData.url] = {
+				url: trackData.url,
+				title: trackData.title || '',
+				artist: trackData.artist || '',
+				duration: trackData.duration || '',
+				durationSec: trackData.durationSec || 0
+			};
+		}
+
+		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: this.currentId });
 
 		// Add to sidebar track list DOM
 		var list = this._getActiveTrackList();
 		if (list) {
-			var idx = playlist.tracks.length - 1;
-			var li = this._buildTrackItem(newTrack, idx);
+			var idx = playlist.segments.length - 1;
+			var li = this._buildTrackItem(newSegment, idx);
 			list.appendChild(li);
 
 			li.classList.add('just-added');
 			setTimeout(function () { li.classList.remove('just-added'); }, 700);
 		}
 
-		var addedIdx = playlist.tracks.length - 1;
+		var addedIdx = playlist.segments.length - 1;
 
 		_dispatch(this.dom, 'ln-playlist:track-added', {
 			trackIndex: addedIdx,
-			track: newTrack,
+			track: this.getTrack(addedIdx),
 			playlistId: this.currentId
 		});
 
 		return addedIdx;
 	};
 
-	_component.prototype.editTrack = function (playlistId, index, data) {
+	_component.prototype.editSegment = function (playlistId, index, data) {
 		if (!this.playlists || !this.playlists[playlistId]) return false;
 		var playlist = this.playlists[playlistId];
-		if (index < 0 || index >= playlist.tracks.length) return false;
+		if (index < 0 || index >= playlist.segments.length) return false;
 
-		if (data.notes !== undefined) playlist.tracks[index].notes = data.notes;
+		if (data.notes !== undefined) playlist.segments[index].notes = data.notes;
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
+		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
 
 		// Update DOM
 		var list = this.dom.querySelector('[data-ln-track-list="' + playlistId + '"]');
@@ -291,46 +311,44 @@
 		return true;
 	};
 
-	_component.prototype.updateDuration = function (url, duration, durationSec) {
-		if (!url || !this.playlists) return;
+	_component.prototype.updateCatalog = function (url, trackData) {
+		if (!url || !trackData) return;
 
-		var changed = false;
+		this.trackCatalog[url] = {
+			url: url,
+			title: trackData.title || this.trackCatalog[url] && this.trackCatalog[url].title || '',
+			artist: trackData.artist || this.trackCatalog[url] && this.trackCatalog[url].artist || '',
+			duration: trackData.duration || '',
+			durationSec: trackData.durationSec || 0
+		};
 
+		// Update DOM for all segments referencing this URL
+		if (!this.playlists) return;
 		for (var pid in this.playlists) {
 			if (!this.playlists.hasOwnProperty(pid)) continue;
-			var tracks = this.playlists[pid].tracks;
+			var segments = this.playlists[pid].segments;
 			var list = this.dom.querySelector('[data-ln-track-list="' + pid + '"]');
 
-			for (var i = 0; i < tracks.length; i++) {
-				if (tracks[i].url === url && (tracks[i].durationSec === 0 || !tracks[i].duration)) {
-					tracks[i].duration = duration;
-					tracks[i].durationSec = durationSec;
-					changed = true;
-
-					if (list) {
-						var li = list.querySelector('[data-ln-track="' + i + '"]');
-						if (li) {
-							var durEl = li.querySelector('.track-duration');
-							if (durEl) durEl.textContent = duration;
-						}
+			for (var i = 0; i < segments.length; i++) {
+				if (segments[i].url === url && list) {
+					var li = list.querySelector('[data-ln-track="' + i + '"]');
+					if (li) {
+						var durEl = li.querySelector('.track-duration');
+						if (durEl) durEl.textContent = trackData.duration || '';
 					}
 				}
 			}
 		}
-
-		if (changed) {
-			_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
-		}
 	};
 
-	_component.prototype.removeTrack = function (playlistId, index) {
+	_component.prototype.removeSegment = function (playlistId, index) {
 		if (!this.playlists || !this.playlists[playlistId]) return false;
 		var playlist = this.playlists[playlistId];
-		if (index < 0 || index >= playlist.tracks.length) return false;
+		if (index < 0 || index >= playlist.segments.length) return false;
 
-		playlist.tracks.splice(index, 1);
+		playlist.segments.splice(index, 1);
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
+		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
 
 		// Remove from DOM + renumber
 		var list = this.dom.querySelector('[data-ln-track-list="' + playlistId + '"]');
@@ -356,20 +374,20 @@
 
 	_component.prototype.addLoop = function (playlistId, trackIndex, loopData) {
 		if (!this.playlists || !this.playlists[playlistId]) return false;
-		var track = this.playlists[playlistId].tracks[trackIndex];
-		if (!track) return false;
+		var segment = this.playlists[playlistId].segments[trackIndex];
+		if (!segment) return false;
 
-		if (!track.loops) track.loops = [];
-		track.loops.push(loopData);
+		if (!segment.loops) segment.loops = [];
+		segment.loops.push(loopData);
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
-		this._updateTrackLoopIndicator(playlistId, trackIndex, track);
+		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
+		this._updateTrackLoopIndicator(playlistId, trackIndex, segment);
 
 		_dispatch(this.dom, 'ln-playlist:loop-added', {
 			playlistId: playlistId,
 			trackIndex: trackIndex,
-			loopIndex: track.loops.length - 1,
-			loops: track.loops
+			loopIndex: segment.loops.length - 1,
+			loops: segment.loops
 		});
 
 		return true;
@@ -377,20 +395,20 @@
 
 	_component.prototype.removeLoop = function (playlistId, trackIndex, loopIndex) {
 		if (!this.playlists || !this.playlists[playlistId]) return false;
-		var track = this.playlists[playlistId].tracks[trackIndex];
-		if (!track || !track.loops || loopIndex < 0 || loopIndex >= track.loops.length) return false;
+		var segment = this.playlists[playlistId].segments[trackIndex];
+		if (!segment || !segment.loops || loopIndex < 0 || loopIndex >= segment.loops.length) return false;
 
-		track.loops.splice(loopIndex, 1);
-		if (track.loops.length === 0) delete track.loops;
+		segment.loops.splice(loopIndex, 1);
+		if (segment.loops.length === 0) delete segment.loops;
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
-		this._updateTrackLoopIndicator(playlistId, trackIndex, track);
+		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
+		this._updateTrackLoopIndicator(playlistId, trackIndex, segment);
 
 		_dispatch(this.dom, 'ln-playlist:loop-removed', {
 			playlistId: playlistId,
 			trackIndex: trackIndex,
 			loopIndex: loopIndex,
-			loops: track.loops || []
+			loops: segment.loops || []
 		});
 
 		return true;
@@ -400,11 +418,9 @@
 		if (!this.playlists || !this.playlists[playlistId]) return false;
 
 		var name = this.playlists[playlistId].name;
-		var trackCount = this.playlists[playlistId].tracks.length;
+		var segmentCount = this.playlists[playlistId].segments.length;
 
 		delete this.playlists[playlistId];
-
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
 
 		// Remove DOM section
 		var section = this.dom.querySelector('[data-ln-playlist-id="' + playlistId + '"]');
@@ -432,7 +448,7 @@
 		_dispatch(this.dom, 'ln-playlist:playlist-removed', {
 			playlistId: playlistId,
 			name: name,
-			trackCount: trackCount
+			trackCount: segmentCount
 		});
 
 		return true;
@@ -440,9 +456,9 @@
 
 	_component.prototype.openEditTrack = function (idx) {
 		var playlist = this.getPlaylist();
-		if (!playlist || idx < 0 || idx >= playlist.tracks.length) return;
+		if (!playlist || idx < 0 || idx >= playlist.segments.length) return;
 
-		var track = playlist.tracks[idx];
+		var track = this.getTrack(idx);
 
 		_dispatch(this.dom, 'ln-playlist:open-edit', {
 			index: idx,
@@ -509,34 +525,35 @@
 
 	_component.prototype._populateTrackList = function (ol, playlistId) {
 		var self = this;
-		this.playlists[playlistId].tracks.forEach(function (track, idx) {
-			ol.appendChild(self._buildTrackItem(track, idx));
+		this.playlists[playlistId].segments.forEach(function (segment, idx) {
+			ol.appendChild(self._buildTrackItem(segment, idx));
 		});
 	};
 
-	_component.prototype._buildTrackItem = function (track, idx) {
+	_component.prototype._buildTrackItem = function (segment, idx) {
 		var frag = _cloneTemplate('track-item');
 		var li = frag.querySelector('[data-ln-track]');
+		var catalogEntry = this.trackCatalog[segment.url] || {};
 
 		li.setAttribute('data-ln-track', idx);
 		li.querySelector('.track-number').textContent = idx + 1;
-		li.querySelector('.track-name').textContent = track.title;
-		li.querySelector('.track-artist').textContent = track.artist;
-		li.querySelector('.track-duration').textContent = track.duration;
-		li.querySelector('.track-notes').textContent = track.notes || '';
+		li.querySelector('.track-name').textContent = catalogEntry.title || segment.url || '';
+		li.querySelector('.track-artist').textContent = catalogEntry.artist || '';
+		li.querySelector('.track-duration').textContent = catalogEntry.duration || '';
+		li.querySelector('.track-notes').textContent = segment.notes || '';
 
 		var indicators = li.querySelector('.track-indicators');
-		if (track.loops && track.loops.length > 0) {
+		if (segment.loops && segment.loops.length > 0) {
 			var loopBadge = document.createElement('span');
 			loopBadge.className = 'loop-count-badge';
-			loopBadge.textContent = track.loops.length + ' loop' + (track.loops.length > 1 ? 's' : '');
+			loopBadge.textContent = segment.loops.length + ' loop' + (segment.loops.length > 1 ? 's' : '');
 			indicators.appendChild(loopBadge);
 		}
 
 		return li;
 	};
 
-	_component.prototype._updateTrackLoopIndicator = function (playlistId, trackIndex, track) {
+	_component.prototype._updateTrackLoopIndicator = function (playlistId, trackIndex, segment) {
 		var list = this.dom.querySelector('[data-ln-track-list="' + playlistId + '"]');
 		if (!list) return;
 		var li = list.querySelector('[data-ln-track="' + trackIndex + '"]');
@@ -548,10 +565,10 @@
 		var existing = indicators.querySelector('.loop-count-badge');
 		if (existing) existing.remove();
 
-		if (track.loops && track.loops.length > 0) {
+		if (segment.loops && segment.loops.length > 0) {
 			var badge = document.createElement('span');
 			badge.className = 'loop-count-badge';
-			badge.textContent = track.loops.length + ' loop' + (track.loops.length > 1 ? 's' : '');
+			badge.textContent = segment.loops.length + ' loop' + (segment.loops.length > 1 ? 's' : '');
 			indicators.appendChild(badge);
 		}
 	};
@@ -654,7 +671,7 @@
 
 					li.addEventListener('transitionend', function collapseHandler() {
 						li.removeEventListener('transitionend', collapseHandler);
-						self.removeTrack(playlistId, trackIdx);
+						self.removeSegment(playlistId, trackIdx);
 					});
 				});
 			} else {
@@ -738,12 +755,12 @@
 
 		var trackIdx = parseInt(li.getAttribute('data-ln-track'), 10);
 		var playlist = this.getPlaylist();
-		if (!playlist || trackIdx < 0 || trackIdx >= playlist.tracks.length) return;
+		if (!playlist || trackIdx < 0 || trackIdx >= playlist.segments.length) return;
 
 		_dispatch(this.dom, 'ln-playlist:load-to-deck', {
 			deckId: targetDeck,
 			trackIndex: trackIdx,
-			track: playlist.tracks[trackIdx],
+			track: this.getTrack(trackIdx),
 			playlistId: this.currentId
 		});
 	};
@@ -755,22 +772,22 @@
 		var playlist = this.getPlaylist();
 		if (!playlist) return;
 
-		var newTracks = [];
+		var newSegments = [];
 		var oldIndexToNew = {};
 
 		items.forEach(function (li, newIdx) {
 			var oldIdx = parseInt(li.getAttribute('data-ln-track'), 10);
 			oldIndexToNew[oldIdx] = newIdx;
-			newTracks.push(playlist.tracks[oldIdx]);
+			newSegments.push(playlist.segments[oldIdx]);
 
 			li.setAttribute('data-ln-track', newIdx);
 			var numSpan = li.querySelector('.track-number');
 			if (numSpan) numSpan.textContent = newIdx + 1;
 		});
 
-		playlist.tracks = newTracks;
+		playlist.segments = newSegments;
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId });
+		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: this.currentId });
 
 		_dispatch(this.dom, 'ln-playlist:reordered', {
 			oldToNew: oldIndexToNew,

@@ -40,35 +40,65 @@
 	_component.prototype._bindProfileBridge = function () {
 		var self = this;
 
-		// Profile → Playlist bridge
+		// Profile → Playlist bridge (async: load playlists + track catalog from IDB)
 		this.dom.addEventListener('ln-profile:switched', function (e) {
 			var sidebar = self._getSidebar();
 			if (!sidebar) return;
 
 			var profileId = e.detail.profileId;
-			var playlists = null;
+			sidebar.setAttribute('data-ln-playlist-profile', profileId || '');
 
-			if (profileId) {
-				var nav = self._getNav();
-				var profile = (nav && nav.lnProfile) ? nav.lnProfile.getProfile(profileId) : null;
-				playlists = profile ? profile.playlists : null;
+			if (!profileId) {
+				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-load-profile', {
+					detail: { profileId: null, playlists: null, trackCatalog: null }
+				}));
+				return;
 			}
 
-			sidebar.setAttribute('data-ln-playlist-profile', profileId || '');
-			sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-load-profile', {
-				detail: { profileId: profileId, playlists: playlists }
-			}));
+			lnDb.getAllByIndex('playlists', 'profileId', profileId).then(function (playlistArr) {
+				// Collect unique track URLs from all segments
+				var urlSet = {};
+				playlistArr.forEach(function (pl) {
+					(pl.segments || []).forEach(function (seg) {
+						if (seg.url) urlSet[seg.url] = true;
+					});
+				});
+
+				var urls = Object.keys(urlSet);
+				var trackPromises = urls.map(function (url) {
+					return lnDb.get('tracks', url);
+				});
+
+				return Promise.all(trackPromises).then(function (trackRecords) {
+					// Build keyed objects for ln-playlist
+					var playlists = {};
+					playlistArr.forEach(function (pl) {
+						playlists[pl.id] = pl;
+					});
+
+					var trackCatalog = {};
+					trackRecords.forEach(function (tr) {
+						if (tr) trackCatalog[tr.url] = tr;
+					});
+
+					sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-load-profile', {
+						detail: { profileId: profileId, playlists: playlists, trackCatalog: trackCatalog }
+					}));
+				});
+			});
 		});
 
-		// Playlist persistence
+		// Playlist persistence — save individual playlist
 		this.dom.addEventListener('ln-playlist:changed', function (e) {
-			var nav = self._getNav();
-			if (nav && nav.lnProfile) {
-				var profileId = e.detail.profileId || nav.lnProfile.currentId;
-				var profile = nav.lnProfile.getProfile(profileId);
-				if (profile) {
-					lnDb.put('profiles', profile);
-				}
+			var playlistId = e.detail.playlistId;
+			if (!playlistId) return;
+
+			var sidebar = self._getSidebar();
+			if (!sidebar || !sidebar.lnPlaylist || !sidebar.lnPlaylist.playlists) return;
+
+			var playlist = sidebar.lnPlaylist.playlists[playlistId];
+			if (playlist) {
+				lnDb.put('playlists', playlist);
 			}
 		});
 
@@ -85,6 +115,7 @@
 		this.dom.addEventListener('ln-profile:deleted', function (e) {
 			self._updateEmptyState();
 			lnDb.delete('profiles', e.detail.profileId);
+			lnDb.deleteByIndex('playlists', 'profileId', e.detail.profileId);
 			lnModal.close('modal-settings');
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: { type: 'info', message: 'Profile deleted' }
@@ -142,6 +173,7 @@
 		});
 
 		this.dom.addEventListener('ln-playlist:playlist-removed', function (e) {
+			lnDb.delete('playlists', e.detail.playlistId);
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: { type: 'warn', message: 'Playlist "' + e.detail.name + '" deleted' }
 			}));

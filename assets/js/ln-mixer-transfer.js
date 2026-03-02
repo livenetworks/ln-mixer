@@ -1,7 +1,7 @@
 /* ====================================================================
    LN DJ Mixer — Data Transfer (Export / Import)
-   Export profiles+settings as JSON, import from URL or file,
-   batch-download audio for offline use.
+   Export profiles+tracks+playlists+settings as JSON, import from URL
+   or file, batch-download audio for offline use.
    ==================================================================== */
 
 (function () {
@@ -10,7 +10,7 @@
 	var _component = window._LnMixerComponent;
 	if (!_component) return;
 
-	var EXPORT_VERSION = 1;
+	var EXPORT_VERSION = 2;
 	var EXPORT_APP = 'ln-dj-mixer';
 	var EXPORT_FILENAME = 'ln-mixer-data.json';
 
@@ -19,10 +19,25 @@
 	_component.prototype._exportData = function () {
 		Promise.all([
 			lnDb.getAll('profiles'),
+			lnDb.getAll('tracks'),
+			lnDb.getAll('playlists'),
 			lnDb.get('settings', 'app')
 		]).then(function (results) {
 			var profiles = results[0] || [];
-			var settings = results[1] || {};
+			var tracks = results[1] || [];
+			var playlists = results[2] || [];
+			var settings = results[3] || {};
+
+			// Strip peaks from export (too large, regenerated from audio)
+			var exportTracks = tracks.map(function (t) {
+				return {
+					url: t.url,
+					title: t.title || '',
+					artist: t.artist || '',
+					duration: t.duration || '',
+					durationSec: t.durationSec || 0
+				};
+			});
 
 			var payload = {
 				version: EXPORT_VERSION,
@@ -32,7 +47,9 @@
 					apiUrl: settings.apiUrl || '',
 					brandLogo: settings.brandLogo || ''
 				},
-				profiles: profiles
+				profiles: profiles,
+				tracks: exportTracks,
+				playlists: playlists
 			};
 
 			var json = JSON.stringify(payload, null, 2);
@@ -66,10 +83,21 @@
 		if (typeof data.version !== 'number') return false;
 		if (!Array.isArray(data.profiles)) return false;
 
-		for (var i = 0; i < data.profiles.length; i++) {
-			var p = data.profiles[i];
-			if (!p.id || !p.name || typeof p.playlists !== 'object') return false;
+		if (data.version === 1) {
+			// v1: profiles have nested playlists
+			for (var i = 0; i < data.profiles.length; i++) {
+				var p = data.profiles[i];
+				if (!p.id || !p.name || typeof p.playlists !== 'object') return false;
+			}
+		} else if (data.version >= 2) {
+			// v2: slim profiles, separate tracks + playlists
+			for (var j = 0; j < data.profiles.length; j++) {
+				if (!data.profiles[j].id || !data.profiles[j].name) return false;
+			}
+			if (!Array.isArray(data.tracks)) return false;
+			if (!Array.isArray(data.playlists)) return false;
 		}
+
 		return true;
 	};
 
@@ -94,9 +122,64 @@
 
 		var promises = [lnDb.put('settings', settingsRecord)];
 
-		data.profiles.forEach(function (profile) {
-			promises.push(lnDb.put('profiles', profile));
-		});
+		if (data.version === 1) {
+			// v1 import: extract tracks + segments from nested profiles
+			var seenUrls = {};
+
+			data.profiles.forEach(function (profile) {
+				// Slim profile
+				promises.push(lnDb.put('profiles', { id: profile.id, name: profile.name }));
+
+				var playlists = profile.playlists || {};
+				for (var pid in playlists) {
+					if (!playlists.hasOwnProperty(pid)) continue;
+					var pl = playlists[pid];
+					var tracks = pl.tracks || [];
+
+					// Extract unique tracks
+					var segments = [];
+					for (var i = 0; i < tracks.length; i++) {
+						var t = tracks[i];
+						if (t.url && !seenUrls[t.url]) {
+							seenUrls[t.url] = true;
+							promises.push(lnDb.put('tracks', {
+								url: t.url,
+								title: t.title || '',
+								artist: t.artist || '',
+								duration: t.duration || '',
+								durationSec: t.durationSec || 0
+							}));
+						}
+						segments.push({
+							url: t.url || '',
+							notes: t.notes || '',
+							loops: t.loops || []
+						});
+					}
+
+					var globalId = profile.id + '--' + pid;
+					promises.push(lnDb.put('playlists', {
+						id: globalId,
+						profileId: profile.id,
+						name: pl.name,
+						segments: segments
+					}));
+				}
+			});
+		} else {
+			// v2 import: profiles, tracks, playlists are already separate
+			data.profiles.forEach(function (profile) {
+				promises.push(lnDb.put('profiles', profile));
+			});
+
+			(data.tracks || []).forEach(function (track) {
+				promises.push(lnDb.put('tracks', track));
+			});
+
+			(data.playlists || []).forEach(function (playlist) {
+				promises.push(lnDb.put('playlists', playlist));
+			});
+		}
 
 		Promise.all(promises).then(function () {
 			lnSettings.apply({
@@ -106,7 +189,7 @@
 
 			self._loadProfiles();
 
-			var urls = self._collectTrackUrls(data.profiles);
+			var urls = self._collectTrackUrls(data);
 
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: {
@@ -185,18 +268,28 @@
 
 	/* ─── Collect Track URLs ──────────────────────────────────────── */
 
-	_component.prototype._collectTrackUrls = function (profiles) {
+	_component.prototype._collectTrackUrls = function (data) {
 		var urlSet = {};
-		profiles.forEach(function (p) {
-			if (!p.playlists) return;
-			for (var pid in p.playlists) {
-				if (!p.playlists.hasOwnProperty(pid)) continue;
-				var tracks = p.playlists[pid].tracks || [];
-				for (var i = 0; i < tracks.length; i++) {
-					if (tracks[i].url) urlSet[tracks[i].url] = true;
+
+		if (data.version === 1) {
+			// v1: playlists nested in profiles
+			(data.profiles || []).forEach(function (p) {
+				if (!p.playlists) return;
+				for (var pid in p.playlists) {
+					if (!p.playlists.hasOwnProperty(pid)) continue;
+					var tracks = p.playlists[pid].tracks || [];
+					for (var i = 0; i < tracks.length; i++) {
+						if (tracks[i].url) urlSet[tracks[i].url] = true;
+					}
 				}
-			}
-		});
+			});
+		} else {
+			// v2: tracks as top-level array
+			(data.tracks || []).forEach(function (t) {
+				if (t.url) urlSet[t.url] = true;
+			});
+		}
+
 		return Object.keys(urlSet);
 	};
 
@@ -204,71 +297,70 @@
 
 	_component.prototype._batchDownloadAudio = function () {
 		var self = this;
-		var nav = this._getNav();
-		if (!nav || !nav.lnProfile) return;
 
-		var allProfiles = [];
-		var keys = Object.keys(nav.lnProfile.profiles);
-		keys.forEach(function (id) {
-			allProfiles.push(nav.lnProfile.profiles[id]);
-		});
+		// Collect all track URLs from tracks store
+		lnDb.getAll('tracks').then(function (allTracks) {
+			var urls = [];
+			allTracks.forEach(function (t) {
+				if (t.url) urls.push(t.url);
+			});
 
-		var urls = this._collectTrackUrls(allProfiles);
-		if (urls.length === 0) {
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'info', message: 'No tracks to download' }
-			}));
-			return;
-		}
-
-		lnDb.getAllKeys('audioFiles').then(function (cachedUrls) {
-			var cachedSet = {};
-			cachedUrls.forEach(function (u) { cachedSet[u] = true; });
-
-			var uncached = urls.filter(function (u) { return !cachedSet[u]; });
-
-			if (uncached.length === 0) {
+			if (urls.length === 0) {
 				window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-					detail: { type: 'info', message: 'All tracks already cached' }
+					detail: { type: 'info', message: 'No tracks to download' }
 				}));
 				return;
 			}
 
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: {
-					type: 'info',
-					message: 'Downloading ' + uncached.length + ' track' +
-						(uncached.length !== 1 ? 's' : '') + '...'
-				}
-			}));
+			return lnDb.getAllKeys('audioFiles').then(function (cachedUrls) {
+				var cachedSet = {};
+				cachedUrls.forEach(function (u) { cachedSet[u] = true; });
 
-			var completed = 0;
-			var failed = 0;
+				var uncached = urls.filter(function (u) { return !cachedSet[u]; });
 
-			function downloadNext(idx) {
-				if (idx >= uncached.length) {
-					var msg = 'Download complete: ' + completed + ' cached';
-					if (failed > 0) msg += ', ' + failed + ' failed';
-					self._updateTransferStatus('');
-					self._updateCacheInfo();
+				if (uncached.length === 0) {
 					window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-						detail: { type: completed > 0 ? 'success' : 'warn', message: msg }
+						detail: { type: 'info', message: 'All tracks already cached' }
 					}));
 					return;
 				}
 
-				self._updateTransferStatus(
-					'Downloading ' + (idx + 1) + '/' + uncached.length + '...'
-				);
+				window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
+					detail: {
+						type: 'info',
+						message: 'Downloading ' + uncached.length + ' track' +
+							(uncached.length !== 1 ? 's' : '') + '...'
+					}
+				}));
 
-				self._downloadBlob(uncached[idx], function (success) {
-					if (success) completed++;
-					else failed++;
-					downloadNext(idx + 1);
-				});
-			}
+				var completed = 0;
+				var failed = 0;
 
-			downloadNext(0);
+				function downloadNext(idx) {
+					if (idx >= uncached.length) {
+						var msg = 'Download complete: ' + completed + ' cached';
+						if (failed > 0) msg += ', ' + failed + ' failed';
+						self._updateTransferStatus('');
+						self._updateCacheInfo();
+						window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
+							detail: { type: completed > 0 ? 'success' : 'warn', message: msg }
+						}));
+						return;
+					}
+
+					self._updateTransferStatus(
+						'Downloading ' + (idx + 1) + '/' + uncached.length + '...'
+					);
+
+					self._downloadBlob(uncached[idx], function (success) {
+						if (success) completed++;
+						else failed++;
+						downloadNext(idx + 1);
+					});
+				}
+
+				downloadNext(0);
+			});
 		});
 	};
 

@@ -33,14 +33,27 @@
 		if (!sidebar || !sidebar.lnPlaylist) return;
 		var plId = playing.dataset.lnFromPlaylist;
 		var pl = plId && sidebar.lnPlaylist.playlists[plId];
-		if (!pl || !pl.tracks) return;
+		if (!pl || !pl.segments) return;
 
 		var nextIdx = playing.lnDeck.trackIndex + 1;
-		if (nextIdx >= pl.tracks.length) return;
+		if (nextIdx >= pl.segments.length) return;
 		if (free.lnDeck.trackIndex === nextIdx) { this._autoplayPreloaded = true; return; }
 
+		// Resolve full track data from segment + catalog
+		var seg = pl.segments[nextIdx];
+		var cat = sidebar.lnPlaylist.trackCatalog[seg.url] || {};
+		var nextTrack = {
+			url: seg.url,
+			title: cat.title || '',
+			artist: cat.artist || '',
+			duration: cat.duration || '',
+			durationSec: cat.durationSec || 0,
+			notes: seg.notes || '',
+			loops: seg.loops || []
+		};
+
 		free.dataset.lnFromPlaylist = plId;
-		this._loadTrackToDeck(free.getAttribute('data-ln-deck'), nextIdx, pl.tracks[nextIdx]);
+		this._loadTrackToDeck(free.getAttribute('data-ln-deck'), nextIdx, nextTrack);
 		this._autoplayPreloaded = true;
 	};
 
@@ -130,31 +143,44 @@
 			}
 		});
 
-		// Duration auto-detected → forward to sidebar (updates all matching tracks)
+		// Duration auto-detected → update tracks store + notify sidebar
 		this.dom.addEventListener('ln-deck:duration-detected', function (e) {
-			var sidebar = self._getSidebar();
-			if (!sidebar || !e.detail.trackUrl) return;
+			var url = e.detail.trackUrl;
+			if (!url) return;
 
-			sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-update-duration', {
-				detail: {
-					url: e.detail.trackUrl,
-					duration: e.detail.duration,
-					durationSec: e.detail.durationSec
-				}
-			}));
+			// Persist to tracks store
+			lnDb.get('tracks', url).then(function (record) {
+				if (!record) record = { url: url, title: '', artist: '' };
+				record.duration = e.detail.duration;
+				record.durationSec = e.detail.durationSec;
+				lnDb.put('tracks', record);
+			});
+
+			// Update sidebar catalog + DOM
+			var sidebar = self._getSidebar();
+			if (sidebar) {
+				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-update-catalog', {
+					detail: {
+						url: url,
+						track: {
+							duration: e.detail.duration,
+							durationSec: e.detail.durationSec
+						}
+					}
+				}));
+			}
 		});
 
-		// Waveform peaks generated → persist to audioFiles record
+		// Waveform peaks generated → persist to tracks store
 		this.dom.addEventListener('ln-deck:peaks-ready', function (e) {
 			var trackUrl = e.detail.trackUrl;
 			if (!trackUrl) return;
 
-			lnDb.get('audioFiles', trackUrl).then(function (record) {
-				if (record) {
-					record.peaks = e.detail.peaks;
-					record.peaksDuration = e.detail.peaksDuration;
-					return lnDb.put('audioFiles', record);
-				}
+			lnDb.get('tracks', trackUrl).then(function (record) {
+				if (!record) record = { url: trackUrl, title: '', artist: '', duration: '', durationSec: 0 };
+				record.peaks = e.detail.peaks;
+				record.peaksDuration = e.detail.peaksDuration;
+				return lnDb.put('tracks', record);
 			});
 		});
 

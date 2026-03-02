@@ -162,26 +162,25 @@
 		var duration = '';
 		var durationSec = 0;
 
-		if (url) {
-			var nav = this._getNav();
-			if (nav && nav.lnProfile) {
-				var profile = nav.lnProfile.getProfile(nav.lnProfile.currentId);
-				if (profile && profile.playlists) {
-					var found = false;
-					for (var pid in profile.playlists) {
-						if (!profile.playlists.hasOwnProperty(pid) || found) continue;
-						var tracks = profile.playlists[pid].tracks;
-						for (var i = 0; i < tracks.length; i++) {
-							if (tracks[i].url === url && tracks[i].durationSec > 0) {
-								duration = tracks[i].duration;
-								durationSec = tracks[i].durationSec;
-								found = true;
-								break;
-							}
-						}
-					}
-				}
+		// Check track catalog for existing duration
+		if (url && sidebar.lnPlaylist && sidebar.lnPlaylist.trackCatalog) {
+			var existing = sidebar.lnPlaylist.trackCatalog[url];
+			if (existing && existing.durationSec > 0) {
+				duration = existing.duration;
+				durationSec = existing.durationSec;
 			}
+		}
+
+		// Upsert track to tracks store
+		if (url) {
+			lnDb.get('tracks', url).then(function (record) {
+				var trackRecord = record || { url: url };
+				trackRecord.title = title;
+				trackRecord.artist = artist;
+				if (!trackRecord.duration && duration) trackRecord.duration = duration;
+				if (!trackRecord.durationSec && durationSec) trackRecord.durationSec = durationSec;
+				lnDb.put('tracks', trackRecord);
+			});
 		}
 
 		sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-add-track', {
@@ -250,8 +249,13 @@
 			}));
 		}
 
-		// Try to resolve from cache (audio blob + waveform peaks)
-		lnDb.get('audioFiles', trackUrl).then(function (cached) {
+		// Resolve from cache: blob from audioFiles, peaks from tracks store
+		Promise.all([
+			lnDb.get('audioFiles', trackUrl),
+			lnDb.get('tracks', trackUrl)
+		]).then(function (results) {
+			var cached = results[0];
+			var trackRecord = results[1];
 			var loadTrack = Object.assign({}, track);
 			loadTrack._originalUrl = trackUrl;
 
@@ -259,16 +263,17 @@
 			var peaksDuration = 0;
 			var hasCachedBlob = false;
 
-			if (cached) {
-				if (cached.peaks && cached.peaksDuration) {
-					peaks = cached.peaks;
-					peaksDuration = cached.peaksDuration;
-				}
-				if (cached.blob) {
-					hasCachedBlob = true;
-					loadTrack.url = URL.createObjectURL(cached.blob);
-					self._blobUrls[deckId] = loadTrack.url;
-				}
+			// Peaks from tracks store
+			if (trackRecord && trackRecord.peaks && trackRecord.peaksDuration) {
+				peaks = trackRecord.peaks;
+				peaksDuration = trackRecord.peaksDuration;
+			}
+
+			// Blob from audioFiles
+			if (cached && cached.blob) {
+				hasCachedBlob = true;
+				loadTrack.url = URL.createObjectURL(cached.blob);
+				self._blobUrls[deckId] = loadTrack.url;
 			}
 
 			// Cached blob but no peaks → extract before loading
@@ -276,12 +281,12 @@
 				if (waveformEl) waveformEl.classList.add('waveform--decoding');
 
 				self._extractPeaksFromBlob(cached.blob).then(function (result) {
-					// Persist peaks to IDB
-					lnDb.get('audioFiles', trackUrl).then(function (record) {
+					// Persist peaks to tracks store
+					lnDb.get('tracks', trackUrl).then(function (record) {
 						if (record) {
 							record.peaks = result.peaks;
 							record.peaksDuration = result.duration;
-							lnDb.put('audioFiles', record);
+							lnDb.put('tracks', record);
 						}
 					});
 					_dispatchLoad(loadTrack, result.peaks, result.duration);
@@ -410,7 +415,7 @@
 
 			var msgEl = document.querySelector('[data-ln-field="confirm-delete-message"]');
 			if (msgEl) {
-				var trackCount = playlist.tracks.length;
+				var trackCount = playlist.segments.length;
 				msgEl.textContent = 'Delete playlist \u201C' + playlist.name + '\u201D? This removes ' +
 					trackCount + (trackCount === 1 ? ' track.' : ' tracks.');
 			}
