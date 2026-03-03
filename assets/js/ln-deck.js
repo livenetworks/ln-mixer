@@ -70,6 +70,7 @@
 
 		// Cache DOM (all within this.dom)
 		this._els = {
+			notes:       dom.querySelector('[data-ln-field="notes"]'),
 			title:       dom.querySelector('[data-ln-field="title"]'),
 			artist:      dom.querySelector('[data-ln-field="artist"]'),
 			timeCurrent: dom.querySelector('[data-ln-field="time-current"]'),
@@ -514,6 +515,7 @@
 		var track = this.track;
 
 		if (!track) {
+			if (e.notes) e.notes.textContent = '';
 			if (e.title) e.title.textContent = '\u2014';
 			if (e.artist) e.artist.textContent = '\u2014';
 			if (e.timeCurrent) e.timeCurrent.textContent = '0:00';
@@ -522,6 +524,7 @@
 			return;
 		}
 
+		if (e.notes) e.notes.textContent = track.notes || '';
 		if (e.title) e.title.textContent = track.title;
 		if (e.artist) e.artist.textContent = track.artist;
 		if (e.timeTotal) e.timeTotal.textContent = track.duration;

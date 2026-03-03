@@ -76,6 +76,7 @@
 						<h2>Deck A <mark class="deck-badge">Now Playing</mark></h2>
 					</header>
 
+					<p class="track-notes" data-ln-field="notes"></p>
 					<p class="track-title" data-ln-field="title">&mdash;</p>
 					<p class="track-artist" data-ln-field="artist">&mdash;</p>
 
@@ -136,6 +137,7 @@
 						<h2>Deck B <mark class="deck-badge">Next / Cue</mark></h2>
 					</header>
 
+					<p class="track-notes" data-ln-field="notes"></p>
 					<p class="track-title" data-ln-field="title">&mdash;</p>
 					<p class="track-artist" data-ln-field="artist">&mdash;</p>
 
@@ -380,6 +382,15 @@
 							</section>
 							<input type="file" accept="image/*" data-ln-logo-input hidden />
 							<p class="field-hint">Shown in the topbar. Square image recommended (64x64px or larger)</p>
+						</fieldset>
+
+						<fieldset class="form-field" data-ln-install-field hidden>
+							<label>Install App</label>
+							<section class="cache-info">
+								<output data-ln-install-status>Install as app on this device</output>
+								<button type="button" class="ln-icon-download--white ln-icon--sm" data-ln-action="install-app">Install</button>
+							</section>
+							<p class="field-hint">Add to home screen for fullscreen, offline-capable experience</p>
 						</fieldset>
 
 						<fieldset class="form-field">

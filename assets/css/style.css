@@ -457,6 +457,17 @@ fieldset {
 	margin-top: -0.25rem;
 }
 
+.deck .track-notes:empty { display: none; }
+
+.deck:has(.track-notes:not(:empty)) .track-notes {
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: var(--highlight);
+}
+.deck--b:has(.track-notes:not(:empty)) .track-notes { color: var(--text); }
+.deck:has(.track-notes:not(:empty)) .track-title  { font-size: 0.875rem; font-weight: 400; color: var(--text-muted); }
+.deck:has(.track-notes:not(:empty)) .track-artist { font-size: 0.75rem; color: var(--text-dim); margin-top: 0; }
+
 /* --- Waveform --- */
 
 .waveform {
@@ -841,29 +852,29 @@ fieldset {
 }
 
 /* When notes present: notes become primary label, track info becomes secondary */
-li.has-notes .track-meta-row { grid-row: 1; }
-li.has-notes .track-info     { grid-row: 2; }
+li:has(.track-notes:not(:empty)) .track-meta-row { grid-row: 1; }
+li:has(.track-notes:not(:empty)) .track-info     { grid-row: 2; }
 
-li.has-notes .track-notes {
+li:has(.track-notes:not(:empty)) .track-notes {
 	font-size: 0.875rem;
 	font-weight: 600;
 	color: var(--text);
 	font-style: normal;
 }
-li.has-notes .track-name {
+li:has(.track-notes:not(:empty)) .track-name {
 	font-size: 0.75rem;
 	font-weight: 400;
 	color: var(--text-muted);
 }
-li.has-notes .track-artist {
+li:has(.track-notes:not(:empty)) .track-artist {
 	font-size: 0.7rem;
 	color: var(--text-dim);
 }
 
-.track-list > li.active-a.has-notes .track-notes { color: hsl(var(--accent)); }
-.track-list > li.active-b.has-notes .track-notes { color: hsl(var(--accent-b)); }
-.track-list > li.active-a.has-notes .track-name  { color: var(--text-muted); }
-.track-list > li.active-b.has-notes .track-name  { color: var(--text-muted); }
+.track-list > li:has(.track-notes:not(:empty)).active-a .track-notes { color: hsl(var(--accent)); }
+.track-list > li:has(.track-notes:not(:empty)).active-b .track-notes { color: hsl(var(--accent-b)); }
+.track-list > li:has(.track-notes:not(:empty)).active-a .track-name  { color: var(--text-muted); }
+.track-list > li:has(.track-notes:not(:empty)).active-b .track-name  { color: var(--text-muted); }
 
 /* --- Edit Track Dialog --- */
 

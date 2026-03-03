@@ -9,6 +9,23 @@
 	var _component = window._LnMixerComponent;
 	if (!_component) return;
 
+	/* ─── PWA Install ───────────────────────────────────────────── */
+
+	var _deferredInstallPrompt = null;
+
+	window.addEventListener('beforeinstallprompt', function (e) {
+		e.preventDefault();
+		_deferredInstallPrompt = e;
+		var field = document.querySelector('[data-ln-install-field]');
+		if (field) field.hidden = false;
+	});
+
+	window.addEventListener('appinstalled', function () {
+		_deferredInstallPrompt = null;
+		var field = document.querySelector('[data-ln-install-field]');
+		if (field) field.hidden = true;
+	});
+
 	/* ─── Settings Form Helpers ──────────────────────────────────── */
 
 	_component.prototype._populateSettingsForm = function () {
@@ -271,6 +288,21 @@
 				self._populateSettingsForm();
 				lnModal.open('modal-settings');
 			}
+		});
+
+		// Install app (PWA)
+		document.addEventListener('click', function (e) {
+			if (!e.target.closest('[data-ln-action="install-app"]')) return;
+			if (!_deferredInstallPrompt) return;
+
+			_deferredInstallPrompt.prompt();
+			_deferredInstallPrompt.userChoice.then(function (result) {
+				if (result.outcome === 'accepted') {
+					_deferredInstallPrompt = null;
+					var field = document.querySelector('[data-ln-install-field]');
+					if (field) field.hidden = true;
+				}
+			});
 		});
 
 		// Upload logo button
