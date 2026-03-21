@@ -10,7 +10,7 @@
 	   ==================================================================== */
 
 	var _settings = {
-		apiUrl: '',
+		apiUrl: 'https://mixer.live.net.mk/api',
 		brandLogo: ''
 	};
 
