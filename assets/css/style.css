@@ -444,9 +444,11 @@ fieldset {
 
 /* --- Track Info in Deck (single line: title + artist) --- */
 
-.deck .track-title,
-.deck .track-artist {
-	display: inline;
+.deck .track-info {
+	flex-shrink: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .deck .track-title {
@@ -1115,7 +1117,7 @@ button.btn--led.active::after {
 }
 
 .loop-segments:empty {
-	display: none;
+	min-height: 44px;
 }
 
 .loop-seg-btn {
