@@ -1,14 +1,11 @@
-(function () {
-	'use strict';
+const DOM_SELECTOR = 'data-ln-library';
+const DOM_ATTRIBUTE = 'lnLibrary';
 
-	var DOM_SELECTOR = 'data-ln-library';
-	var DOM_ATTRIBUTE = 'lnLibrary';
-
-	if (window[DOM_ATTRIBUTE] !== undefined) return;
+if (!window[DOM_ATTRIBUTE]) {
 
 	/* ─── Template Helper ─────────────────────────────────────────── */
 
-	var _tmplCache = {};
+	const _tmplCache = {};
 	function _cloneTemplate(name) {
 		if (!_tmplCache[name]) {
 			_tmplCache[name] = document.querySelector('[data-ln-template="' + name + '"]');
@@ -36,7 +33,7 @@
 	}
 
 	function _findElements(root) {
-		var items = Array.from(root.querySelectorAll('[' + DOM_SELECTOR + ']'));
+		const items = Array.from(root.querySelectorAll('[' + DOM_SELECTOR + ']'));
 		if (root.hasAttribute && root.hasAttribute(DOM_SELECTOR)) {
 			items.push(root);
 		}
@@ -69,7 +66,7 @@
 	/* ─── Bind Events ─────────────────────────────────────────────── */
 
 	_component.prototype._bindEvents = function () {
-		var self = this;
+		const self = this;
 
 		// Request events (from coordinator / external code)
 		this.dom.addEventListener('ln-library:request-fetch', function (e) {
@@ -127,18 +124,18 @@
 
 		this._loading = true;
 		this._hideNoApi();
-		var self = this;
+		const self = this;
 
 		// Show loading state
 		if (this._list) {
 			this._list.innerHTML = '';
-			var loadingLi = document.createElement('li');
+			const loadingLi = document.createElement('li');
 			loadingLi.className = 'library-loading';
 			loadingLi.textContent = 'Loading...';
 			this._list.appendChild(loadingLi);
 		}
 
-		var xhr = new XMLHttpRequest();
+		const xhr = new XMLHttpRequest();
 		xhr.open('GET', apiUrl);
 		xhr.responseType = 'json';
 
@@ -172,14 +169,14 @@
 
 	_component.prototype.markCached = function (cachedUrls) {
 		if (!this._list) return;
-		var urlSet = {};
+		const urlSet = {};
 		cachedUrls.forEach(function (u) { urlSet[u] = true; });
 
-		var items = this._list.querySelectorAll('[data-ln-library-track]');
+		const items = this._list.querySelectorAll('[data-ln-library-track]');
 		items.forEach(function (li) {
-			var addBtn = li.querySelector('[data-ln-action="add-to-playlist"]');
-			var url = addBtn ? addBtn.getAttribute('data-track-url') : '';
-			var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
+			const addBtn = li.querySelector('[data-ln-action="add-to-playlist"]');
+			const url = addBtn ? addBtn.getAttribute('data-track-url') : '';
+			const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 			if (url && urlSet[url]) {
 				li.setAttribute('data-ln-cached', '');
 				if (bar) bar.setAttribute('data-ln-progress', '100');
@@ -194,9 +191,9 @@
 
 	_component.prototype._findItemByUrl = function (url) {
 		if (!this._list) return null;
-		var items = this._list.querySelectorAll('[data-ln-library-track]');
-		for (var i = 0; i < items.length; i++) {
-			var btn = items[i].querySelector('[data-ln-action="add-to-playlist"]');
+		const items = this._list.querySelectorAll('[data-ln-library-track]');
+		for (let i = 0; i < items.length; i++) {
+			const btn = items[i].querySelector('[data-ln-action="add-to-playlist"]');
 			if (btn && btn.getAttribute('data-track-url') === url) {
 				return items[i];
 			}
@@ -205,11 +202,11 @@
 	};
 
 	_component.prototype._setDownloading = function (url, active) {
-		var li = this._findItemByUrl(url);
+		const li = this._findItemByUrl(url);
 		if (!li) return;
 		if (active) {
 			li.setAttribute('data-ln-downloading', '');
-			var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
+			const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 			if (bar) bar.setAttribute('data-ln-progress', '0');
 		} else {
 			li.removeAttribute('data-ln-downloading');
@@ -217,34 +214,34 @@
 	};
 
 	_component.prototype._updateProgress = function (url, percent) {
-		var li = this._findItemByUrl(url);
+		const li = this._findItemByUrl(url);
 		if (!li) return;
-		var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
+		const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 		if (bar) bar.setAttribute('data-ln-progress', String(Math.round(percent)));
 	};
 
 	_component.prototype._markSingleCached = function (url) {
-		var li = this._findItemByUrl(url);
+		const li = this._findItemByUrl(url);
 		if (!li) return;
 		li.setAttribute('data-ln-cached', '');
-		var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
+		const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 		if (bar) bar.setAttribute('data-ln-progress', '100');
 	};
 
 	_component.prototype._markSingleUncached = function (url) {
-		var li = this._findItemByUrl(url);
+		const li = this._findItemByUrl(url);
 		if (!li) return;
 		li.removeAttribute('data-ln-cached');
-		var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
+		const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 		if (bar) bar.setAttribute('data-ln-progress', '0');
 	};
 
 	_component.prototype._clearAllCached = function () {
 		if (!this._list) return;
-		var items = this._list.querySelectorAll('[data-ln-cached]');
+		const items = this._list.querySelectorAll('[data-ln-cached]');
 		items.forEach(function (li) {
 			li.removeAttribute('data-ln-cached');
-			var bar = li.querySelector('.library-download-progress > [data-ln-progress]');
+			const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 			if (bar) bar.setAttribute('data-ln-progress', '0');
 		});
 	};
@@ -252,14 +249,14 @@
 	/* ─── Private: Populate ───────────────────────────────────────── */
 
 	_component.prototype._buildLibraryItem = function (track) {
-		var frag = _cloneTemplate('library-item');
-		var li = frag.querySelector('[data-ln-library-track]');
+		const frag = _cloneTemplate('library-item');
+		const li = frag.querySelector('[data-ln-library-track]');
 
 		li.querySelector('.track-name').textContent = track.title;
 		li.querySelector('.track-artist').textContent = track.artist;
 
 		// Set data attributes on Add button for coordinator to read
-		var addBtn = li.querySelector('[data-ln-action="add-to-playlist"]');
+		const addBtn = li.querySelector('[data-ln-action="add-to-playlist"]');
 		if (addBtn) {
 			addBtn.setAttribute('data-track-title', track.title);
 			addBtn.setAttribute('data-track-artist', track.artist);
@@ -277,14 +274,14 @@
 		if (this._search) this._search.hidden = false;
 
 		if (this._tracks.length === 0) {
-			var emptyLi = document.createElement('li');
+			const emptyLi = document.createElement('li');
 			emptyLi.className = 'library-empty';
 			emptyLi.textContent = 'No tracks found';
 			this._list.appendChild(emptyLi);
 			return;
 		}
 
-		var self = this;
+		const self = this;
 		this._tracks.forEach(function (track) {
 			self._list.appendChild(self._buildLibraryItem(track));
 		});
@@ -295,7 +292,7 @@
 		}
 
 		// Clear ln-search on fresh populate
-		var searchEl = this.dom.querySelector('[data-ln-search]');
+		const searchEl = this.dom.querySelector('[data-ln-search]');
 		if (searchEl && searchEl.lnSearch) {
 			searchEl.lnSearch.clear();
 		}
@@ -306,7 +303,7 @@
 	_component.prototype._showError = function (message) {
 		if (!this._list) return;
 		this._list.innerHTML = '';
-		var errorLi = document.createElement('li');
+		const errorLi = document.createElement('li');
 		errorLi.className = 'library-error';
 		errorLi.textContent = message;
 		this._list.appendChild(errorLi);
@@ -326,7 +323,7 @@
 	/* ─── DOM Observer ────────────────────────────────────────────── */
 
 	function _domObserver() {
-		var observer = new MutationObserver(function (mutations) {
+		const observer = new MutationObserver(function (mutations) {
 			mutations.forEach(function (mutation) {
 				if (mutation.type === 'childList') {
 					mutation.addedNodes.forEach(function (node) {
@@ -356,4 +353,5 @@
 	} else {
 		constructor(document.body);
 	}
-})();
+
+}

@@ -1,10 +1,7 @@
-(function () {
-	'use strict';
+const DOM_SELECTOR = 'data-ln-profile';
+const DOM_ATTRIBUTE = 'lnProfile';
 
-	var DOM_SELECTOR = 'data-ln-profile';
-	var DOM_ATTRIBUTE = 'lnProfile';
-
-	if (window[DOM_ATTRIBUTE] !== undefined) return;
+if (!window[DOM_ATTRIBUTE]) {
 
 	/* ─── Helpers ──────────────────────────────────────────────────── */
 
@@ -16,21 +13,21 @@
 	}
 
 	function _generateId(name) {
-		var id = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+		let id = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 		if (!id) id = 'profile';
 		return id;
 	}
 
 	function _uniqueId(base, existing) {
 		if (!existing[base]) return base;
-		var counter = 2;
+		let counter = 2;
 		while (existing[base + '-' + counter]) counter++;
 		return base + '-' + counter;
 	}
 
 	/* ─── Template Helper ─────────────────────────────────────────── */
 
-	var _tmplCache = {};
+	const _tmplCache = {};
 	function _cloneTemplate(name) {
 		if (!_tmplCache[name]) {
 			_tmplCache[name] = document.querySelector('[data-ln-template="' + name + '"]');
@@ -49,7 +46,7 @@
 	}
 
 	function _findElements(root) {
-		var items = Array.from(root.querySelectorAll('[' + DOM_SELECTOR + ']'));
+		const items = Array.from(root.querySelectorAll('[' + DOM_SELECTOR + ']'));
 		if (root.hasAttribute && root.hasAttribute(DOM_SELECTOR)) {
 			items.push(root);
 		}
@@ -79,13 +76,13 @@
 	/* ─── Bind Events ─────────────────────────────────────────────── */
 
 	_component.prototype._bindEvents = function () {
-		var self = this;
+		const self = this;
 
 		// Click delegation on nav for profile switching (own buttons only)
 		this.dom.addEventListener('click', function (e) {
-			var btn = e.target.closest('[data-ln-profile-id]');
+			const btn = e.target.closest('[data-ln-profile-id]');
 			if (btn) {
-				var id = btn.getAttribute('data-ln-profile-id');
+				const id = btn.getAttribute('data-ln-profile-id');
 				if (id !== self.currentId) {
 					self.switchTo(id);
 				}
@@ -109,14 +106,14 @@
 	/* ─── Hydrate (called by coordinator with DB data) ───────────── */
 
 	_component.prototype.hydrate = function (profilesArr) {
-		var self = this;
+		const self = this;
 		profilesArr.forEach(function (p) {
 			self.profiles[p.id] = p;
 		});
 
 		this._renderButtons();
 
-		var keys = Object.keys(this.profiles);
+		const keys = Object.keys(this.profiles);
 		if (keys.length > 0) {
 			this.switchTo(keys[0]);
 		}
@@ -135,11 +132,11 @@
 			btn.remove();
 		});
 
-		var self = this;
-		var keys = Object.keys(this.profiles);
+		const self = this;
+		const keys = Object.keys(this.profiles);
 		keys.forEach(function (id) {
-			var frag = _cloneTemplate('profile-btn');
-			var btn = frag.querySelector('[data-ln-profile-id]');
+			const frag = _cloneTemplate('profile-btn');
+			const btn = frag.querySelector('[data-ln-profile-id]');
 			btn.setAttribute('data-ln-profile-id', id);
 			btn.textContent = self.profiles[id].name;
 			self.dom.insertBefore(btn, self.addBtn);
@@ -149,7 +146,7 @@
 	};
 
 	_component.prototype._updateActive = function () {
-		var self = this;
+		const self = this;
 		this.dom.querySelectorAll('[data-ln-profile-id]').forEach(function (btn) {
 			btn.classList.toggle('active', btn.getAttribute('data-ln-profile-id') === self.currentId);
 		});
@@ -171,8 +168,8 @@
 	};
 
 	_component.prototype.create = function (name) {
-		var base = _generateId(name);
-		var id = _uniqueId(base, this.profiles);
+		const base = _generateId(name);
+		const id = _uniqueId(base, this.profiles);
 
 		this.profiles[id] = { id: id, name: name };
 
@@ -194,7 +191,7 @@
 
 		this._renderButtons();
 
-		var remaining = Object.keys(this.profiles);
+		const remaining = Object.keys(this.profiles);
 		if (remaining.length > 0) {
 			this.switchTo(remaining[0]);
 		} else {
@@ -220,7 +217,7 @@
 	/* ─── DOM Observer ────────────────────────────────────────────── */
 
 	function _domObserver() {
-		var observer = new MutationObserver(function (mutations) {
+		const observer = new MutationObserver(function (mutations) {
 			mutations.forEach(function (mutation) {
 				if (mutation.type === 'childList') {
 					mutation.addedNodes.forEach(function (node) {
@@ -250,4 +247,5 @@
 	} else {
 		constructor(document.body);
 	}
-})();
+
+}

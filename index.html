@@ -11,9 +11,15 @@
 	<link rel="apple-touch-icon" href="./assets/img/icon-192.png" />
 	<title>LN DJ Mixer</title>
 	<link rel="stylesheet" href="./assets/css/ln-acme-icons.css" />
-	<link rel="stylesheet" href="./assets/css/ln-acme-modal.css" />
-	<link rel="stylesheet" href="./assets/css/ln-acme-toast.css" />
-	<link rel="stylesheet" href="./assets/css/style.css" />
+	<link rel="stylesheet" href="./assets/css/app.css" />
+	<script type="importmap">
+	{
+		"imports": {
+			"ln-acme/": "./ln-acme/",
+			"wavesurfer.js": "./node_modules/wavesurfer.js/dist/wavesurfer.esm.js"
+		}
+	}
+	</script>
 </head>
 <body>
 
@@ -64,11 +70,11 @@
 			<section class="empty-state" data-ln-empty-state hidden>
 				<h2 class="ln-icon-add--white">Welcome to LN DJ Mixer</h2>
 				<p>Create your first profile to get started.</p>
-				<button type="button" class="action-btn btn--primary ln-icon-add--white ln-icon--sm" data-ln-action="new-profile">New Profile</button>
+				<button type="button" class="ln-icon-add--white ln-icon--sm" data-ln-action="new-profile">New Profile</button>
 			</section>
 
 			<!-- ====== DECKS (left) ====== -->
-			<section class="decks-panel">
+			<section class="decks-panel" hidden>
 
 				<!-- DECK A — Now Playing -->
 				<article class="deck deck--a" data-ln-deck="a">
@@ -95,8 +101,8 @@
 							<nav class="waveform-timeline" aria-hidden="true"></nav>
 						</figure>
 						<nav class="waveform-zoom">
-							<button type="button" class="btn btn--sm btn--ghost ln-icon-zoom-in--white" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"></button>
-							<button type="button" class="btn btn--sm btn--ghost ln-icon-zoom-out--white" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"></button>
+							<button type="button" class="ln-icon-zoom-in--white" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"></button>
+							<button type="button" class="ln-icon-zoom-out--white" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"></button>
 						</nav>
 					</fieldset>
 
@@ -158,8 +164,8 @@
 							<nav class="waveform-timeline" aria-hidden="true"></nav>
 						</figure>
 						<nav class="waveform-zoom">
-							<button type="button" class="btn btn--sm btn--ghost ln-icon-zoom-in--white" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"></button>
-							<button type="button" class="btn btn--sm btn--ghost ln-icon-zoom-out--white" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"></button>
+							<button type="button" class="ln-icon-zoom-in--white" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"></button>
+							<button type="button" class="ln-icon-zoom-out--white" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"></button>
 						</nav>
 					</fieldset>
 
@@ -199,7 +205,7 @@
 			</section>
 
 			<!-- ====== SIDEBAR (right) ====== -->
-			<aside class="sidebar" data-ln-playlist data-ln-accordion>
+			<aside class="sidebar" data-ln-playlist data-ln-accordion hidden>
 
 				<!-- Playlists rendered by JS from IndexedDB -->
 
@@ -225,7 +231,7 @@
 			<form data-ln-form="new-playlist">
 				<header>
 					<h2>New Playlist</h2>
-					<button type="button" class="btn--ghost ln-icon-close--white" data-ln-modal-close></button>
+					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
 				</header>
 				<main>
 					<fieldset class="form-field">
@@ -235,7 +241,7 @@
 				</main>
 				<footer>
 					<span></span>
-					<button type="submit" class="btn--primary ln-icon-add--white" data-ln-action="create-playlist">Create</button>
+					<button type="submit" class="ln-icon-add--white" data-ln-action="create-playlist">Create</button>
 				</footer>
 			</form>
 		</article>
@@ -249,13 +255,13 @@
 			<form data-ln-form="track-library" data-ln-library>
 				<header>
 					<h2>Track Library</h2>
-					<button type="button" class="btn--ghost ln-icon-close--white" data-ln-modal-close></button>
+					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
 				</header>
 				<main>
 					<section class="library-no-api" data-ln-library-no-api hidden>
 						<h3 class="ln-icon-settings--white">No API configured</h3>
 						<p>Set the Library API URL in Settings to load tracks.</p>
-						<button type="button" class="action-btn btn--primary ln-icon-settings--white ln-icon--sm" data-ln-action="open-settings-from-library">Open Settings</button>
+						<button type="button" class="ln-icon-settings--white ln-icon--sm" data-ln-action="open-settings-from-library">Open Settings</button>
 					</section>
 
 					<fieldset class="library-search" data-ln-search="library-list">
@@ -286,7 +292,7 @@
 			<form data-ln-form="edit-track" data-ln-track-index="-1" data-ln-playlist-id="">
 				<header>
 					<h2>Edit Track</h2>
-					<button type="button" class="btn--ghost ln-icon-close--white" data-ln-modal-close></button>
+					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
 				</header>
 				<main>
 					<p class="edit-track-title" data-ln-field="edit-track-title"></p>
@@ -298,8 +304,8 @@
 					</fieldset>
 				</main>
 				<footer>
-					<button type="button" class="btn--danger ln-icon-remove--white ln-icon--sm" data-ln-action="remove-track">Remove</button>
-					<button type="submit" class="btn--primary" data-ln-action="save-track-edit">
+					<button type="button" class="ln-icon-remove--white ln-icon--sm" data-ln-action="remove-track">Remove</button>
+					<button type="submit" data-ln-action="save-track-edit">
 						Save
 					</button>
 				</footer>
@@ -317,7 +323,7 @@
 				data-ln-loop-start-pct="" data-ln-loop-end-pct="">
 				<header>
 					<h2>Name Loop Segment</h2>
-					<button type="button" class="btn--ghost ln-icon-close--white" data-ln-modal-close></button>
+					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
 				</header>
 				<main>
 					<output class="loop-range-display" data-ln-field="loop-range">0:00 – 0:00</output>
@@ -328,7 +334,7 @@
 				</main>
 				<footer>
 					<span></span>
-					<button type="submit" class="btn--primary ln-icon-add--white ln-icon--sm">Save Loop</button>
+					<button type="submit" class="ln-icon-add--white ln-icon--sm">Save Loop</button>
 				</footer>
 			</form>
 		</article>
@@ -342,14 +348,14 @@
 			<form data-ln-form="confirm-delete-playlist" data-ln-playlist-id="">
 				<header>
 					<h2>Delete Playlist</h2>
-					<button type="button" class="btn--ghost ln-icon-close--white" data-ln-modal-close></button>
+					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
 				</header>
 				<main>
 					<p data-ln-field="confirm-delete-message">Delete this playlist?</p>
 				</main>
 				<footer>
 					<button type="button" data-ln-modal-close>Cancel</button>
-					<button type="submit" class="btn--danger ln-icon-remove--white ln-icon--sm">Delete</button>
+					<button type="submit" class="ln-icon-remove--white ln-icon--sm">Delete</button>
 				</footer>
 			</form>
 		</article>
@@ -363,7 +369,7 @@
 			<form data-ln-form="settings">
 				<header>
 					<h2>Settings</h2>
-					<button type="button" class="btn--ghost ln-icon-close--white" data-ln-modal-close></button>
+					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
 				</header>
 				<main>
 					<section class="settings-form">
@@ -437,8 +443,8 @@
 					</section>
 				</main>
 				<footer>
-					<button type="button" class="btn--danger ln-icon-remove--white ln-icon--sm" data-ln-action="delete-profile">Delete Profile</button>
-					<button type="submit" class="btn--primary" data-ln-action="save-settings">
+					<button type="button" class="ln-icon-remove--white ln-icon--sm" data-ln-action="delete-profile">Delete Profile</button>
+					<button type="submit" data-ln-action="save-settings">
 						Save
 					</button>
 				</footer>
@@ -454,7 +460,7 @@
 			<form data-ln-form="new-profile">
 				<header>
 					<h2>New Profile</h2>
-					<button type="button" class="btn--ghost ln-icon-close--white" data-ln-modal-close></button>
+					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
 				</header>
 				<main>
 					<fieldset class="form-field">
@@ -464,7 +470,7 @@
 				</main>
 				<footer>
 					<span></span>
-					<button type="submit" class="btn--primary ln-icon-add--white" data-ln-action="create-profile">Create</button>
+					<button type="submit" class="ln-icon-add--white" data-ln-action="create-profile">Create</button>
 				</footer>
 			</form>
 		</article>
@@ -528,43 +534,14 @@
 		</li>
 	</template>
 
-	<script src="./ln-acme/js/ln-toggle/ln-toggle.js"></script>
-	<script src="./ln-acme/js/ln-accordion/ln-accordion.js"></script>
-	<script src="./ln-acme/js/ln-modal/ln-modal.js"></script>
-	<script src="./ln-acme/js/ln-toast/ln-toast.js"></script>
-	<script src="./ln-acme/js/ln-search/ln-search.js"></script>
-	<script src="./ln-acme/js/ln-sortable/ln-sortable.js"></script>
-	<script src="./ln-acme/js/ln-progress/ln-progress.js"></script>
-	<script src="./assets/js/ln-db.js"></script>
-	<script src="./assets/js/ln-profile.js"></script>
-	<script src="./assets/js/ln-playlist.js"></script>
-	<script src="./assets/js/ln-settings.js"></script>
-	<script src="./assets/js/ln-library.js"></script>
-	<script src="./assets/js/wavesurfer.min.js"></script>
-	<script src="./assets/js/ln-waveform.js"></script>
-	<script src="./assets/js/ln-deck.js"></script>
-	<script src="./assets/js/ln-mixer.js"></script>
-	<script src="./assets/js/ln-mixer-audio.js"></script>
-	<script src="./assets/js/ln-mixer-cache.js"></script>
-	<script src="./assets/js/ln-mixer-deck.js"></script>
-	<script src="./assets/js/ln-mixer-settings.js"></script>
-	<script src="./assets/js/ln-mixer-transfer.js"></script>
+	<template data-ln-template="loop-seg-btn">
+		<button type="button" class="loop-seg-btn" data-ln-loop-index>
+			<span class="loop-seg-label"></span>
+			<span class="loop-seg-remove ln-icon-close--white" role="button" tabindex="0" aria-label="Remove loop"></span>
+		</button>
+	</template>
 
-	<script>
-		document.addEventListener("submit", function(e) {
-			e.preventDefault();
-			var form = e.target;
-			if (form.hasAttribute('data-ln-form')) {
-				form.dispatchEvent(new CustomEvent('ln-form:submit', { bubbles: true, detail: { form: form } }));
-			}
-		}, true);
-	</script>
-
-	<script>
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('./sw.js');
-		}
-	</script>
+	<script type="module" src="./assets/js/main.js"></script>
 
 </body>
 </html>

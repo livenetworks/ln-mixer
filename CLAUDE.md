@@ -86,7 +86,6 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 | `data-ln-drag-handle` | Drag reorder handle (on `.track-number` span) |
 | `data-ln-transport="play"` / `"stop"` | Transport control buttons (per deck) |
 | `data-ln-cue="mark-start"` / `"mark-end"` / `"loop"` | Cue point and loop controls (per deck). Loop button is LED toggle (`.btn--led` with `<mark class="led-indicator">`) |
-| `data-ln-waveform="a"` / `"b"` | Waveform figure container — WaveSurfer renders here (per deck) |
 | `data-ln-waveform="a"` / `"b"` | Waveform figure container — ln-waveform component (WaveSurfer, zoom, timeline) |
 | `data-ln-zoom="in"` / `"out"` | Waveform zoom buttons (handled by ln-waveform) |
 | `data-ln-audio="a"` / `"b"` | Hidden `<audio>` element inside each deck (WaveSurfer `media` option) |
@@ -103,7 +102,11 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 | `data-ln-setting="api-url"` | Settings form fields |
 | `data-ln-brand` / `data-ln-brand-logo` | Topbar branding elements |
 | `data-ln-logo-input` / `data-ln-logo-preview` | Settings dialog internal elements |
-| `data-ln-profile-bar` | Profile button container in topbar |
+| `data-ln-profile` | Profile component root (`<nav>` in topbar) |
+| `data-ln-empty-state` | Empty state section (hidden when profiles exist) |
+| `data-ln-global-progress` | Global download progress bar (`<figure>`, managed by ln-mixer-cache) |
+| `data-ln-library-no-api` | "No API configured" notice in library dialog (hidden when API URL is set) |
+| `data-ln-install-field` | PWA install button fieldset (hidden until `beforeinstallprompt` fires) |
 | `data-ln-field="new-profile-name"` | Profile name input in new-profile dialog |
 | `data-ln-field="new-playlist-name"` | Playlist name input in new-playlist dialog |
 | `data-ln-field="title"` / `"artist"` / `"time-current"` / `"time-total"` | Deck display fields (within each deck root) |
@@ -142,7 +145,12 @@ ln-dj-mixer/
     js/wavesurfer.min.js  — WaveSurfer.js v7 (waveform rendering)
     js/ln-waveform.js     — waveform component (WaveSurfer, zoom, timeline ruler, overlays)
     js/ln-deck.js         — deck component (audio playback, transport, cue, loop management)
-    js/ln-mixer.js        — event coordinator (bridges components, AudioContext routing)
+    js/ln-mixer.js        — event coordinator core (constructor, exports _LnMixerComponent)
+    js/ln-mixer-audio.js  — AudioContext, masterGain, per-deck audio routing, peaks persistence
+    js/ln-mixer-cache.js  — audio blob download, IDB cache, progress bar, library/playlist actions
+    js/ln-mixer-deck.js   — deck wiring, autoplay, loop segment wiring
+    js/ln-mixer-settings.js — profile bridge, playlist persistence, settings form, branding, PWA install
+    js/ln-mixer-transfer.js — export/import data as JSON, batch offline download
     img/placeholder.svg
     img/icon.svg          — PWA app icon (SVG, 512x512 viewBox)
   manifest.webmanifest    — PWA manifest (app name, icon, display mode)
@@ -194,7 +202,7 @@ ln-dj-mixer/
 - **Export/import v2** — separate `profiles`, `tracks`, `playlists` arrays; backward-compatible with v1 import
 - **New `lnDb` methods** — `getAllByIndex(store, index, value)`, `deleteByIndex(store, index, value)`
 - **Playlist IDs** globally unique: prefixed with `profileId--` (migration + new creation)
-- SW: cache bumped to v12
+- SW: cache bumped to v13
 - Files changed: `ln-db.js`, `ln-profile.js`, `ln-playlist.js`, `ln-mixer-settings.js`, `ln-mixer-cache.js`, `ln-mixer-deck.js`, `ln-mixer-transfer.js`, `sw.js`, `CLAUDE.md`
 
 ### Unified Icon System — Feather Icons in ln-acme (2026-02-28)
@@ -237,7 +245,7 @@ ln-dj-mixer/
 
 **Architecture (ln-acme principles):**
 
-- **ARCH-1** `ln-profile.js` → `ln-mixer.js` — `_updateEmptyState()` was in the profile component, directly toggling `hidden` on empty-state, decks-panel, and sidebar elements. This is coordinator UI work. Moved to `ln-mixer.js` where it reacts to `ln-profile:ready`, `ln-profile:created`, and `ln-profile:deleted` events.
+- **ARCH-1** `ln-profile.js` → `ln-mixer.js` — `_updateEmptyState()` was in the profile component, directly toggling `hidden` on empty-state, decks-panel, and sidebar elements. This is coordinator UI work. Moved to `ln-mixer-settings.js` where it reacts to `ln-profile:ready`, `ln-profile:created`, and `ln-profile:deleted` events.
 - **ARCH-2** `ln-playlist.js` → `ln-mixer.js` — `openEditTrack()` reached into `document` to set `data-ln-track-index` and `data-ln-playlist-id` on the edit-track `<form>`. This form attribute wiring belongs in the coordinator. Moved to `ln-mixer.js` `ln-playlist:open-edit` handler; component now only dispatches the event with detail data.
 - **ARCH-3** `ln-playlist.js` — `ln-toggle:open` listener was on `document` (global), capturing toggle events from anywhere. Scoped to `this.dom` so only sidebar toggles trigger playlist switching.
 

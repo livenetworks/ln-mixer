@@ -3,47 +3,43 @@
    Profile events, playlist persistence, settings form, branding
    ==================================================================== */
 
-(function () {
-	'use strict';
+/* ─── PWA Install ───────────────────────────────────────────── */
 
-	var _component = window._LnMixerComponent;
-	if (!_component) return;
+let _deferredInstallPrompt = null;
 
-	/* ─── PWA Install ───────────────────────────────────────────── */
+window.addEventListener('beforeinstallprompt', function (e) {
+	e.preventDefault();
+	_deferredInstallPrompt = e;
+	const field = document.querySelector('[data-ln-install-field]');
+	if (field) field.hidden = false;
+});
 
-	var _deferredInstallPrompt = null;
+window.addEventListener('appinstalled', function () {
+	_deferredInstallPrompt = null;
+	const field = document.querySelector('[data-ln-install-field]');
+	if (field) field.hidden = true;
+});
 
-	window.addEventListener('beforeinstallprompt', function (e) {
-		e.preventDefault();
-		_deferredInstallPrompt = e;
-		var field = document.querySelector('[data-ln-install-field]');
-		if (field) field.hidden = false;
-	});
-
-	window.addEventListener('appinstalled', function () {
-		_deferredInstallPrompt = null;
-		var field = document.querySelector('[data-ln-install-field]');
-		if (field) field.hidden = true;
-	});
+export function setupSettings(mixer) {
 
 	/* ─── Settings Form Helpers ──────────────────────────────────── */
 
-	_component.prototype._populateSettingsForm = function () {
-		var apiInput = document.querySelector('[data-ln-setting="api-url"]');
+	mixer._populateSettingsForm = function () {
+		const apiInput = document.querySelector('[data-ln-setting="api-url"]');
 		if (apiInput) apiInput.value = lnSettings.getApiUrl();
 		this._pendingLogo = lnSettings.getBrandLogo();
 		this._updateLogoPreview();
 		this._updateCacheInfo();
 	};
 
-	_component.prototype._updateLogoPreview = function () {
-		var preview = document.querySelector('[data-ln-logo-preview]');
+	mixer._updateLogoPreview = function () {
+		const preview = document.querySelector('[data-ln-logo-preview]');
 		if (!preview) return;
 
-		var logo = this._pendingLogo !== null ? this._pendingLogo : lnSettings.getBrandLogo();
+		const logo = this._pendingLogo !== null ? this._pendingLogo : lnSettings.getBrandLogo();
 		if (logo) {
 			preview.innerHTML = '';
-			var img = document.createElement('img');
+			const img = document.createElement('img');
 			img.src = logo;
 			img.alt = 'Logo preview';
 			preview.appendChild(img);
@@ -54,15 +50,15 @@
 
 	/* ─── Scoped Event Bindings ──────────────────────────────────── */
 
-	_component.prototype._bindProfileBridge = function () {
-		var self = this;
+	mixer._bindProfileBridge = function () {
+		const self = this;
 
 		// Profile → Playlist bridge (async: load playlists + track catalog from IDB)
 		this.dom.addEventListener('ln-profile:switched', function (e) {
-			var sidebar = self._getSidebar();
+			const sidebar = self._getSidebar();
 			if (!sidebar) return;
 
-			var profileId = e.detail.profileId;
+			const profileId = e.detail.profileId;
 			sidebar.setAttribute('data-ln-playlist-profile', profileId || '');
 
 			if (!profileId) {
@@ -74,26 +70,26 @@
 
 			lnDb.getAllByIndex('playlists', 'profileId', profileId).then(function (playlistArr) {
 				// Collect unique track URLs from all segments
-				var urlSet = {};
+				const urlSet = {};
 				playlistArr.forEach(function (pl) {
 					(pl.segments || []).forEach(function (seg) {
 						if (seg.url) urlSet[seg.url] = true;
 					});
 				});
 
-				var urls = Object.keys(urlSet);
-				var trackPromises = urls.map(function (url) {
+				const urls = Object.keys(urlSet);
+				const trackPromises = urls.map(function (url) {
 					return lnDb.get('tracks', url);
 				});
 
 				return Promise.all(trackPromises).then(function (trackRecords) {
 					// Build keyed objects for ln-playlist
-					var playlists = {};
+					const playlists = {};
 					playlistArr.forEach(function (pl) {
 						playlists[pl.id] = pl;
 					});
 
-					var trackCatalog = {};
+					const trackCatalog = {};
 					trackRecords.forEach(function (tr) {
 						if (tr) trackCatalog[tr.url] = tr;
 					});
@@ -107,13 +103,13 @@
 
 		// Playlist persistence — save individual playlist
 		this.dom.addEventListener('ln-playlist:changed', function (e) {
-			var playlistId = e.detail.playlistId;
+			const playlistId = e.detail.playlistId;
 			if (!playlistId) return;
 
-			var sidebar = self._getSidebar();
+			const sidebar = self._getSidebar();
 			if (!sidebar || !sidebar.lnPlaylist || !sidebar.lnPlaylist.playlists) return;
 
-			var playlist = sidebar.lnPlaylist.playlists[playlistId];
+			const playlist = sidebar.lnPlaylist.playlists[playlistId];
 			if (playlist) {
 				lnDb.put('playlists', playlist);
 			}
@@ -171,10 +167,10 @@
 			}));
 
 			// Adjust deck indices
-			var removedIdx = e.detail.trackIndex;
+			const removedIdx = e.detail.trackIndex;
 			self.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
 				if (!deckEl.lnDeck) return;
-				var currentIdx = deckEl.lnDeck.trackIndex;
+				const currentIdx = deckEl.lnDeck.trackIndex;
 
 				if (currentIdx === removedIdx) {
 					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-reset'));
@@ -196,7 +192,7 @@
 			}));
 
 			// Reset decks if no playlists remain
-			var sidebar = self._getSidebar();
+			const sidebar = self._getSidebar();
 			if (!sidebar || !sidebar.lnPlaylist || !sidebar.lnPlaylist.currentId) {
 				self.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
 					if (deckEl.lnDeck) {
@@ -210,17 +206,17 @@
 
 		// Edit track requested → set form context + populate + open modal
 		this.dom.addEventListener('ln-playlist:open-edit', function (e) {
-			var track = e.detail.track;
+			const track = e.detail.track;
 
-			var form = document.querySelector('[data-ln-form="edit-track"]');
+			const form = document.querySelector('[data-ln-form="edit-track"]');
 			if (form) {
 				form.setAttribute('data-ln-track-index', e.detail.index);
 				form.setAttribute('data-ln-playlist-id', e.detail.playlistId);
 			}
 
-			var titleEl = document.querySelector('[data-ln-field="edit-track-title"]');
-			var artistEl = document.querySelector('[data-ln-field="edit-track-artist"]');
-			var notesInput = document.querySelector('[data-ln-field="edit-track-notes"]');
+			const titleEl = document.querySelector('[data-ln-field="edit-track-title"]');
+			const artistEl = document.querySelector('[data-ln-field="edit-track-artist"]');
+			const notesInput = document.querySelector('[data-ln-field="edit-track-notes"]');
 
 			if (titleEl) titleEl.textContent = track.title;
 			if (artistEl) artistEl.textContent = track.artist + ' \u2014 ' + track.duration;
@@ -234,8 +230,8 @@
 
 	/* ─── Global Event Bindings ──────────────────────────────────── */
 
-	_component.prototype._bindProfileActions = function () {
-		var self = this;
+	mixer._bindProfileActions = function () {
+		const self = this;
 
 		// Open new-profile dialog
 		document.addEventListener('click', function (e) {
@@ -247,7 +243,7 @@
 		// Delete current profile
 		document.addEventListener('click', function (e) {
 			if (e.target.closest('[data-ln-action="delete-profile"]')) {
-				var nav = self._getNav();
+				const nav = self._getNav();
 				if (nav && nav.lnProfile) {
 					nav.dispatchEvent(new CustomEvent('ln-profile:request-remove', {
 						detail: { id: nav.lnProfile.currentId }
@@ -260,14 +256,14 @@
 		document.addEventListener('ln-form:submit', function (e) {
 			if (e.target.getAttribute('data-ln-form') !== 'new-profile') return;
 
-			var input = document.querySelector('[data-ln-field="new-profile-name"]');
-			var name = input ? input.value.trim() : '';
+			const input = document.querySelector('[data-ln-field="new-profile-name"]');
+			const name = input ? input.value.trim() : '';
 			if (!name) {
 				if (input) input.focus();
 				return;
 			}
 
-			var nav = self._getNav();
+			const nav = self._getNav();
 			if (nav) {
 				nav.dispatchEvent(new CustomEvent('ln-profile:request-create', {
 					detail: { name: name }
@@ -279,8 +275,8 @@
 		});
 	};
 
-	_component.prototype._bindSettingsActions = function () {
-		var self = this;
+	mixer._bindSettingsActions = function () {
+		const self = this;
 
 		// Open settings dialog
 		document.addEventListener('click', function (e) {
@@ -299,7 +295,7 @@
 			_deferredInstallPrompt.userChoice.then(function (result) {
 				if (result.outcome === 'accepted') {
 					_deferredInstallPrompt = null;
-					var field = document.querySelector('[data-ln-install-field]');
+					const field = document.querySelector('[data-ln-install-field]');
 					if (field) field.hidden = true;
 				}
 			});
@@ -308,19 +304,19 @@
 		// Upload logo button
 		document.addEventListener('click', function (e) {
 			if (e.target.closest('[data-ln-action="upload-logo"]')) {
-				var input = document.querySelector('[data-ln-logo-input]');
+				const input = document.querySelector('[data-ln-logo-input]');
 				if (input) input.click();
 			}
 		});
 
 		// Logo file input change
-		var logoInput = document.querySelector('[data-ln-logo-input]');
+		const logoInput = document.querySelector('[data-ln-logo-input]');
 		if (logoInput) {
 			logoInput.addEventListener('change', function () {
-				var file = logoInput.files[0];
+				const file = logoInput.files[0];
 				if (!file) return;
 
-				var reader = new FileReader();
+				const reader = new FileReader();
 				reader.onload = function (ev) {
 					self._pendingLogo = ev.target.result;
 					self._updateLogoPreview();
@@ -333,9 +329,9 @@
 		document.addEventListener('ln-form:submit', function (e) {
 			if (e.target.getAttribute('data-ln-form') !== 'settings') return;
 
-			var apiInput = document.querySelector('[data-ln-setting="api-url"]');
-			var apiUrl = apiInput ? apiInput.value.trim() : '';
-			var brandLogo = self._pendingLogo !== null ? self._pendingLogo : lnSettings.getBrandLogo();
+			const apiInput = document.querySelector('[data-ln-setting="api-url"]');
+			const apiUrl = apiInput ? apiInput.value.trim() : '';
+			const brandLogo = self._pendingLogo !== null ? self._pendingLogo : lnSettings.getBrandLogo();
 
 			lnSettings.apply({
 				apiUrl: apiUrl,
@@ -356,4 +352,4 @@
 		});
 	};
 
-})();
+}

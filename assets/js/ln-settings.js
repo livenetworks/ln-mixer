@@ -1,15 +1,12 @@
-(function () {
-	'use strict';
+const DOM_ATTRIBUTE = 'lnSettings';
 
-	var DOM_ATTRIBUTE = 'lnSettings';
-
-	if (window[DOM_ATTRIBUTE] !== undefined) return;
+if (!window[DOM_ATTRIBUTE]) {
 
 	/* ====================================================================
 	   STATE
 	   ==================================================================== */
 
-	var _settings = {
+	const _settings = {
 		apiUrl: 'https://mixer.live.net.mk/api',
 		brandLogo: ''
 	};
@@ -18,8 +15,8 @@
 	   DOM REFS (branding in topbar)
 	   ==================================================================== */
 
-	var _brand = null;
-	var _brandLogo = null;
+	let _brand = null;
+	let _brandLogo = null;
 
 	function _cacheBrandDom() {
 		_brand = document.querySelector('[data-ln-brand]');
@@ -103,4 +100,5 @@
 		getApiUrl: getApiUrl,
 		getBrandLogo: getBrandLogo
 	};
-})();
+
+}

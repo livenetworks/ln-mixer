@@ -1,92 +1,95 @@
 # ln-mixer
 
-Thin event coordinator that bridges components in the ln-dj-mixer application. No DOM, no rendering - pure event wiring.
+Event coordinator for ln-dj-mixer. No DOM rendering — pure event wiring and UI reaction logic.
+
+## Architecture
+
+ln-mixer is split into a main file and five sub-modules. All sub-modules extend `_component.prototype` by reading `window._LnMixerComponent` which `ln-mixer.js` exports before they load.
+
+| File | Responsibility |
+|---|---|
+| `ln-mixer.js` | Constructor, `_component` definition, exports `window._LnMixerComponent`, MutationObserver, init |
+| `ln-mixer-settings.js` | Profile bridge (profile→playlist), playlist persistence, profile/playlist event reactions (toasts, modals), settings form, branding, PWA install |
+| `ln-mixer-deck.js` | Deck wiring (load-to-deck, exclusive play, highlights), autoplay sequencing, loop segment wiring |
+| `ln-mixer-audio.js` | AudioContext + masterGain, per-deck MediaElementSourceNode routing, volume slider, peaks persistence |
+| `ln-mixer-cache.js` | Audio blob download, IDB cache, progress bar, library/playlist actions |
+| `ln-mixer-transfer.js` | Export/import profiles+tracks+playlists+settings as JSON, batch offline download |
 
 ## Purpose
 
 Components in ln-dj-mixer are decoupled. They don't reference each other directly. ln-mixer is the glue layer that:
 
-1. **Translates events to attributes** - when ln-profile fires `ln-profile:switched`, ln-mixer sets `data-ln-playlist-profile` on the sidebar element, which triggers ln-playlist to reload
-2. **Handles persistence** - when ln-playlist fires `ln-playlist:changed`, ln-mixer calls `lnProfile.persist()` to save to IndexedDB
+1. **Translates profile switches to attribute changes** — `ln-profile:switched` → loads playlists+trackCatalog from IDB → dispatches `ln-playlist:request-load-profile`
+2. **Handles persistence** — `ln-playlist:changed` → writes single playlist record to `lnDb`
+3. **Wires UI actions to request events** — `[data-ln-action]` clicks → dispatches `ln-{component}:request-{action}` on the target component
+4. **Handles UI reactions** — notification events from components → toasts, modal close, deck index adjustments
 
-## Architecture rationale
-
-### Why not direct event listening?
-
-ln-playlist *could* listen to `ln-profile:switched` directly. But that would couple it to ln-profile. Instead:
-
-- ln-playlist only knows about its own attribute (`data-ln-playlist-profile`)
-- ln-mixer is the only place that knows both ln-profile and ln-playlist exist
-- If we replace ln-profile with a different auth system, only ln-mixer changes
-
-### Why not imperative calls?
-
-ln-mixer *could* call `sidebar.lnPlaylist.loadProfile(id)` directly. But:
-
-- Attribute-driven is declarative and inspectable in DevTools
-- The MutationObserver pattern is consistent with how Web Components work
-- It separates "when to load" (ln-mixer decides) from "how to load" (ln-playlist decides)
-
-## Event wiring
+## Event wiring overview
 
 ```
-ln-profile:switched  -->  ln-mixer  -->  sidebar[data-ln-playlist-profile] = id
-                                              |
-                                              v
-                                         ln-playlist reloads
+ln-profile:switched
+  → loads playlists + trackCatalog from IDB
+  → ln-playlist:request-load-profile { profileId, playlists, trackCatalog }
 
-ln-playlist:changed  -->  ln-mixer  -->  lnProfile.persist()
+ln-playlist:changed { playlistId }
+  → lnDb.put('playlists', playlist)
+
+ln-playlist:load-to-deck { deckId, trackIndex, track }
+  → _loadTrackToDeck() (cache-aware: IDB blob → blobUrl, or direct URL)
+
+ln-deck:played
+  → stop all other decks (exclusive play)
+  → start autoplay timer if autoplay is ON
+
+ln-deck:ended
+  → autoplay: start playing the other deck
+
+ln-deck:loop-captured { deckId, trackIndex, startSec, endSec, startPct, endPct }
+  → set form context on [data-ln-form="name-loop"]
+  → lnModal.open('modal-name-loop')
+
+ln-deck:edit-requested { trackIndex }
+  → ln-playlist:request-open-edit { index }
+
+ln-deck:duration-detected { trackUrl, duration, durationSec }
+  → lnDb.put('tracks', ...)
+  → ln-playlist:request-update-catalog
+
+ln-deck:peaks-ready { trackUrl, peaks, peaksDuration }
+  → lnDb.put('tracks', ...)
+
+ln-playlist:track-removed { trackIndex }
+  → ln-deck:request-reset (if deck had that track)
+  → ln-deck:request-adjust-index (if deck had higher index)
+
+ln-playlist:reordered { oldToNew }
+  → ln-deck:request-adjust-index for each loaded deck
+
+ln-playlist:loop-added / ln-playlist:loop-removed { trackIndex, loops }
+  → ln-deck:request-set-loops on matching deck
 ```
 
-## Code
+## Component state queries (direct read — allowed)
 
 ```javascript
-(function () {
-    'use strict';
-
-    if (window.lnMixer !== undefined) return;
-    window.lnMixer = true;
-
-    function _init() {
-        // Profile -> Playlist attribute bridge
-        document.addEventListener('ln-profile:switched', function (e) {
-            var sidebar = document.querySelector('[data-ln-playlist]');
-            if (!sidebar) return;
-            var profileId = e.detail.profileId;
-            if (profileId) {
-                sidebar.setAttribute('data-ln-playlist-profile', profileId);
-            } else {
-                sidebar.removeAttribute('data-ln-playlist-profile');
-            }
-        });
-
-        // Playlist data persistence
-        document.addEventListener('ln-playlist:changed', function () {
-            var nav = document.querySelector('[data-ln-profile]');
-            if (nav && nav.lnProfile) nav.lnProfile.persist();
-        });
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', _init);
-    } else {
-        _init();
-    }
-})();
+nav.lnProfile.currentId           // active profile ID
+nav.lnProfile.profiles            // all profiles map
+sidebar.lnPlaylist.currentId      // active playlist ID
+sidebar.lnPlaylist.playlists      // playlists map
+sidebar.lnPlaylist.trackCatalog   // track catalog map
+deckEl.lnDeck.trackIndex          // loaded track index (-1 = empty)
+deckEl.lnDeck.isPlaying           // playback state
+deckEl.lnDeck.progress            // 0–100 playback progress
 ```
-
-## Future growth
-
-As more components are extracted from app.js, ln-mixer will absorb their event wiring:
-
-- **ln-deck** extracted: ln-mixer will relay `ln-playlist:load-to-deck` to deck, and deck state changes back to playlist highlights
-- **ln-settings** extracted: ln-mixer will relay profile/settings events
-- Eventually app.js is deleted entirely and ln-mixer is the sole coordinator
 
 ## Script load order
 
-Must load after both ln-profile.js and ln-playlist.js, and before app.js:
+```
+ln-toggle.js → ln-accordion.js → ln-modal.js → ln-toast.js → ln-search.js →
+ln-sortable.js → ln-progress.js → ln-db.js → ln-profile.js → ln-playlist.js →
+ln-settings.js → ln-library.js → wavesurfer.min.js → ln-waveform.js → ln-deck.js →
+ln-mixer.js → ln-mixer-audio.js → ln-mixer-cache.js → ln-mixer-deck.js →
+ln-mixer-settings.js → ln-mixer-transfer.js
+```
 
-```
-... -> ln-profile.js -> ln-playlist.js -> ln-mixer.js -> app.js
-```
+`ln-mixer.js` must load first among mixer files (exports `window._LnMixerComponent`). The sub-modules extend the prototype and can load in any order after that.

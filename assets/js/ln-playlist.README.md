@@ -45,29 +45,25 @@ This is analogous to the native `attributeChangedCallback` in Web Components. It
 ## Data flow
 
 ```
-IndexedDB
+IndexedDB (tracks + playlists stores)
   |
+  | lnDb.getAllByIndex('playlists', 'profileId', id)
+  | lnDb.get('tracks', url) × N
   v
-ln-profile (holds profiles in memory, exposes getProfile API)
+ln-mixer-settings.js (coordinator — builds playlists map + trackCatalog map)
   |
-  | ln-profile:switched event
+  | ln-playlist:request-load-profile { profileId, playlists, trackCatalog }
   v
-ln-mixer (coordinator - sets data-ln-playlist-profile attribute)
+ln-playlist (stores playlists + trackCatalog, rebuilds UI)
   |
-  | MutationObserver (attribute change)
+  | ln-playlist:changed { playlistId }
   v
-ln-playlist (reads profile.playlists via lnProfile.getProfile, rebuilds UI)
-  |
-  | ln-playlist:changed event
-  v
-ln-mixer (calls lnProfile.persist() to save back to IDB)
+ln-mixer-settings.js (calls lnDb.put('playlists', playlist) for that single record)
 ```
 
-### Live reference pattern
+### Data ownership
 
-`this.playlists` is a **live reference** to `profile.playlists`. Mutations (add track, remove track, reorder) modify the same object that ln-profile holds. When `ln-playlist:changed` fires, ln-mixer calls `persist()` which serializes the current state to IndexedDB.
-
-**Important**: never reassign `profile.playlists` to a new object - only mutate properties within it.
+`this.playlists` is a map of `{ [id]: playlistRecord }` received from the coordinator. `this.trackCatalog` is a map of `{ [url]: trackRecord }` used for rendering titles, artists, durations. Mutations (add track, remove track, reorder) modify `this.playlists[id].segments` in place and fire `ln-playlist:changed { playlistId }` so the coordinator can persist the affected record.
 
 ## State
 
@@ -94,14 +90,20 @@ All events fire on `this.dom` with `bubbles: true`.
 
 ### Event consumers
 
-**app.js** (deck state):
-- `ln-playlist:load-to-deck` - loads track into deck A or B
-- `ln-playlist:track-removed` - adjusts `deckState[x].trackIndex` (decrement or reset)
-- `ln-playlist:reordered` - remaps `deckState[x].trackIndex` via `oldToNew` map
-- `ln-playlist:track-added` - auto-loads to deck B if empty
+**ln-mixer-deck.js** (deck state):
+- `ln-playlist:load-to-deck` - cache-aware load into target deck
+- `ln-playlist:track-removed` - resets or adjusts deck `trackIndex`
+- `ln-playlist:reordered` - remaps deck `trackIndex` via `oldToNew` map
+- `ln-playlist:track-added` - auto-loads to first empty deck
+- `ln-playlist:loop-added` / `ln-playlist:loop-removed` - pushes updated loops to matching deck
 
-**ln-mixer.js** (persistence):
-- `ln-playlist:changed` - calls `lnProfile.persist()`
+**ln-mixer-settings.js** (persistence + UI reactions):
+- `ln-playlist:changed` - writes single playlist record to IDB
+- `ln-playlist:created` - shows success toast
+- `ln-playlist:track-edited` - closes modal, shows toast
+- `ln-playlist:track-removed` - closes modal, shows toast
+- `ln-playlist:playlist-removed` - deletes from IDB, shows toast
+- `ln-playlist:open-edit` - sets form context attributes, populates fields, opens modal
 
 ## Public API
 
@@ -181,11 +183,14 @@ This keeps the component independent of ln-toast's global API.
 ## Script load order
 
 ```
-ln-toggle.js -> ln-accordion.js -> ln-modal.js -> ln-toast.js ->
-ln-db.js -> ln-profile.js -> ln-playlist.js -> ln-mixer.js -> app.js
+ln-toggle.js → ln-accordion.js → ln-modal.js → ln-toast.js → ln-search.js →
+ln-sortable.js → ln-progress.js → ln-db.js → ln-profile.js → ln-playlist.js →
+ln-settings.js → ln-library.js → wavesurfer.min.js → ln-waveform.js → ln-deck.js →
+ln-mixer.js → ln-mixer-audio.js → ln-mixer-cache.js → ln-mixer-deck.js →
+ln-mixer-settings.js → ln-mixer-transfer.js
 ```
 
-ln-playlist must load after ln-profile (reads its API) and before ln-mixer (ln-mixer sets attributes on ln-playlist).
+ln-playlist must load before ln-mixer.js (coordinator dispatches request events on it).
 
 ## Generated DOM structure
 

@@ -3,25 +3,21 @@
    Deck transport, highlights, autoplay sequencing, loop segments
    ==================================================================== */
 
-(function () {
-	'use strict';
+function _formatTime(seconds) {
+	const m = Math.floor(seconds / 60);
+	const s = Math.floor(seconds % 60);
+	return m + ':' + (s < 10 ? '0' : '') + s;
+}
 
-	var _component = window._LnMixerComponent;
-	if (!_component) return;
-
-	function _formatTime(seconds) {
-		var m = Math.floor(seconds / 60);
-		var s = Math.floor(seconds % 60);
-		return m + ':' + (s < 10 ? '0' : '') + s;
-	}
+export function setupDeck(mixer) {
 
 	/* ─── Autoplay ───────────────────────────────────────────────── */
 
-	_component.prototype._autoplayTick = function () {
+	mixer._autoplayTick = function () {
 		if (!this._autoplay || this._autoplayPreloaded) return;
 
-		var decks = this.dom.querySelectorAll('[data-ln-deck]');
-		var playing = null, free = null;
+		const decks = this.dom.querySelectorAll('[data-ln-deck]');
+		let playing = null, free = null;
 		decks.forEach(function (d) {
 			if (!d.lnDeck) return;
 			if (d.lnDeck.isPlaying) playing = d;
@@ -29,20 +25,20 @@
 		});
 		if (!playing || !free || playing.lnDeck.progress < 50) return;
 
-		var sidebar = this._getSidebar();
+		const sidebar = this._getSidebar();
 		if (!sidebar || !sidebar.lnPlaylist) return;
-		var plId = playing.dataset.lnFromPlaylist;
-		var pl = plId && sidebar.lnPlaylist.playlists[plId];
+		const plId = playing.dataset.lnFromPlaylist;
+		const pl = plId && sidebar.lnPlaylist.playlists[plId];
 		if (!pl || !pl.segments) return;
 
-		var nextIdx = playing.lnDeck.trackIndex + 1;
+		const nextIdx = playing.lnDeck.trackIndex + 1;
 		if (nextIdx >= pl.segments.length) return;
 		if (free.lnDeck.trackIndex === nextIdx) { this._autoplayPreloaded = true; return; }
 
 		// Resolve full track data from segment + catalog
-		var seg = pl.segments[nextIdx];
-		var cat = sidebar.lnPlaylist.trackCatalog[seg.url] || {};
-		var nextTrack = {
+		const seg = pl.segments[nextIdx];
+		const cat = sidebar.lnPlaylist.trackCatalog[seg.url] || {};
+		const nextTrack = {
 			url: seg.url,
 			title: cat.title || '',
 			artist: cat.artist || '',
@@ -57,10 +53,10 @@
 		this._autoplayPreloaded = true;
 	};
 
-	_component.prototype._autoplayOnEnded = function (endedEl) {
+	mixer._autoplayOnEnded = function (endedEl) {
 		if (!this._autoplay) return;
-		var decks = this.dom.querySelectorAll('[data-ln-deck]');
-		for (var i = 0; i < decks.length; i++) {
+		const decks = this.dom.querySelectorAll('[data-ln-deck]');
+		for (let i = 0; i < decks.length; i++) {
 			if (decks[i] !== endedEl && decks[i].lnDeck && decks[i].lnDeck.trackIndex >= 0) {
 				this._autoplayPreloaded = false;
 				decks[i].dispatchEvent(new CustomEvent('ln-deck:request-play'));
@@ -71,17 +67,17 @@
 
 	/* ─── Scoped Event Bindings ──────────────────────────────────── */
 
-	_component.prototype._bindDeckWiring = function () {
-		var self = this;
+	mixer._bindDeckWiring = function () {
+		const self = this;
 
 		// Profile switch → revoke blob URLs + reset decks + reset autoplay
 		this.dom.addEventListener('ln-profile:switched', function () {
 			if (self._autoplayTimer) { clearInterval(self._autoplayTimer); self._autoplayTimer = null; }
 			self._autoplayPreloaded = false;
 
-			var decks = self.dom.querySelectorAll('[data-ln-deck]');
+			const decks = self.dom.querySelectorAll('[data-ln-deck]');
 			decks.forEach(function (deckEl) {
-				var id = deckEl.getAttribute('data-ln-deck');
+				const id = deckEl.getAttribute('data-ln-deck');
 				if (self._blobUrls[id]) {
 					URL.revokeObjectURL(self._blobUrls[id]);
 					delete self._blobUrls[id];
@@ -92,7 +88,7 @@
 
 		// Playlist load-to-deck → cache-aware load + track playlist context
 		this.dom.addEventListener('ln-playlist:load-to-deck', function (e) {
-			var deckEl = self._getDeck(e.detail.deckId);
+			const deckEl = self._getDeck(e.detail.deckId);
 			if (deckEl) deckEl.dataset.lnFromPlaylist = e.detail.playlistId;
 			self._loadTrackToDeck(e.detail.deckId, e.detail.trackIndex, e.detail.track);
 			self._autoplayPreloaded = false;
@@ -100,7 +96,7 @@
 
 		// Exclusive play — stop all other decks (accordion-style) + autoplay timer
 		this.dom.addEventListener('ln-deck:played', function (e) {
-			var allDecks = self.dom.querySelectorAll('[data-ln-deck]');
+			const allDecks = self.dom.querySelectorAll('[data-ln-deck]');
 			allDecks.forEach(function (deck) {
 				if (deck !== e.target) {
 					deck.dispatchEvent(new CustomEvent('ln-deck:request-stop'));
@@ -122,7 +118,7 @@
 		['ln-deck:stopped', 'ln-deck:paused'].forEach(function (evt) {
 			self.dom.addEventListener(evt, function () {
 				if (!self._autoplayTimer) return;
-				var any = false;
+				let any = false;
 				self.dom.querySelectorAll('[data-ln-deck]').forEach(function (d) {
 					if (d.lnDeck && d.lnDeck.isPlaying) any = true;
 				});
@@ -132,7 +128,7 @@
 
 		// Deck loaded → update sidebar highlight + connect audio routing
 		this.dom.addEventListener('ln-deck:loaded', function (e) {
-			var sidebar = self._getSidebar();
+			const sidebar = self._getSidebar();
 			if (sidebar) {
 				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-highlight', {
 					detail: { deckId: e.detail.deckId, index: e.detail.trackIndex }
@@ -145,7 +141,7 @@
 
 		// Duration auto-detected → update tracks store + notify sidebar
 		this.dom.addEventListener('ln-deck:duration-detected', function (e) {
-			var url = e.detail.trackUrl;
+			const url = e.detail.trackUrl;
 			if (!url) return;
 
 			// Persist to tracks store
@@ -157,7 +153,7 @@
 			});
 
 			// Update sidebar catalog + DOM
-			var sidebar = self._getSidebar();
+			const sidebar = self._getSidebar();
 			if (sidebar) {
 				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-update-catalog', {
 					detail: {
@@ -173,7 +169,7 @@
 
 		// Waveform peaks generated → persist to tracks store
 		this.dom.addEventListener('ln-deck:peaks-ready', function (e) {
-			var trackUrl = e.detail.trackUrl;
+			const trackUrl = e.detail.trackUrl;
 			if (!trackUrl) return;
 
 			lnDb.get('tracks', trackUrl).then(function (record) {
@@ -186,11 +182,11 @@
 
 		// Reordered → remap deck indices
 		this.dom.addEventListener('ln-playlist:reordered', function (e) {
-			var oldToNew = e.detail.oldToNew;
+			const oldToNew = e.detail.oldToNew;
 
 			self.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
 				if (!deckEl.lnDeck) return;
-				var oldIdx = deckEl.lnDeck.trackIndex;
+				const oldIdx = deckEl.lnDeck.trackIndex;
 
 				if (oldIdx >= 0 && oldToNew.hasOwnProperty(oldIdx)) {
 					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-adjust-index', {
@@ -205,8 +201,8 @@
 
 		// Track added → auto-load to first empty deck (cache-aware)
 		this.dom.addEventListener('ln-playlist:track-added', function (e) {
-			var decks = self.dom.querySelectorAll('[data-ln-deck]');
-			for (var i = 0; i < decks.length; i++) {
+			const decks = self.dom.querySelectorAll('[data-ln-deck]');
+			for (let i = 0; i < decks.length; i++) {
 				if (decks[i].lnDeck && decks[i].lnDeck.trackIndex < 0) {
 					self._loadTrackToDeck(decks[i].getAttribute('data-ln-deck'), e.detail.trackIndex, e.detail.track);
 					return;
@@ -216,7 +212,7 @@
 
 		// Edit-track button (from deck) → bridge to playlist
 		this.dom.addEventListener('ln-deck:edit-requested', function (e) {
-			var sidebar = self._getSidebar();
+			const sidebar = self._getSidebar();
 			if (sidebar) {
 				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-open-edit', {
 					detail: { index: e.detail.trackIndex }
@@ -227,12 +223,12 @@
 
 	/* ─── Loop Segment Wiring ────────────────────────────────────── */
 
-	_component.prototype._bindLoopWiring = function () {
-		var self = this;
+	mixer._bindLoopWiring = function () {
+		const self = this;
 
 		// Loop captured → open name-loop modal
 		this.dom.addEventListener('ln-deck:loop-captured', function (e) {
-			var form = document.querySelector('[data-ln-form="name-loop"]');
+			const form = document.querySelector('[data-ln-form="name-loop"]');
 			if (!form) return;
 
 			form.setAttribute('data-ln-deck-id', e.detail.deckId);
@@ -242,12 +238,12 @@
 			form.setAttribute('data-ln-loop-start-pct', e.detail.startPct);
 			form.setAttribute('data-ln-loop-end-pct', e.detail.endPct);
 
-			var rangeEl = document.querySelector('[data-ln-field="loop-range"]');
+			const rangeEl = document.querySelector('[data-ln-field="loop-range"]');
 			if (rangeEl) {
-				rangeEl.textContent = _formatTime(e.detail.startSec) + ' – ' + _formatTime(e.detail.endSec);
+				rangeEl.textContent = _formatTime(e.detail.startSec) + ' \u2013 ' + _formatTime(e.detail.endSec);
 			}
 
-			var nameInput = document.querySelector('[data-ln-field="loop-name"]');
+			const nameInput = document.querySelector('[data-ln-field="loop-name"]');
 			if (nameInput) nameInput.value = '';
 
 			lnModal.open('modal-name-loop');
@@ -256,10 +252,10 @@
 
 		// Loop delete requested → remove from playlist
 		this.dom.addEventListener('ln-deck:loop-delete-requested', function (e) {
-			var sidebar = self._getSidebar();
+			const sidebar = self._getSidebar();
 			if (!sidebar || !sidebar.lnPlaylist) return;
 
-			var playlistId = sidebar.lnPlaylist.currentId;
+			const playlistId = sidebar.lnPlaylist.currentId;
 			if (!playlistId) return;
 
 			sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-remove-loop', {
@@ -277,7 +273,7 @@
 
 		// Loop added/removed → refresh deck segment buttons
 		this.dom.addEventListener('ln-playlist:loop-added', function (e) {
-			var d = e.detail;
+			const d = e.detail;
 			self.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
 				if (deckEl.lnDeck && deckEl.lnDeck.trackIndex === d.trackIndex) {
 					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
@@ -288,7 +284,7 @@
 		});
 
 		this.dom.addEventListener('ln-playlist:loop-removed', function (e) {
-			var d = e.detail;
+			const d = e.detail;
 			self.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
 				if (deckEl.lnDeck && deckEl.lnDeck.trackIndex === d.trackIndex) {
 					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
@@ -301,11 +297,11 @@
 
 	/* ─── Global Event Bindings ──────────────────────────────────── */
 
-	_component.prototype._bindAutoplayToggle = function () {
-		var self = this;
+	mixer._bindAutoplayToggle = function () {
+		const self = this;
 
 		document.addEventListener('click', function (e) {
-			var btn = e.target.closest('[data-ln-action="toggle-autoplay"]');
+			const btn = e.target.closest('[data-ln-action="toggle-autoplay"]');
 			if (!btn) return;
 
 			self._autoplay = !self._autoplay;
@@ -323,29 +319,29 @@
 		});
 	};
 
-	_component.prototype._bindLoopActions = function () {
-		var self = this;
+	mixer._bindLoopActions = function () {
+		const self = this;
 
 		// Name loop form submit
 		document.addEventListener('ln-form:submit', function (e) {
 			if (e.target.getAttribute('data-ln-form') !== 'name-loop') return;
 
-			var form = e.target;
-			var nameInput = document.querySelector('[data-ln-field="loop-name"]');
-			var name = nameInput ? nameInput.value.trim() : '';
+			const form = e.target;
+			const nameInput = document.querySelector('[data-ln-field="loop-name"]');
+			const name = nameInput ? nameInput.value.trim() : '';
 			if (!name) {
 				if (nameInput) nameInput.focus();
 				return;
 			}
 
-			var deckId = form.getAttribute('data-ln-deck-id');
-			var trackIndex = parseInt(form.getAttribute('data-ln-track-index'), 10);
-			var startSec = parseFloat(form.getAttribute('data-ln-loop-start'));
-			var endSec = parseFloat(form.getAttribute('data-ln-loop-end'));
-			var startPct = parseFloat(form.getAttribute('data-ln-loop-start-pct'));
-			var endPct = parseFloat(form.getAttribute('data-ln-loop-end-pct'));
+			const deckId = form.getAttribute('data-ln-deck-id');
+			const trackIndex = parseInt(form.getAttribute('data-ln-track-index'), 10);
+			const startSec = parseFloat(form.getAttribute('data-ln-loop-start'));
+			const endSec = parseFloat(form.getAttribute('data-ln-loop-end'));
+			const startPct = parseFloat(form.getAttribute('data-ln-loop-start-pct'));
+			const endPct = parseFloat(form.getAttribute('data-ln-loop-end-pct'));
 
-			var loopData = {
+			const loopData = {
 				name: name,
 				startSec: startSec,
 				endSec: endSec,
@@ -353,9 +349,9 @@
 				endPct: endPct
 			};
 
-			var sidebar = self._getSidebar();
+			const sidebar = self._getSidebar();
 			if (sidebar && sidebar.lnPlaylist) {
-				var playlistId = sidebar.lnPlaylist.currentId;
+				const playlistId = sidebar.lnPlaylist.currentId;
 				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-add-loop', {
 					detail: {
 						playlistId: playlistId,
@@ -381,4 +377,4 @@
 		});
 	};
 
-})();
+}

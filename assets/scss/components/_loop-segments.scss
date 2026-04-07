@@ -1,0 +1,105 @@
+// ==========================================================================
+// _loop-segments.scss — Loop segment button strip below deck controls
+// ==========================================================================
+
+// ─── Loop segments container ──────────────────────────────────────────────────
+
+.loop-segments {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--spacing-xs);
+	flex-shrink: 0;
+
+	&:empty {
+		min-height: 44px;
+	}
+}
+
+// ─── Loop segment button ──────────────────────────────────────────────────────
+
+.loop-seg-btn {
+	display: inline-flex;
+	align-items: stretch;
+	gap: 0;
+	padding: 0;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	border-radius: var(--radius-md);
+	background: transparent;
+	border: 1px solid hsl(var(--color-primary));
+	color: hsl(var(--color-primary));
+	cursor: pointer;
+	touch-action: manipulation;
+	min-height: 44px;
+	position: relative;
+	overflow: hidden;
+	transition: background var(--transition-fast), color var(--transition-fast);
+
+	// LED dot (same pattern as .btn--led)
+	&::before {
+		content: '';
+		position: absolute;
+		left: 0.45rem;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: hsl(var(--color-text-muted));
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		transition: background var(--transition-fast), box-shadow var(--transition-fast);
+	}
+
+	&:hover {
+		background: hsl(var(--color-primary) / 0.15);
+	}
+
+	&.active {
+		background: hsl(var(--color-primary) / 0.2);
+		border-color: hsl(var(--color-primary));
+		color: hsl(var(--color-primary));
+
+		&::before {
+			background: hsl(var(--color-primary));
+			box-shadow: 0 0 8px hsl(var(--color-primary)), 0 0 16px hsl(var(--color-primary) / 0.3);
+		}
+	}
+}
+
+// ─── Loop segment label ───────────────────────────────────────────────────────
+
+.loop-seg-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.4rem 0.75rem;
+	padding-left: 1.4rem;
+}
+
+// ─── Loop segment remove button ───────────────────────────────────────────────
+
+.loop-seg-remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	background: hsl(var(--color-cue) / 0.15);
+	border: none;
+	border-left: 1px solid hsl(var(--color-cue) / 0.3);
+	min-width: 40px;
+	min-height: auto;
+	cursor: pointer;
+	transition: background var(--transition-fast);
+
+	&::before {
+		width: 0.9rem;
+		height: 0.9rem;
+		filter: brightness(0) saturate(100%) invert(40%) sepia(80%) saturate(2000%) hue-rotate(335deg);
+	}
+
+	&:hover {
+		background: hsl(var(--color-cue) / 0.35);
+	}
+}

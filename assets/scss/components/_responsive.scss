@@ -1,0 +1,25 @@
+// ==========================================================================
+// _responsive.scss — @media breakpoints (viewport-level layout only)
+// ==========================================================================
+// Component-level responsive uses @container (see individual partials).
+// These breakpoints control the shell layout: sidebar visibility, column count.
+// ==========================================================================
+
+@media (max-width: 900px) {
+	.main-area {
+		grid-template-columns: 1fr;
+		grid-template-rows: 1fr auto;
+	}
+
+	.sidebar {
+		border-left: none;
+		border-top: 1px solid hsl(var(--color-border));
+		max-height: 35vh;
+	}
+}
+
+@media (pointer: coarse) {
+	.track-content {
+		padding: var(--spacing-md);
+	}
+}

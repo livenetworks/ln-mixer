@@ -1,0 +1,157 @@
+// ==========================================================================
+// _topbar.scss — Topbar, profile bar, volume, autoplay, brand
+// ==========================================================================
+
+// ─── Topbar ─────────────────────────────────────────────────────────────────
+
+.topbar {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-lg);
+	padding: 0 var(--spacing-md);
+	background: hsl(var(--color-bg-primary));
+	border-bottom: 1px solid hsl(var(--color-border));
+}
+
+.topbar-left {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-sm);
+}
+
+.topbar-actions {
+	display: flex;
+	gap: var(--spacing-sm);
+}
+
+// ─── Profile bar ────────────────────────────────────────────────────────────
+
+.profile-bar {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-xs);
+	overflow-x: auto;
+	flex-shrink: 1;
+	min-width: 0;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+.profile-btn {
+	padding: 0.3rem 0.75rem;
+	font-size: 0.7rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	border-radius: 99px;
+	background: transparent;
+	border: 1px solid hsl(var(--color-button-border));
+	color: hsl(var(--color-text-secondary));
+	white-space: nowrap;
+	transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+
+	&:hover:not(:disabled) {
+		background: rgba(255, 255, 255, 0.06);
+		color: hsl(var(--color-text-primary));
+	}
+
+	&.active {
+		background: hsl(var(--color-primary));
+		color: #000;
+		border-color: hsl(var(--color-primary));
+		font-weight: 700;
+	}
+}
+
+.profile-add {
+	padding: 0.25rem;
+	background: transparent;
+	border: 1px dashed hsl(var(--color-button-border));
+	border-radius: 50%;
+	color: hsl(var(--color-text-muted));
+	min-width: 28px;
+	min-height: 28px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+
+	&:hover:not(:disabled) {
+		border-color: hsl(var(--color-primary));
+		color: hsl(var(--color-primary));
+		background: transparent;
+	}
+}
+
+// ─── Volume control ──────────────────────────────────────────────────────────
+
+.volume-control {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-sm);
+	margin-left: auto;
+
+	input[type="range"] {
+		-webkit-appearance: none;
+		width: 120px;
+		height: 4px;
+		background: hsl(var(--color-button-bg));
+		border-radius: 2px;
+		outline: none;
+		cursor: pointer;
+
+		&::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			width: 16px;
+			height: 16px;
+			border-radius: 50%;
+			background: hsl(var(--color-primary));
+			cursor: pointer;
+		}
+	}
+}
+
+// ─── Autoplay toggle ─────────────────────────────────────────────────────────
+
+.autoplay-control {
+	display: flex;
+	align-items: center;
+
+	.btn--led {
+		padding: 0.3rem 0.75rem 0.3rem 1.6rem;
+		border-radius: var(--radius-md);
+		background: hsl(var(--color-button-bg));
+		border: 1px solid hsl(var(--color-button-border));
+		color: hsl(var(--color-text-secondary));
+		min-height: var(--touch-min);
+
+		&.active {
+			border-color: hsl(var(--color-primary));
+			color: hsl(var(--color-primary));
+			background: hsl(var(--color-primary) / 0.1);
+		}
+
+		&.active::before {
+			filter: brightness(0) saturate(100%) invert(51%) sepia(98%) saturate(880%) hue-rotate(3deg);
+		}
+	}
+}
+
+// ─── Brand ───────────────────────────────────────────────────────────────────
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-sm);
+
+	img {
+		width: 32px;
+		height: 32px;
+		border-radius: var(--radius-sm);
+		object-fit: contain;
+	}
+}

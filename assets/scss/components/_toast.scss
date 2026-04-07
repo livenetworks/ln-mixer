@@ -1,0 +1,64 @@
+// ==========================================================================
+// _toast.scss — ln-acme toast position + sizing overrides (dark theme)
+// ==========================================================================
+// Base toast styles from ln-acme ln-toast.scss. Only delta overrides here.
+// Dark theme colors set via --ln-toast-* tokens in _overrides.scss.
+// ==========================================================================
+
+// ─── Position: bottom-center instead of bottom-right ──────────────────────────
+
+[data-ln-toast] {
+	top: auto;
+	right: auto;
+	bottom: 1.5rem;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+// ─── Slide-up animation (override translateX slide-in from ln-acme) ───────────
+
+[data-ln-toast] > .ln-toast__item {
+	transform: translateY(20px);
+}
+
+[data-ln-toast] > .ln-toast__item--in {
+	transform: translateY(0);
+}
+
+// ─── Card sizing ──────────────────────────────────────────────────────────────
+
+.ln-toast__card {
+	min-width: 280px;
+	max-width: 380px;
+}
+
+// ─── Compact side icon column ─────────────────────────────────────────────────
+
+.ln-toast__side {
+	flex: 0 0 48px;
+	padding-top: 0.75rem;
+
+	svg {
+		width: 24px;
+		height: 24px;
+		color: #000;
+	}
+}
+
+// ─── Content padding ──────────────────────────────────────────────────────────
+
+.ln-toast__content {
+	padding: 0.75rem 0.75rem 0.75rem 0.6rem;
+}
+
+// ─── Typography ───────────────────────────────────────────────────────────────
+
+.ln-toast__title {
+	font-size: 0.875rem;
+}
+
+.ln-toast__body {
+	margin-top: 0.25rem;
+	font-size: 0.8rem;
+	line-height: 1.4;
+}

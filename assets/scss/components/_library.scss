@@ -1,0 +1,164 @@
+// ==========================================================================
+// _library.scss — Library dialog: search, list, progress, uncache, no-api
+// ==========================================================================
+
+// ─── Library search ───────────────────────────────────────────────────────────
+
+.library-search {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-sm);
+	margin-bottom: var(--spacing-md);
+
+	input[type="search"] {
+		flex: 1;
+		background: hsl(var(--color-input-bg));
+		border: 1px solid hsl(var(--color-input-border));
+		border-radius: var(--radius-sm);
+		color: hsl(var(--color-text-primary));
+		padding: 0.5rem 0.75rem;
+		font-size: 0.875rem;
+		font-family: var(--font-sans);
+
+		&::placeholder {
+			color: hsl(var(--color-text-muted));
+		}
+	}
+}
+
+// ln-search hide attribute
+[data-ln-search-hide] {
+	display: none !important;
+}
+
+// ─── Library list ─────────────────────────────────────────────────────────────
+
+.library-list {
+	> li {
+		display: grid;
+		grid-template-columns: 1fr auto auto;
+		grid-template-rows: auto 4px;
+		align-items: center;
+		gap: 0 var(--spacing-md);
+		padding: var(--spacing-sm) var(--spacing-sm) 0;
+		border-bottom: 1px solid hsl(var(--color-border));
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+		.library-download-progress {
+			grid-column: 1 / -1;
+			grid-row: 2;
+		}
+
+		.library-uncache-btn {
+			grid-column: 2;
+			grid-row: 1;
+		}
+
+		[data-ln-action="add-to-playlist"] {
+			grid-column: 3;
+			grid-row: 1;
+		}
+	}
+}
+
+// ─── Library track info ───────────────────────────────────────────────────────
+
+.library-track-info {
+	flex: 1;
+
+	.track-name {
+		font-weight: 600;
+		font-size: 0.875rem;
+	}
+
+	.track-artist {
+		font-size: 0.75rem;
+		color: hsl(var(--color-text-secondary));
+	}
+}
+
+// ─── Download progress bar (always visible) ───────────────────────────────────
+
+.library-download-progress {
+	height: 4px;
+	width: 100%;
+	border-radius: 0;
+	background: hsl(var(--color-button-bg));
+	overflow: hidden;
+	margin: 0;
+
+	> [data-ln-progress] {
+		display: block;
+		height: 100%;
+		width: 0;
+		background: hsl(var(--color-primary));
+		border-radius: 0;
+		transition: width 0.15s ease;
+	}
+}
+
+// Cached state: green bar at 100%
+.library-list > li[data-ln-cached] .library-download-progress > [data-ln-progress] {
+	background: hsl(var(--color-loop));
+}
+
+// ─── Uncache button ───────────────────────────────────────────────────────────
+
+.library-uncache-btn {
+	display: none;
+	background: transparent;
+	border: none;
+	padding: 0.25rem;
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	touch-action: manipulation;
+	min-width: auto;
+	min-height: auto;
+
+	&:hover,
+	&:active {
+		background: hsl(var(--color-cue) / 0.2);
+	}
+
+	&::before {
+		width: 0.85rem;
+		height: 0.85rem;
+	}
+}
+
+.library-list > li[data-ln-cached] .library-uncache-btn {
+	display: inline-flex;
+}
+
+// Downloading: hide Add button
+.library-list > li[data-ln-downloading] [data-ln-action="add-to-playlist"] {
+	display: none;
+}
+
+// ─── No API empty state ───────────────────────────────────────────────────────
+
+.library-no-api {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	padding: var(--spacing-xl) var(--spacing-lg);
+	text-align: center;
+	color: hsl(var(--color-text-secondary));
+	gap: var(--spacing-sm);
+
+	h3 {
+		font-size: 1.125rem;
+		color: hsl(var(--color-text-primary));
+		margin: 0;
+	}
+
+	p {
+		font-size: 0.875rem;
+		margin: 0;
+	}
+}

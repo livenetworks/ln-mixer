@@ -1,10 +1,13 @@
-(function () {
-	'use strict';
+import { setupAudio } from './ln-mixer-audio.js';
+import { setupCache } from './ln-mixer-cache.js';
+import { setupDeck } from './ln-mixer-deck.js';
+import { setupSettings } from './ln-mixer-settings.js';
+import { setupTransfer } from './ln-mixer-transfer.js';
 
-	var DOM_SELECTOR = 'data-ln-mixer';
-	var DOM_ATTRIBUTE = 'lnMixer';
+const DOM_SELECTOR = 'data-ln-mixer';
+const DOM_ATTRIBUTE = 'lnMixer';
 
-	if (window[DOM_ATTRIBUTE] !== undefined) return;
+if (window[DOM_ATTRIBUTE] === undefined) {
 
 	/* ─── Constructor ─────────────────────────────────────────────── */
 
@@ -13,7 +16,7 @@
 	}
 
 	function _findElements(root) {
-		var items = Array.from(root.querySelectorAll('[' + DOM_SELECTOR + ']'));
+		const items = Array.from(root.querySelectorAll('[' + DOM_SELECTOR + ']'));
 		if (root.hasAttribute && root.hasAttribute(DOM_SELECTOR)) {
 			items.push(root);
 		}
@@ -47,6 +50,12 @@
 		this._autoplayTimer = null;
 		this._autoplayPreloaded = false;
 
+		setupAudio(this);
+		setupCache(this);
+		setupDeck(this);
+		setupSettings(this);
+		setupTransfer(this);
+
 		this._bindScopedEvents();
 		this._bindGlobalEvents();
 		this._loadProfiles();
@@ -54,18 +63,14 @@
 		return this;
 	}
 
-	/* ─── Export for sub-files ────────────────────────────────────── */
-
-	window._LnMixerComponent = _component;
-
 	/* ─── Init ────────────────────────────────────────────────────── */
 
 	_component.prototype._loadProfiles = function () {
-		var self = this;
+		const self = this;
 		lnDb.open().then(function () {
 			return lnDb.getAll('profiles');
 		}).then(function (profiles) {
-			var nav = self._getNav();
+			const nav = self._getNav();
 			if (nav) {
 				nav.dispatchEvent(new CustomEvent('ln-profile:request-hydrate', {
 					detail: { profiles: profiles }
@@ -77,12 +82,12 @@
 	/* ─── Empty State (coordinator owns UI visibility) ───────────── */
 
 	_component.prototype._updateEmptyState = function () {
-		var nav = this._getNav();
-		var hasProfiles = nav && nav.lnProfile && Object.keys(nav.lnProfile.profiles).length > 0;
+		const nav = this._getNav();
+		const hasProfiles = nav && nav.lnProfile && Object.keys(nav.lnProfile.profiles).length > 0;
 
-		var emptyState = this.dom.querySelector('[data-ln-empty-state]');
-		var decksPanel = this.dom.querySelector('.decks-panel');
-		var sidebar = this._getSidebar();
+		const emptyState = this.dom.querySelector('[data-ln-empty-state]');
+		const decksPanel = this.dom.querySelector('.decks-panel');
+		const sidebar = this._getSidebar();
 
 		if (emptyState) emptyState.hidden = hasProfiles;
 		if (decksPanel) decksPanel.hidden = !hasProfiles;
@@ -108,12 +113,12 @@
 	};
 
 	_component.prototype._refreshDeckHighlights = function () {
-		var sidebar = this._getSidebar();
+		const sidebar = this._getSidebar();
 		if (!sidebar) return;
 
 		this.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
-			var deckId = deckEl.getAttribute('data-ln-deck');
-			var idx = (deckEl.lnDeck) ? deckEl.lnDeck.trackIndex : -1;
+			const deckId = deckEl.getAttribute('data-ln-deck');
+			const idx = (deckEl.lnDeck) ? deckEl.lnDeck.trackIndex : -1;
 			sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-highlight', {
 				detail: { deckId: deckId, index: idx }
 			}));
@@ -143,7 +148,7 @@
 	/* ─── DOM Observer ────────────────────────────────────────────── */
 
 	function _domObserver() {
-		var observer = new MutationObserver(function (mutations) {
+		const observer = new MutationObserver(function (mutations) {
 			mutations.forEach(function (mutation) {
 				if (mutation.type === 'childList') {
 					mutation.addedNodes.forEach(function (node) {
@@ -173,4 +178,5 @@
 	} else {
 		constructor(document.body);
 	}
-})();
+
+}

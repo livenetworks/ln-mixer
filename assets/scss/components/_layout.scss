@@ -1,0 +1,123 @@
+// ==========================================================================
+// _layout.scss — .player grid, main-area, decks-panel, empty-state, footer, progress
+// ==========================================================================
+
+// ─── Player grid ────────────────────────────────────────────────────────────
+
+.player {
+	display: grid;
+	grid-template-rows: var(--topbar-height) 1fr auto;
+	height: 100vh;
+	overflow: hidden;
+	position: relative;
+}
+
+// ─── Main area ──────────────────────────────────────────────────────────────
+
+.main-area {
+	display: grid;
+	grid-template-columns: 1fr 30%;
+	overflow: hidden;
+}
+
+// ─── Decks panel ────────────────────────────────────────────────────────────
+
+.decks-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	overflow: hidden;
+	background: hsl(var(--color-border));
+}
+
+// ─── App footer ─────────────────────────────────────────────────────────────
+
+.app-footer {
+	padding: var(--spacing-xs) var(--spacing-md);
+	border-top: 1px solid hsl(var(--color-border));
+	text-align: center;
+	color: hsl(var(--color-text-muted));
+	font-size: 0.7rem;
+	letter-spacing: 0.04em;
+	user-select: none;
+
+	a {
+		color: hsl(var(--color-primary));
+	}
+}
+
+// ─── Global download progress bar ───────────────────────────────────────────
+
+.global-progress {
+	position: absolute;
+	top: var(--topbar-height);
+	left: 0;
+	right: 0;
+	height: 4px;
+	z-index: 10;
+	background: hsl(var(--color-button-bg));
+	overflow: hidden;
+	margin: 0;
+	pointer-events: none;
+
+	> [data-ln-progress] {
+		display: block;
+		height: 100%;
+		width: 0;
+		background: hsl(var(--color-primary));
+		border-radius: 0;
+		transition: width 0.15s ease;
+	}
+}
+
+// ─── Empty state ─────────────────────────────────────────────────────────────
+
+.empty-state {
+	grid-column: 1 / -1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--spacing-md);
+	padding: var(--spacing-xl);
+	text-align: center;
+	color: hsl(var(--color-text-secondary));
+
+	h2 {
+		font-size: 1.25rem;
+		color: hsl(var(--color-text-primary));
+		margin: 0;
+	}
+
+	h2::before {
+		content: '';
+		display: block;
+		width: 64px;
+		height: 64px;
+		border-radius: 50%;
+		background-color: hsl(var(--color-bg-secondary));
+		background-size: 32px 32px;
+		background-position: center;
+		opacity: 0.5;
+		margin: 0 auto var(--spacing-md);
+	}
+
+	p {
+		font-size: 0.9rem;
+		margin: 0;
+	}
+}
+
+// library-no-api shares the ::before icon circle pattern
+.library-no-api h3::before {
+	content: '';
+	display: block;
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	background-color: hsl(var(--color-bg-secondary));
+	background-size: 32px 32px;
+	background-position: center;
+	opacity: 0.5;
+	margin: 0 auto var(--spacing-md);
+}

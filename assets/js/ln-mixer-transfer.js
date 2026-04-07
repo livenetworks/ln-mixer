@@ -4,32 +4,28 @@
    or file, batch-download audio for offline use.
    ==================================================================== */
 
-(function () {
-	'use strict';
+const EXPORT_VERSION = 2;
+const EXPORT_APP = 'ln-dj-mixer';
+const EXPORT_FILENAME = 'ln-mixer-data.json';
 
-	var _component = window._LnMixerComponent;
-	if (!_component) return;
-
-	var EXPORT_VERSION = 2;
-	var EXPORT_APP = 'ln-dj-mixer';
-	var EXPORT_FILENAME = 'ln-mixer-data.json';
+export function setupTransfer(mixer) {
 
 	/* ─── Export ──────────────────────────────────────────────────── */
 
-	_component.prototype._exportData = function () {
+	mixer._exportData = function () {
 		Promise.all([
 			lnDb.getAll('profiles'),
 			lnDb.getAll('tracks'),
 			lnDb.getAll('playlists'),
 			lnDb.get('settings', 'app')
 		]).then(function (results) {
-			var profiles = results[0] || [];
-			var tracks = results[1] || [];
-			var playlists = results[2] || [];
-			var settings = results[3] || {};
+			const profiles = results[0] || [];
+			const tracks = results[1] || [];
+			const playlists = results[2] || [];
+			const settings = results[3] || {};
 
 			// Strip peaks from export (too large, regenerated from audio)
-			var exportTracks = tracks.map(function (t) {
+			const exportTracks = tracks.map(function (t) {
 				return {
 					url: t.url,
 					title: t.title || '',
@@ -39,7 +35,7 @@
 				};
 			});
 
-			var payload = {
+			const payload = {
 				version: EXPORT_VERSION,
 				exportedAt: new Date().toISOString(),
 				app: EXPORT_APP,
@@ -52,11 +48,11 @@
 				playlists: playlists
 			};
 
-			var json = JSON.stringify(payload, null, 2);
-			var blob = new Blob([json], { type: 'application/json' });
-			var url = URL.createObjectURL(blob);
+			const json = JSON.stringify(payload, null, 2);
+			const blob = new Blob([json], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
 
-			var a = document.createElement('a');
+			const a = document.createElement('a');
 			a.href = url;
 			a.download = EXPORT_FILENAME;
 			document.body.appendChild(a);
@@ -77,7 +73,7 @@
 
 	/* ─── Validate ────────────────────────────────────────────────── */
 
-	_component.prototype._validateImportData = function (data) {
+	mixer._validateImportData = function (data) {
 		if (!data || typeof data !== 'object') return false;
 		if (data.app !== EXPORT_APP) return false;
 		if (typeof data.version !== 'number') return false;
@@ -85,13 +81,13 @@
 
 		if (data.version === 1) {
 			// v1: profiles have nested playlists
-			for (var i = 0; i < data.profiles.length; i++) {
-				var p = data.profiles[i];
+			for (let i = 0; i < data.profiles.length; i++) {
+				const p = data.profiles[i];
 				if (!p.id || !p.name || typeof p.playlists !== 'object') return false;
 			}
 		} else if (data.version >= 2) {
 			// v2: slim profiles, separate tracks + playlists
-			for (var j = 0; j < data.profiles.length; j++) {
+			for (let j = 0; j < data.profiles.length; j++) {
 				if (!data.profiles[j].id || !data.profiles[j].name) return false;
 			}
 			if (!Array.isArray(data.tracks)) return false;
@@ -103,8 +99,8 @@
 
 	/* ─── Import (shared core) ────────────────────────────────────── */
 
-	_component.prototype._processImport = function (data) {
-		var self = this;
+	mixer._processImport = function (data) {
+		const self = this;
 
 		if (!this._validateImportData(data)) {
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
@@ -113,33 +109,33 @@
 			return;
 		}
 
-		var settings = data.settings || {};
-		var settingsRecord = {
+		const settings = data.settings || {};
+		const settingsRecord = {
 			key: 'app',
 			apiUrl: settings.apiUrl || '',
 			brandLogo: settings.brandLogo || ''
 		};
 
-		var promises = [lnDb.put('settings', settingsRecord)];
+		const promises = [lnDb.put('settings', settingsRecord)];
 
 		if (data.version === 1) {
 			// v1 import: extract tracks + segments from nested profiles
-			var seenUrls = {};
+			const seenUrls = {};
 
 			data.profiles.forEach(function (profile) {
 				// Slim profile
 				promises.push(lnDb.put('profiles', { id: profile.id, name: profile.name }));
 
-				var playlists = profile.playlists || {};
-				for (var pid in playlists) {
+				const playlists = profile.playlists || {};
+				for (const pid in playlists) {
 					if (!playlists.hasOwnProperty(pid)) continue;
-					var pl = playlists[pid];
-					var tracks = pl.tracks || [];
+					const pl = playlists[pid];
+					const tracks = pl.tracks || [];
 
 					// Extract unique tracks
-					var segments = [];
-					for (var i = 0; i < tracks.length; i++) {
-						var t = tracks[i];
+					const segments = [];
+					for (let i = 0; i < tracks.length; i++) {
+						const t = tracks[i];
 						if (t.url && !seenUrls[t.url]) {
 							seenUrls[t.url] = true;
 							promises.push(lnDb.put('tracks', {
@@ -157,7 +153,7 @@
 						});
 					}
 
-					var globalId = profile.id + '--' + pid;
+					const globalId = profile.id + '--' + pid;
 					promises.push(lnDb.put('playlists', {
 						id: globalId,
 						profileId: profile.id,
@@ -189,7 +185,7 @@
 
 			self._loadProfiles();
 
-			var urls = self._collectTrackUrls(data);
+			const urls = self._collectTrackUrls(data);
 
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: {
@@ -214,8 +210,8 @@
 
 	/* ─── Import from URL ─────────────────────────────────────────── */
 
-	_component.prototype._importFromUrl = function (url) {
-		var self = this;
+	mixer._importFromUrl = function (url) {
+		const self = this;
 
 		if (!url) {
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
@@ -243,14 +239,14 @@
 
 	/* ─── Import from File ────────────────────────────────────────── */
 
-	_component.prototype._importFromFile = function (file) {
-		var self = this;
+	mixer._importFromFile = function (file) {
+		const self = this;
 		if (!file) return;
 
-		var reader = new FileReader();
+		const reader = new FileReader();
 		reader.onload = function (ev) {
 			try {
-				var data = JSON.parse(ev.target.result);
+				const data = JSON.parse(ev.target.result);
 				self._processImport(data);
 			} catch (err) {
 				window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
@@ -268,17 +264,17 @@
 
 	/* ─── Collect Track URLs ──────────────────────────────────────── */
 
-	_component.prototype._collectTrackUrls = function (data) {
-		var urlSet = {};
+	mixer._collectTrackUrls = function (data) {
+		const urlSet = {};
 
 		if (data.version === 1) {
 			// v1: playlists nested in profiles
 			(data.profiles || []).forEach(function (p) {
 				if (!p.playlists) return;
-				for (var pid in p.playlists) {
+				for (const pid in p.playlists) {
 					if (!p.playlists.hasOwnProperty(pid)) continue;
-					var tracks = p.playlists[pid].tracks || [];
-					for (var i = 0; i < tracks.length; i++) {
+					const tracks = p.playlists[pid].tracks || [];
+					for (let i = 0; i < tracks.length; i++) {
 						if (tracks[i].url) urlSet[tracks[i].url] = true;
 					}
 				}
@@ -295,12 +291,12 @@
 
 	/* ─── Batch Download Audio (sequential queue) ─────────────────── */
 
-	_component.prototype._batchDownloadAudio = function () {
-		var self = this;
+	mixer._batchDownloadAudio = function () {
+		const self = this;
 
 		// Collect all track URLs from tracks store
 		lnDb.getAll('tracks').then(function (allTracks) {
-			var urls = [];
+			const urls = [];
 			allTracks.forEach(function (t) {
 				if (t.url) urls.push(t.url);
 			});
@@ -313,10 +309,10 @@
 			}
 
 			return lnDb.getAllKeys('audioFiles').then(function (cachedUrls) {
-				var cachedSet = {};
+				const cachedSet = {};
 				cachedUrls.forEach(function (u) { cachedSet[u] = true; });
 
-				var uncached = urls.filter(function (u) { return !cachedSet[u]; });
+				const uncached = urls.filter(function (u) { return !cachedSet[u]; });
 
 				if (uncached.length === 0) {
 					window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
@@ -333,12 +329,12 @@
 					}
 				}));
 
-				var completed = 0;
-				var failed = 0;
+				let completed = 0;
+				let failed = 0;
 
 				function downloadNext(idx) {
 					if (idx >= uncached.length) {
-						var msg = 'Download complete: ' + completed + ' cached';
+						let msg = 'Download complete: ' + completed + ' cached';
 						if (failed > 0) msg += ', ' + failed + ' failed';
 						self._updateTransferStatus('');
 						self._updateCacheInfo();
@@ -366,8 +362,8 @@
 
 	/* ─── Transfer Status Display ─────────────────────────────────── */
 
-	_component.prototype._updateTransferStatus = function (text) {
-		var el = document.querySelector('[data-ln-transfer-status]');
+	mixer._updateTransferStatus = function (text) {
+		const el = document.querySelector('[data-ln-transfer-status]');
 		if (!el) return;
 		el.textContent = text || '';
 		el.hidden = !text;
@@ -375,11 +371,11 @@
 
 	/* ─── Event Bindings ──────────────────────────────────────────── */
 
-	_component.prototype._bindTransferActions = function () {
-		var self = this;
+	mixer._bindTransferActions = function () {
+		const self = this;
 
 		document.addEventListener('click', function (e) {
-			var btn;
+			let btn;
 
 			btn = e.target.closest('[data-ln-action="export-data"]');
 			if (btn) {
@@ -389,15 +385,15 @@
 
 			btn = e.target.closest('[data-ln-action="import-file"]');
 			if (btn) {
-				var fileInput = document.querySelector('[data-ln-import-file]');
+				const fileInput = document.querySelector('[data-ln-import-file]');
 				if (fileInput) fileInput.click();
 				return;
 			}
 
 			btn = e.target.closest('[data-ln-action="import-from-url"]');
 			if (btn) {
-				var urlInput = document.querySelector('[data-ln-field="import-url"]');
-				var url = urlInput ? urlInput.value.trim() : '';
+				const urlInput = document.querySelector('[data-ln-field="import-url"]');
+				const url = urlInput ? urlInput.value.trim() : '';
 				self._importFromUrl(url);
 				return;
 			}
@@ -409,10 +405,10 @@
 			}
 		});
 
-		var fileInput = document.querySelector('[data-ln-import-file]');
+		const fileInput = document.querySelector('[data-ln-import-file]');
 		if (fileInput) {
 			fileInput.addEventListener('change', function () {
-				var file = fileInput.files[0];
+				const file = fileInput.files[0];
 				if (file) {
 					self._importFromFile(file);
 					fileInput.value = '';
@@ -421,4 +417,4 @@
 		}
 	};
 
-})();
+}

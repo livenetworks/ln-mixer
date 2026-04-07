@@ -1,0 +1,293 @@
+// ==========================================================================
+// _track-list.scss — Track grid, number/drag, info, load buttons, active states
+// ==========================================================================
+
+// ─── Track list container ─────────────────────────────────────────────────────
+
+.track-list {
+	overflow-y: auto;
+
+	> li {
+		position: relative;
+		overflow: hidden;
+		border-bottom: 1px solid hsl(var(--color-border));
+		transition: background var(--transition-fast);
+	}
+}
+
+// ─── Track content grid ───────────────────────────────────────────────────────
+// Row 1: number+drag | title + artist + duration | [A][B]
+// Row 2:             | notes + indicators        |
+
+.track-content {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	grid-template-columns: 1.5rem 1fr auto;
+	grid-template-rows: auto auto;
+	column-gap: var(--spacing-sm);
+	row-gap: 2px;
+	padding: var(--spacing-sm) var(--spacing-md);
+	background: hsl(var(--color-surface-sunken));
+	align-items: center;
+}
+
+// ─── Track number + drag handle ──────────────────────────────────────────────
+
+.track-number {
+	grid-column: 1;
+	grid-row: 1 / -1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	font-size: 0.8rem;
+	color: hsl(var(--color-text-muted));
+	text-align: center;
+	cursor: grab;
+	touch-action: none;
+	padding: 2px 0;
+
+	&::after {
+		content: '';
+		display: block;
+		width: 0.75rem;
+		height: 0.75rem;
+		background-image: var(--icon-drag-white);
+		background-size: contain;
+		background-repeat: no-repeat;
+		background-position: center;
+		opacity: 0.4;
+		transition: opacity var(--transition-fast);
+	}
+
+	&:active {
+		cursor: grabbing;
+	}
+}
+
+.track-list > li:hover .track-number::after {
+	opacity: 0.8;
+}
+
+// ─── Drag/drop states (ln-sortable component) ────────────────────────────────
+
+.track-list > li.ln-sortable--dragging {
+	opacity: 0.4;
+
+	> .track-content {
+		background: hsl(var(--color-bg-primary));
+	}
+}
+
+.track-list > li.ln-sortable--drop-before {
+	box-shadow: inset 0 2px 0 0 hsl(var(--color-primary));
+}
+
+.track-list > li.ln-sortable--drop-after {
+	box-shadow: inset 0 -2px 0 0 hsl(var(--color-primary));
+}
+
+// ─── Track info ───────────────────────────────────────────────────────────────
+
+.track-info {
+	grid-column: 2;
+	grid-row: 1;
+	display: flex;
+	align-items: baseline;
+	gap: var(--spacing-sm);
+	min-width: 0;
+}
+
+.track-name {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: hsl(var(--color-text-primary));
+}
+
+.track-info .track-artist {
+	font-size: 0.75rem;
+	color: hsl(var(--color-text-secondary));
+	white-space: nowrap;
+}
+
+.track-duration {
+	font-size: 0.75rem;
+	color: hsl(var(--color-text-muted));
+	font-family: var(--font-mono);
+	margin-left: auto;
+	white-space: nowrap;
+}
+
+// ─── Track meta row (notes + indicators) ─────────────────────────────────────
+
+.track-meta-row {
+	grid-column: 2;
+	grid-row: 2;
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-sm);
+	min-width: 0;
+}
+
+.track-notes {
+	font-size: 0.7rem;
+	color: hsl(var(--color-text-muted));
+	font-style: italic;
+}
+
+// ─── Notes-as-primary-label layout (when notes present) ──────────────────────
+
+li:has(.track-notes:not(:empty)) .track-meta-row { grid-row: 1; }
+li:has(.track-notes:not(:empty)) .track-info     { grid-row: 2; }
+
+li:has(.track-notes:not(:empty)) .track-notes {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: hsl(var(--color-text-primary));
+	font-style: normal;
+}
+
+li:has(.track-notes:not(:empty)) .track-name {
+	font-size: 0.75rem;
+	font-weight: 400;
+	color: hsl(var(--color-text-secondary));
+}
+
+li:has(.track-notes:not(:empty)) .track-artist {
+	font-size: 0.7rem;
+	color: hsl(var(--color-text-muted));
+}
+
+// Notes active color overrides
+.track-list > li:has(.track-notes:not(:empty)).active-a .track-notes { color: hsl(var(--color-primary)); }
+.track-list > li:has(.track-notes:not(:empty)).active-b .track-notes { color: hsl(var(--color-accent-b)); }
+.track-list > li:has(.track-notes:not(:empty)).active-a .track-name  { color: hsl(var(--color-text-secondary)); }
+.track-list > li:has(.track-notes:not(:empty)).active-b .track-name  { color: hsl(var(--color-text-secondary)); }
+
+// ─── Track indicators (loop badge) ───────────────────────────────────────────
+
+.track-indicators {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-xs);
+	flex-shrink: 0;
+}
+
+.indicator-loop {
+	color: hsl(var(--color-loop));
+
+	&::before {
+		width: 0.875rem;
+		height: 0.875rem;
+		filter: hue-rotate(100deg) brightness(1.5);
+	}
+}
+
+.loop-count-badge {
+	font-size: 0.6rem;
+	color: hsl(var(--color-loop));
+	font-family: var(--font-mono);
+	background: hsl(var(--color-loop) / 0.1);
+	padding: 0.1rem 0.3rem;
+	border-radius: 2px;
+}
+
+// ─── Active states ────────────────────────────────────────────────────────────
+
+// Active on Deck A
+.track-list > li.active-a > .track-content {
+	background: hsl(var(--color-primary) / 0.15);
+	border-left: 3px solid hsl(var(--color-primary));
+}
+
+.track-list > li.active-a .track-name {
+	color: hsl(var(--color-primary));
+}
+
+.track-list .active-a .track-number {
+	color: hsl(var(--color-primary));
+	font-weight: 700;
+}
+
+// Active on Deck B
+.track-list > li.active-b > .track-content {
+	background: hsl(var(--color-accent-b) / 0.15);
+	border-left: 3px solid hsl(var(--color-accent-b));
+}
+
+.track-list > li.active-b .track-name {
+	color: hsl(var(--color-accent-b));
+}
+
+.track-list .active-b .track-number {
+	color: hsl(var(--color-accent-b));
+	font-weight: 700;
+}
+
+// Both decks on same track
+.track-list > li.active-a.active-b > .track-content {
+	background: linear-gradient(90deg, hsl(var(--color-primary) / 0.15), hsl(var(--color-accent-b) / 0.15));
+	border-left: 3px solid hsl(var(--color-primary));
+}
+
+// ─── Load-to-deck buttons ─────────────────────────────────────────────────────
+
+.track-load-actions {
+	grid-column: 3;
+	grid-row: 1 / -1;
+	display: flex;
+	gap: var(--spacing-sm);
+	align-self: center;
+}
+
+.load-btn {
+	min-width: 48px;
+	min-height: 48px;
+	padding: 0;
+	font-size: 1rem;
+	font-weight: 800;
+	border-radius: var(--radius-md);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: background var(--transition-fast), transform 0.1s ease;
+
+	&:active {
+		transform: scale(0.92);
+	}
+
+	&--a {
+		background: hsl(var(--color-primary) / 0.15);
+		border: 2px solid hsl(var(--color-primary));
+		color: hsl(var(--color-primary));
+
+		&:hover:not(:disabled) {
+			background: hsl(var(--color-primary) / 0.3);
+		}
+
+		&.load-btn--loaded {
+			background: hsl(var(--color-primary));
+			color: #000;
+			cursor: default;
+			pointer-events: none;
+		}
+	}
+
+	&--b {
+		background: hsl(var(--color-accent-b) / 0.15);
+		border: 2px solid hsl(var(--color-accent-b));
+		color: hsl(var(--color-accent-b));
+
+		&:hover:not(:disabled) {
+			background: hsl(var(--color-accent-b) / 0.3);
+		}
+
+		&.load-btn--loaded {
+			background: hsl(var(--color-accent-b));
+			color: #000;
+			cursor: default;
+			pointer-events: none;
+		}
+	}
+}

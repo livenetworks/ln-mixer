@@ -1,0 +1,127 @@
+// ==========================================================================
+// _buttons.scss — Global button override + LED toggle + semantic variants
+// ==========================================================================
+// DO NOT use @mixin btn — mixer needs glass/frosted buttons not solid-fill.
+// button[type="submit"] glass override is in _overrides.scss.
+// .btn--led class STAYS (used by JS for loop/autoplay LED state).
+// ==========================================================================
+
+// ─── Global button override ─────────────────────────────────────────────────
+// ln-acme does NOT style the bare button element.
+// Full structure (flex, padding, colors, radius) defined here.
+
+button {
+	display: inline-flex;
+	align-items: center;
+	background: hsl(var(--color-button-bg));
+	border: 1px solid hsl(var(--color-button-border));
+	color: hsl(var(--color-text-primary));
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	font-size: 0.875rem;
+	border-radius: var(--radius-sm);
+	gap: 0.4rem;
+	transition: background var(--transition-fast), border-color var(--transition-fast);
+	touch-action: manipulation;
+	white-space: nowrap;
+	min-height: unset;
+	min-width: unset;
+
+	&:hover:not(:disabled) {
+		background: hsl(var(--color-button-hover));
+		color: hsl(var(--color-text-primary));
+	}
+
+	// Active state (e.g. transport play button pressed)
+	&.active {
+		background: hsl(var(--color-primary));
+		color: #000;
+		border-color: hsl(var(--color-primary-hover));
+
+		&::before {
+			filter: brightness(0);
+		}
+	}
+}
+
+// ─── Ghost buttons (modal close, zoom buttons) ──────────────────────────────
+
+.ln-modal header button[data-ln-modal-close],
+.waveform-zoom button {
+	background: transparent;
+	border-color: transparent;
+
+	&:hover:not(:disabled) {
+		background: rgba(255, 255, 255, 0.08);
+	}
+}
+
+// ─── Danger / destructive actions ───────────────────────────────────────────
+
+[data-ln-form="edit-track"] footer [data-ln-action="remove-track"],
+[data-ln-form="settings"] footer [data-ln-action="delete-profile"],
+[data-ln-form="confirm-delete-playlist"] footer [type="submit"] {
+	&:hover {
+		background: hsl(var(--color-cue) / 0.2);
+		border-color: hsl(var(--color-cue));
+	}
+}
+
+// ─── LED Button — loop toggle ────────────────────────────────────────────────
+// .btn--led class is kept: referenced by JS for LED state management.
+
+.btn--led {
+	position: relative;
+	padding-left: 1.6rem;
+
+	&::after {
+		content: '';
+		position: absolute;
+		left: 0.5rem;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: hsl(var(--color-text-muted));
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		transition: background var(--transition-fast), box-shadow var(--transition-fast);
+	}
+
+	&.active::after {
+		background: hsl(var(--color-primary));
+		box-shadow: 0 0 8px hsl(var(--color-primary)), 0 0 16px hsl(var(--color-primary) / 0.3);
+	}
+}
+
+// ─── Empty state action button ───────────────────────────────────────────────
+
+[data-ln-empty-state] button {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.75rem 1.5rem;
+	border-radius: var(--radius-md);
+	font-size: 0.95rem;
+	cursor: pointer;
+	touch-action: manipulation;
+	min-height: 48px;
+	background: hsl(var(--color-primary) / 0.5);
+	border: 1px solid hsl(var(--color-primary));
+	color: hsl(var(--color-text-primary));
+	font-weight: 600;
+
+	&:hover:not(:disabled) {
+		background: hsl(var(--color-primary) / 0.85);
+	}
+}
+
+// ─── Touch target — coarse pointer (tablet) ──────────────────────────────────
+// Moved here so it overrides the global `button` above.
+
+@media (pointer: coarse) {
+	button {
+		min-height: var(--touch-min);
+		min-width: var(--touch-min);
+	}
+}

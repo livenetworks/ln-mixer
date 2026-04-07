@@ -1,0 +1,127 @@
+// ==========================================================================
+// _overrides.scss — ln-acme dark theme token overrides + mixer-specific tokens
+// ==========================================================================
+// All ln-acme tokens are bare HSL triplets. Usage: hsl(var(--color-primary))
+// Alpha usage: hsl(var(--color-primary) / 0.5)
+// ==========================================================================
+
+:root {
+
+	// -----------------------------------------------------------------------
+	// ln-acme dark theme overrides
+	// -----------------------------------------------------------------------
+	--color-bg-body:        0 0% 7%;      // was #111
+	--color-bg-primary:     0 0% 10%;     // was #1a1a1a
+	--color-bg-secondary:   0 0% 13%;     // was #222
+	--color-border:         0 0% 16%;     // was #2a2a2a
+	--color-border-light:   0 0% 16%;
+	--color-text-primary:   0 0% 93%;     // was #eee
+	--color-text-secondary: 0 0% 60%;     // was #999
+	--color-text-muted:     0 0% 40%;     // was #666
+	--color-primary:        39 100% 50%;  // orange accent
+	--color-primary-hover:  32 100% 50%;  // darker orange
+	--color-primary-light:  39 100% 50%;
+	--color-primary-lighter: 39 100% 80%;
+	--color-success:        153 55% 53%;  // loop green
+	--color-error:          0 84% 50%;
+	--color-error-hover:    0 74% 42%;
+	--shadow-lg:            0 10px 25px rgba(0, 0, 0, 0.5);
+	--z-modal:              1000;
+	--transition-base:      0.25s ease;
+	--transition-fast:      0.15s ease;
+
+	// -----------------------------------------------------------------------
+	// Mixer-specific tokens
+	// -----------------------------------------------------------------------
+	--color-accent-b:        210 100% 63%;    // Deck B color (blue)
+	--color-cue:             0 100% 63%;      // Cue/delete/danger
+	--color-loop:            153 55% 53%;     // Loop LED / segments
+	--color-highlight:       60 100% 83%;     // Deck A title highlight (#ffa)
+	--color-surface-sunken:  0 0% 9%;         // Sidebar bg (#181818 approx)
+	--color-input-bg:        0 0% 16%;        // Form input bg (#2a2a2a)
+	--color-input-border:    0 0% 27%;        // Form input border (#444)
+	--color-button-bg:       0 0% 20%;        // Default button bg (#333)
+	--color-button-hover:    0 0% 27%;        // Button hover (#444)
+	--color-button-border:   0 0% 27%;        // Button border (#444)
+
+	// -----------------------------------------------------------------------
+	// Sizing tokens
+	// -----------------------------------------------------------------------
+	--topbar-height: 56px;
+	--waveform-height: 100px;
+	--touch-min: 44px;
+
+	// -----------------------------------------------------------------------
+	// Typography override
+	// -----------------------------------------------------------------------
+	--font-mono: 'Courier New', monospace;
+
+	// -----------------------------------------------------------------------
+	// ln-acme toast token mapping (dark theme values)
+	// -----------------------------------------------------------------------
+	--ln-toast-bg:     hsl(var(--color-bg-primary));
+	--ln-toast-fg:     hsl(var(--color-text-primary));
+	--ln-toast-fg-muted: hsl(var(--color-text-secondary));
+	--ln-toast-border: hsl(var(--color-border));
+	--ln-toast-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+	--ln-toast-info:   hsl(var(--color-primary));
+}
+
+// -----------------------------------------------------------------------
+// ln-acme conflict overrides — delta only
+// -----------------------------------------------------------------------
+
+// ln-acme adds list-style disc/decimal + padding/margin to ul/ol
+ul,
+ol {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+// ln-acme adds mb(1rem) and line-height: 1.75 to p
+p {
+	margin: 0;
+	line-height: 1.4;
+}
+
+// ln-acme sets font-size via text-base (1rem); mixer uses 14px base
+body {
+	font-size: 14px;
+	overflow: hidden;
+}
+
+// ln-acme headings add margin-bottom; mixer uses margin: 0
+h1, h2, h3, h4, h5, h6 {
+	margin: 0;
+}
+
+// ln-acme _global.scss styles button[type="submit"] with solid primary fill.
+// Mixer uses glass/frosted primary look: semi-transparent bg, colored border.
+// This override is scoped here so _buttons.scss can build the full button spec.
+button[type="submit"] {
+	background: hsl(var(--color-primary) / 0.5);
+	color: hsl(var(--color-text-primary));
+	border: 1px solid hsl(var(--color-primary));
+
+	&:hover:not(:disabled) {
+		background: hsl(var(--color-primary) / 0.85);
+		color: hsl(var(--color-text-primary));
+	}
+
+	&:active:not(:disabled) {
+		background: hsl(var(--color-primary) / 0.85);
+	}
+}
+
+// Ensure [hidden] works even when CSS sets an explicit display value
+[hidden] {
+	display: none !important;
+}
+
+// fieldset — remove browser default border/padding/margin
+fieldset {
+	border: none;
+	margin: 0;
+	padding: 0;
+}

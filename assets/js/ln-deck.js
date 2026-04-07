@@ -1,14 +1,23 @@
-(function () {
-	'use strict';
+const DOM_SELECTOR = 'data-ln-deck';
+const DOM_ATTRIBUTE = 'lnDeck';
 
-	var DOM_SELECTOR = 'data-ln-deck';
-	var DOM_ATTRIBUTE = 'lnDeck';
-
-	if (window[DOM_ATTRIBUTE] !== undefined) return;
+if (!window[DOM_ATTRIBUTE]) {
 
 	/* ====================================================================
 	   HELPERS
 	   ==================================================================== */
+
+	const _tmplCache = {};
+	function _cloneTemplate(name) {
+		if (!_tmplCache[name]) {
+			_tmplCache[name] = document.querySelector('[data-ln-template="' + name + '"]');
+		}
+		if (!_tmplCache[name]) {
+			console.warn('ln-deck: template "' + name + '" not found');
+			return document.createDocumentFragment();
+		}
+		return _tmplCache[name].content.cloneNode(true);
+	}
 
 	function _dispatch(element, eventName, detail) {
 		element.dispatchEvent(new CustomEvent(eventName, {
@@ -18,8 +27,8 @@
 	}
 
 	function _formatTime(seconds) {
-		var m = Math.floor(seconds / 60);
-		var s = Math.floor(seconds % 60);
+		const m = Math.floor(seconds / 60);
+		const s = Math.floor(seconds % 60);
 		return m + ':' + (s < 10 ? '0' : '') + s;
 	}
 
@@ -32,7 +41,7 @@
 	}
 
 	function _findElements(root) {
-		var items = Array.from(root.querySelectorAll('[' + DOM_SELECTOR + ']'));
+		const items = Array.from(root.querySelectorAll('[' + DOM_SELECTOR + ']'));
 		if (root.hasAttribute && root.hasAttribute(DOM_SELECTOR)) {
 			items.push(root);
 		}
@@ -92,14 +101,14 @@
 	   ==================================================================== */
 
 	_component.prototype._dispatchWaveform = function (eventName, detail) {
-		var el = this._els.waveformEl;
+		const el = this._els.waveformEl;
 		if (el) {
 			el.dispatchEvent(new CustomEvent(eventName, { bubbles: false, detail: detail || {} }));
 		}
 	};
 
 	_component.prototype._bindEvents = function () {
-		var self = this;
+		const self = this;
 
 		// ln-waveform events (bubble up from <figure>)
 		this.dom.addEventListener('ln-waveform:ready', function (e) {
@@ -123,19 +132,19 @@
 
 		// Click delegation within this deck root
 		this.dom.addEventListener('click', function (e) {
-			var transportBtn = e.target.closest('[data-ln-transport]');
+			const transportBtn = e.target.closest('[data-ln-transport]');
 			if (transportBtn) {
 				self._handleTransport(transportBtn);
 				return;
 			}
 
-			var cueBtn = e.target.closest('[data-ln-cue]');
+			const cueBtn = e.target.closest('[data-ln-cue]');
 			if (cueBtn) {
 				self._handleCue(cueBtn);
 				return;
 			}
 
-			var editBtn = e.target.closest('[data-ln-action="edit-track"]');
+			const editBtn = e.target.closest('[data-ln-action="edit-track"]');
 			if (editBtn) {
 				self._handleEditRequest();
 				return;
@@ -143,15 +152,15 @@
 		});
 
 		// Loop segment buttons
-		var segContainer = this._els.loopSegments;
+		const segContainer = this._els.loopSegments;
 		if (segContainer) {
 			segContainer.addEventListener('click', function (e) {
-				var removeBtn = e.target.closest('.loop-seg-remove');
+				const removeBtn = e.target.closest('.loop-seg-remove');
 				if (removeBtn) {
 					e.stopPropagation();
-					var segBtn = removeBtn.closest('[data-ln-loop-index]');
+					const segBtn = removeBtn.closest('[data-ln-loop-index]');
 					if (segBtn) {
-						var idx = parseInt(segBtn.getAttribute('data-ln-loop-index'), 10);
+						const idx = parseInt(segBtn.getAttribute('data-ln-loop-index'), 10);
 						_dispatch(self.dom, 'ln-deck:loop-delete-requested', {
 							deckId: self.deckId,
 							trackIndex: self.trackIndex,
@@ -161,9 +170,9 @@
 					return;
 				}
 
-				var loopBtn = e.target.closest('[data-ln-loop-index]');
+				const loopBtn = e.target.closest('[data-ln-loop-index]');
 				if (loopBtn) {
-					var loopIdx = parseInt(loopBtn.getAttribute('data-ln-loop-index'), 10);
+					const loopIdx = parseInt(loopBtn.getAttribute('data-ln-loop-index'), 10);
 					self.activateLoop(loopIdx);
 				}
 			});
@@ -203,7 +212,7 @@
 	   ==================================================================== */
 
 	_component.prototype._handleTransport = function (btn) {
-		var action = btn.getAttribute('data-ln-transport');
+		const action = btn.getAttribute('data-ln-transport');
 
 		if (action === 'play') {
 			if (this.isPlaying) {
@@ -217,7 +226,7 @@
 	};
 
 	_component.prototype._handleCue = function (btn) {
-		var action = btn.getAttribute('data-ln-cue');
+		const action = btn.getAttribute('data-ln-cue');
 
 		if (action === 'loop') {
 			this._loopEnabled = !this._loopEnabled;
@@ -227,8 +236,8 @@
 		}
 
 		if (!this._audio || !this.track || this.trackIndex < 0) return;
-		var currentTime = this._audio.currentTime;
-		var duration = this._audio.duration;
+		const currentTime = this._audio.currentTime;
+		const duration = this._audio.duration;
 		if (!duration || !isFinite(duration)) return;
 
 		if (action === 'mark-start') {
@@ -241,8 +250,8 @@
 			});
 		} else if (action === 'mark-end') {
 			if (this._pendingLoopStart === null) return;
-			var startSec = this._pendingLoopStart;
-			var endSec = currentTime;
+			let startSec = this._pendingLoopStart;
+			let endSec = currentTime;
 			this._pendingLoopStart = null;
 			if (this._pendingCueBtn) {
 				this._pendingCueBtn.classList.remove('active');
@@ -252,7 +261,7 @@
 
 			// Swap if needed
 			if (endSec < startSec) {
-				var tmp = startSec;
+				const tmp = startSec;
 				startSec = endSec;
 				endSec = tmp;
 			}
@@ -288,7 +297,7 @@
 
 	_component.prototype._onAudioMetadata = function (durationHint) {
 		if (!this.track) return;
-		var duration = (this._audio && isFinite(this._audio.duration) && this._audio.duration > 0)
+		const duration = (this._audio && isFinite(this._audio.duration) && this._audio.duration > 0)
 			? this._audio.duration
 			: (durationHint > 0 ? durationHint : 0);
 		if (!duration) return;
@@ -309,7 +318,7 @@
 
 	_component.prototype._onTimeUpdate = function (currentTime) {
 		if (!this.track || !this._audio) return;
-		var duration = this._audio.duration;
+		const duration = this._audio.duration;
 		if (!duration || !isFinite(duration)) return;
 
 		this.progress = (currentTime / duration) * 100;
@@ -318,7 +327,7 @@
 
 		// Loop enforcement
 		if (this._loopEnabled && this._activeLoopIndex >= 0 && this.track.loops) {
-			var loop = this.track.loops[this._activeLoopIndex];
+			const loop = this.track.loops[this._activeLoopIndex];
 			if (loop && currentTime >= loop.endSec) {
 				this._audio.currentTime = loop.startSec;
 			}
@@ -390,7 +399,7 @@
 		if (this.trackIndex < 0 || !this.track) return;
 		if (!this._audio || !this._audio.src) return;
 
-		var self = this;
+		const self = this;
 		this._audio.play().then(function () {
 			self.isPlaying = true;
 			self._updatePlayButton(true);
@@ -475,7 +484,7 @@
 			this._activeLoopIndex = -1;
 		} else {
 			this._activeLoopIndex = idx;
-			var loop = this.track.loops[idx];
+			const loop = this.track.loops[idx];
 			if (loop && this._audio) {
 				this._audio.currentTime = loop.startSec;
 			}
@@ -511,8 +520,8 @@
 	   ==================================================================== */
 
 	_component.prototype._render = function () {
-		var e = this._els;
-		var track = this.track;
+		const e = this._els;
+		const track = this.track;
 
 		if (!track) {
 			if (e.notes) e.notes.textContent = '';
@@ -529,7 +538,7 @@
 		if (e.artist) e.artist.textContent = track.artist;
 		if (e.timeTotal) e.timeTotal.textContent = track.duration;
 
-		var currentSec = Math.floor(track.durationSec * (this.progress / 100));
+		const currentSec = Math.floor(track.durationSec * (this.progress / 100));
 		if (e.timeCurrent) e.timeCurrent.textContent = _formatTime(currentSec);
 
 		this._dispatchWaveform('ln-waveform:request-set-progress', { percent: this.progress });
@@ -538,7 +547,7 @@
 	};
 
 	_component.prototype._updateActiveRegionOnWaveform = function () {
-		var loop = null;
+		let loop = null;
 		if (this._activeLoopIndex >= 0 && this.track && this.track.loops) {
 			loop = this.track.loops[this._activeLoopIndex];
 		}
@@ -554,52 +563,39 @@
 	};
 
 	_component.prototype._renderLoopSegments = function () {
-		var container = this._els.loopSegments;
+		const container = this._els.loopSegments;
 		if (!container) return;
-
 		container.innerHTML = '';
-
 		if (!this.track || !this.track.loops || this.track.loops.length === 0) return;
 
-		for (var i = 0; i < this.track.loops.length; i++) {
-			var loop = this.track.loops[i];
-			var btn = document.createElement('button');
-			btn.type = 'button';
-			btn.className = 'loop-seg-btn' + (i === this._activeLoopIndex ? ' active' : '');
+		for (let i = 0; i < this.track.loops.length; i++) {
+			const loop = this.track.loops[i];
+			const frag = _cloneTemplate('loop-seg-btn');
+			const btn = frag.querySelector('[data-ln-loop-index]');
+			if (!btn) continue;
 			btn.setAttribute('data-ln-loop-index', i);
-
-			var label = document.createElement('span');
-			label.className = 'loop-seg-label';
-			label.textContent = loop.name;
-
-			btn.appendChild(label);
-
-			var removeBtn = document.createElement('button');
-			removeBtn.type = 'button';
-			removeBtn.className = 'loop-seg-remove ln-icon-close--white';
-			removeBtn.title = 'Remove loop';
-
-			btn.appendChild(removeBtn);
-
-			container.appendChild(btn);
+			if (i === this._activeLoopIndex) btn.classList.add('active');
+			const label = btn.querySelector('.loop-seg-label');
+			if (label) label.textContent = loop.name;
+			container.appendChild(frag);
 		}
 	};
 
 	_component.prototype._updateSegmentHighlight = function () {
-		var container = this._els.loopSegments;
+		const container = this._els.loopSegments;
 		if (!container) return;
 
-		var btns = container.querySelectorAll('[data-ln-loop-index]');
-		var self = this;
+		const btns = container.querySelectorAll('[data-ln-loop-index]');
+		const self = this;
 		btns.forEach(function (btn) {
-			var idx = parseInt(btn.getAttribute('data-ln-loop-index'), 10);
+			const idx = parseInt(btn.getAttribute('data-ln-loop-index'), 10);
 			btn.classList.toggle('active', idx === self._activeLoopIndex);
 		});
 	};
 
 	_component.prototype._updatePlayButton = function (playing) {
-		var playBtn = this._els.playBtn;
-		var pauseBtn = this._els.pauseBtn;
+		const playBtn = this._els.playBtn;
+		const pauseBtn = this._els.pauseBtn;
 		if (!playBtn || !pauseBtn) return;
 
 		playBtn.hidden = playing;
@@ -611,7 +607,7 @@
 	   ==================================================================== */
 
 	function _domObserver() {
-		var observer = new MutationObserver(function (mutations) {
+		const observer = new MutationObserver(function (mutations) {
 			mutations.forEach(function (mutation) {
 				if (mutation.type === 'childList') {
 					mutation.addedNodes.forEach(function (node) {
@@ -640,4 +636,4 @@
 		constructor(document.body);
 	}
 
-})();
+}

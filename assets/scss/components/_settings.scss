@@ -1,0 +1,116 @@
+// ==========================================================================
+// _settings.scss — Settings form, logo preview, cache info, transfer, import-url
+// ==========================================================================
+
+// ─── Settings form ────────────────────────────────────────────────────────────
+
+.settings-form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-lg);
+
+	.form-field .field-hint {
+		font-size: 0.7rem;
+		color: hsl(var(--color-text-muted));
+		font-style: italic;
+	}
+}
+
+// ─── Logo preview ─────────────────────────────────────────────────────────────
+
+.logo-preview {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-md);
+
+	img {
+		max-width: 64px;
+		max-height: 64px;
+		border-radius: var(--radius-sm);
+		background: hsl(var(--color-input-bg));
+		object-fit: contain;
+	}
+
+	.logo-placeholder {
+		width: 64px;
+		height: 64px;
+		border-radius: var(--radius-sm);
+		background: hsl(var(--color-input-bg));
+		border: 1px dashed hsl(var(--color-input-border));
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: hsl(var(--color-text-muted));
+		font-size: 0.7rem;
+	}
+}
+
+// ─── Cache info ───────────────────────────────────────────────────────────────
+
+.cache-info {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--spacing-sm);
+
+	output {
+		font-size: 0.875rem;
+		color: hsl(var(--color-text-secondary));
+	}
+
+	button {
+		white-space: nowrap;
+	}
+}
+
+// ─── Transfer actions ─────────────────────────────────────────────────────────
+
+.transfer-actions {
+	display: flex;
+	gap: var(--spacing-sm);
+
+	button {
+		flex: 1;
+	}
+}
+
+// ─── Import URL row ───────────────────────────────────────────────────────────
+
+.import-url-row {
+	display: flex;
+	gap: var(--spacing-sm);
+	align-items: center;
+
+	input[type="url"] {
+		flex: 1;
+		background: hsl(var(--color-input-bg));
+		border: 1px solid hsl(var(--color-input-border));
+		border-radius: var(--radius-sm);
+		color: hsl(var(--color-text-primary));
+		padding: 0.5rem 0.75rem;
+		font-size: 0.9rem;
+		font-family: var(--font-sans);
+
+		&::placeholder {
+			color: hsl(var(--color-text-muted));
+		}
+	}
+
+	button {
+		white-space: nowrap;
+	}
+}
+
+// ─── Transfer status ──────────────────────────────────────────────────────────
+
+[data-ln-transfer-status] {
+	display: block;
+	font-size: 0.8rem;
+	color: hsl(var(--color-primary));
+	margin-top: var(--spacing-xs);
+	font-style: italic;
+
+	&[hidden] {
+		display: none;
+	}
+}
