@@ -65,6 +65,21 @@ The prompt MUST include:
 - **Acceptance criteria**: How to verify
 - **Boundaries**: What NOT to touch
 
+## Step Size Rule
+
+Each step in the executor prompt must be completable in under 5 minutes by the executor. If a step is larger:
+- Split it into sub-steps
+- Each sub-step modifies at most 2 files
+- Each sub-step has its own acceptance criterion
+
+A step that says "implement the playlist component" is too large. Better:
+- Step 3a: Create IIFE skeleton with DOM_SELECTOR, constructor, MutationObserver
+- Step 3b: Add state structure with deepReactive + createBatcher
+- Step 3c: Add _render() with fill() for scalar bindings
+- Step 3d: Add renderList() for track list
+- Step 3e: Add request event listeners (_bindEvents)
+- Step 3f: Add coordinator wiring in ln-mixer.js
+
 ## Output Format
 
 ```

@@ -61,6 +61,20 @@ The prompt MUST include:
 - **Acceptance criteria**: How to verify
 - **Boundaries**: What NOT to touch, which defaults NOT to override
 
+## Step Size Rule
+
+Each step in the executor prompt must be completable in under 5 minutes by the executor. If a step is larger:
+- Split it into sub-steps
+- Each sub-step modifies at most 2 files
+- Each sub-step has its own acceptance criterion
+
+A step that says "style the entire dashboard" is too large. Better:
+- Step 2a: Create _dashboard.scss with KPI card grid selectors
+- Step 2b: Add form-grid spans for filter form
+- Step 2c: Add table overrides for report table
+- Step 2d: Add container query for sidebar panel
+- Step 2e: Register new file in main SCSS entry point
+
 ## Output Format
 
 ```

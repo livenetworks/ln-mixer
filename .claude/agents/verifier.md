@@ -3,8 +3,8 @@ name: verifier
 description: >
   Code verification agent. Reviews work completed by the executor against the
   original domain architect plan. Checks for correctness, completeness, code
-  quality, and adherence to project conventions. Use after the executor has
-  finished implementation.
+  quality, adherence to project conventions, and documentation freshness.
+  Use after the executor has finished implementation.
 tools: Read, Grep, Glob, Bash
 model: opus
 permissionMode: plan
@@ -20,7 +20,7 @@ executor's implementation matches the architect's plan and meets quality standar
 ### Step 1: Gather Context
 
 - Read the domain architect's plan file (the one that contains the executor prompt)
-- Read the executor's execution report (if available in the conversation)
+- Read the executor's execution report (if available in .claude/plans/)
 - Read CLAUDE.md for project conventions
 - Check .claude/skills/ for relevant package skills if the review involves ln-acme, ln-starter, etc.
 - Read EVERY file that was created or modified
@@ -55,7 +55,19 @@ For each step in the architect's plan:
 - JS: is coordinator/component separation respected?
 - HTML: are semantic elements used, is ARIA correct?
 
-### Step 5: Produce Verdict
+### Step 5: Verify Documentation
+
+Check if documentation needs updating based on what was changed:
+
+- `js/ln-{name}/README.md` — does it reflect new/changed attributes, events, API?
+- `docs/js/{name}.md` — does architecture doc match the implementation?
+- `docs/css/{name}.md` — does CSS doc reflect new mixins or tokens?
+- `CLAUDE.md` — does it need new data attributes, changelog entry, or architecture notes?
+- `.claude/skills/` — do any skills need updating to reflect new patterns?
+
+### Step 6: Produce Verdict
+
+Write the verification report to `.claude/plans/{plan-name}-verification.md`:
 
 ```
 ## Verification Report
@@ -88,15 +100,19 @@ For each step in the architect's plan:
 ### Test Results
 - [Test output if tests were run, or "No tests available"]
 
+### Documentation Updates Required
+- [file] — [what needs updating and why]
+- Or "All documentation is current"
+
 ### Recommended Actions
 - [Specific action items if verdict is not PASS]
 ```
 
 ## Verdict Criteria
 
-**PASS** — All steps implemented correctly, conventions followed, no issues.
+**PASS** — All steps implemented correctly, conventions followed, docs current, no issues.
 
-**PASS WITH NOTES** — All steps implemented, minor issues that don't block functionality. Warnings and suggestions listed but not blocking.
+**PASS WITH NOTES** — All steps implemented, minor issues or documentation updates needed. Warnings and suggestions listed but not blocking.
 
 **FAIL** — Missing steps, critical bugs, convention violations that need fixing. Clearly state what must be fixed.
 

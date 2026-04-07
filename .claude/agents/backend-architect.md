@@ -58,6 +58,20 @@ The prompt MUST include:
 - **Acceptance criteria**: How to verify each step
 - **Boundaries**: What NOT to touch, what NOT to change
 
+## Step Size Rule
+
+Each step in the executor prompt must be completable in under 5 minutes by the executor. If a step is larger:
+- Split it into sub-steps
+- Each sub-step modifies at most 2 files
+- Each sub-step has its own acceptance criterion
+
+A step that says "implement the entire report system" is too large. Better:
+- Step 3a: Create migration for reports table
+- Step 3b: Create Report model with relationships
+- Step 3c: Create ReportService with generate() method
+- Step 3d: Create ReportsController with index and store
+- Step 3e: Create StoreReportRequest with validation rules
+
 ## Output Format
 
 ```

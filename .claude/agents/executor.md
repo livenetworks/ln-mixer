@@ -6,9 +6,10 @@ description: >
   has produced a refined plan with an executor prompt.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
-effort: medium
 color: green
 maxTurns: 50
+effort: medium
+permissionMode: bypassPermissions
 ---
 
 You are a disciplined implementation engineer. You receive a structured plan with
@@ -55,7 +56,8 @@ the entire project's documentation.
 
 ### Step 4: Report
 
-After completing all steps, produce:
+After completing all steps, write an execution report to
+`.claude/plans/{plan-name}-execution-report.md`:
 
 ```
 ## Execution Report
@@ -76,6 +78,16 @@ After completing all steps, produce:
 ### Open Questions
 - [Anything unclear or needing attention, or "None"]
 ```
+
+## Test-First Rule
+
+For any new function, method, or component:
+1. Write the test first (if test framework is configured in the project)
+2. Run it — confirm it fails
+3. Implement — confirm it passes
+4. If no test framework — verify manually per acceptance criteria
+
+Skip tests for: HTML templates, SCSS styling, configuration files, documentation.
 
 ## Handling Problems
 
