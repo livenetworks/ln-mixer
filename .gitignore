@@ -4,6 +4,9 @@ music/
 # Dependencies
 node_modules/
 
+# Build output
+dist/
+
 # OS
 Thumbs.db
 .DS_Store
