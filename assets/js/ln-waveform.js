@@ -195,7 +195,6 @@ if (!window[DOM_ATTRIBUTE]) {
 		this._hasCachedPeaks = !!(peaks && peaks.length > 0 && peaksDuration > 0);
 		this._surfer = WaveSurfer.create(opts);
 		this._zoomLevel = 0;
-		this.dom.classList.add('waveform--loaded');
 		this.dom.classList.remove('waveform--zoomed');
 
 		// Relocate overlays into WaveSurfer's scroll wrapper
@@ -205,8 +204,20 @@ if (!window[DOM_ATTRIBUTE]) {
 		this._surfer.on('ready', function () {
 			self._duration = self._surfer.getDuration() || audio.duration || 0;
 			self.dom.classList.remove('waveform--decoding');
+			self.dom.classList.add('waveform--loaded');
 			self._renderTimeline();
 			_dispatch(self.dom, 'ln-waveform:ready', { duration: self._duration });
+
+			// Export peaks if WaveSurfer decoded audio (no cached peaks provided)
+			if (!self._hasCachedPeaks && self._surfer) {
+				var exported = self._surfer.exportPeaks();
+				if (exported) {
+					_dispatch(self.dom, 'ln-waveform:peaks-available', {
+						peaks: exported,
+						duration: self._duration
+					});
+				}
+			}
 		});
 
 		this._surfer.on('decode', function (duration) {
@@ -214,6 +225,11 @@ if (!window[DOM_ATTRIBUTE]) {
 				self._duration = duration;
 				self._renderTimeline();
 			}
+		});
+
+		this._surfer.on('error', function (err) {
+			console.warn('[ln-waveform] WaveSurfer error:', err);
+			self.dom.classList.remove('waveform--decoding');
 		});
 
 		this._surfer.on('timeupdate', function (currentTime) {

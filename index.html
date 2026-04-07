@@ -117,7 +117,7 @@
 					<ul class="controls">
 						<li>
 							<button type="button" class="ln-icon-play--white" data-ln-transport="play" data-ln-deck-target="a">Play</button>
-							<button type="button" class="ln-icon-pause--white" data-ln-transport="play" data-ln-deck-target="a" hidden>Pause</button>
+							<button type="button" class="ln-icon-pause--white" data-ln-transport="pause" data-ln-deck-target="a" hidden>Pause</button>
 						</li>
 						<li>
 							<button type="button" class="ln-icon-stop--white" data-ln-transport="stop" data-ln-deck-target="a">Stop</button>
@@ -136,7 +136,7 @@
 						</li>
 					</ul>
 					<nav class="loop-segments" data-ln-loop-segments="a"></nav>
-					<audio preload="auto" data-ln-audio="a"></audio>
+					<audio preload="auto" crossorigin="anonymous" data-ln-audio="a"></audio>
 				</article>
 
 				<!-- DECK B — Next / Cue -->
@@ -180,7 +180,7 @@
 					<ul class="controls">
 						<li>
 							<button type="button" class="ln-icon-play--white" data-ln-transport="play" data-ln-deck-target="b">Play</button>
-							<button type="button" class="ln-icon-pause--white" data-ln-transport="play" data-ln-deck-target="b" hidden>Pause</button>
+							<button type="button" class="ln-icon-pause--white" data-ln-transport="pause" data-ln-deck-target="b" hidden>Pause</button>
 						</li>
 						<li>
 							<button type="button" class="ln-icon-stop--white" data-ln-transport="stop" data-ln-deck-target="b">Stop</button>
@@ -199,7 +199,7 @@
 						</li>
 					</ul>
 					<nav class="loop-segments" data-ln-loop-segments="b"></nav>
-					<audio preload="auto" data-ln-audio="b"></audio>
+					<audio preload="auto" crossorigin="anonymous" data-ln-audio="b"></audio>
 				</article>
 
 			</section>
@@ -228,7 +228,7 @@
 	     ============================================================ -->
 	<section class="ln-modal" id="modal-new-playlist">
 		<article class="ln-modal__content">
-			<form data-ln-form="new-playlist">
+			<form method="dialog" data-ln-form="new-playlist">
 				<header>
 					<h2>New Playlist</h2>
 					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
@@ -252,7 +252,7 @@
 	     ============================================================ -->
 	<section class="ln-modal" id="modal-track-library">
 		<article class="ln-modal__content">
-			<form data-ln-form="track-library" data-ln-library>
+			<form method="dialog" data-ln-form="track-library" data-ln-library>
 				<header>
 					<h2>Track Library</h2>
 					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
@@ -289,7 +289,7 @@
 	     ============================================================ -->
 	<section class="ln-modal" id="modal-edit-track">
 		<article class="ln-modal__content">
-			<form data-ln-form="edit-track" data-ln-track-index="-1" data-ln-playlist-id="">
+			<form method="dialog" data-ln-form="edit-track" data-ln-track-index="-1" data-ln-playlist-id="">
 				<header>
 					<h2>Edit Track</h2>
 					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
@@ -318,7 +318,7 @@
 	     ============================================================ -->
 	<section class="ln-modal" id="modal-name-loop">
 		<article class="ln-modal__content ln-modal__content--sm">
-			<form data-ln-form="name-loop" data-ln-deck-id="" data-ln-track-index="-1"
+			<form method="dialog" data-ln-form="name-loop" data-ln-deck-id="" data-ln-track-index="-1"
 				data-ln-loop-start="" data-ln-loop-end=""
 				data-ln-loop-start-pct="" data-ln-loop-end-pct="">
 				<header>
@@ -345,7 +345,7 @@
 	     ============================================================ -->
 	<section class="ln-modal" id="modal-confirm-delete-playlist">
 		<article class="ln-modal__content ln-modal__content--sm">
-			<form data-ln-form="confirm-delete-playlist" data-ln-playlist-id="">
+			<form method="dialog" data-ln-form="confirm-delete-playlist" data-ln-playlist-id="">
 				<header>
 					<h2>Delete Playlist</h2>
 					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
@@ -366,7 +366,7 @@
 	     ============================================================ -->
 	<section class="ln-modal" id="modal-settings">
 		<article class="ln-modal__content">
-			<form data-ln-form="settings">
+			<form method="dialog" data-ln-form="settings">
 				<header>
 					<h2>Settings</h2>
 					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
@@ -457,7 +457,7 @@
 	     ============================================================ -->
 	<section class="ln-modal" id="modal-new-profile">
 		<article class="ln-modal__content">
-			<form data-ln-form="new-profile">
+			<form method="dialog" data-ln-form="new-profile">
 				<header>
 					<h2>New Profile</h2>
 					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>

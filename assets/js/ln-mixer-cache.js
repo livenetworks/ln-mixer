@@ -175,7 +175,9 @@ export function setupCache(mixer) {
 				trackRecord.artist = artist;
 				if (!trackRecord.duration && duration) trackRecord.duration = duration;
 				if (!trackRecord.durationSec && durationSec) trackRecord.durationSec = durationSec;
-				lnDb.put('tracks', trackRecord);
+				return lnDb.put('tracks', trackRecord);
+			}).catch(function (err) {
+				console.warn('[ln-mixer-cache] Failed to persist track metadata:', err);
 			});
 		}
 

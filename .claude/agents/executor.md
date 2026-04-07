@@ -40,7 +40,20 @@ Rules during execution:
 - If a step says "don't touch X" — don't touch X
 - Use tabs for indentation (SCSS, JS, PHP) unless the file uses spaces
 
-### Step 3: Report
+### Step 3: Update Documentation
+
+After implementation is complete, check if documentation needs updating:
+
+- If you created a new component → create `js/ln-{name}/README.md`
+- If you changed attributes, events, or API → update the component's README.md
+- If you changed architecture (new store, new coordinator wiring) → update `docs/js/{name}.md`
+- If you added new data attributes → update CLAUDE.md data attributes table
+- If this is a significant change → add changelog entry in CLAUDE.md
+
+Only update docs for files YOU changed in this session. Don't audit 
+the entire project's documentation.
+
+### Step 4: Report
 
 After completing all steps, produce:
 

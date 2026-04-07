@@ -85,8 +85,8 @@ if (!window[DOM_ATTRIBUTE]) {
 			timeCurrent: dom.querySelector('[data-ln-field="time-current"]'),
 			timeTotal:   dom.querySelector('[data-ln-field="time-total"]'),
 			waveformEl:  dom.querySelector('[data-ln-waveform]'),
-			playBtn:     dom.querySelectorAll('[data-ln-transport="play"]')[0],
-		pauseBtn:    dom.querySelectorAll('[data-ln-transport="play"]')[1],
+			playBtn:     dom.querySelector('[data-ln-transport="play"]'),
+			pauseBtn:    dom.querySelector('[data-ln-transport="pause"]'),
 			loopBtn:     dom.querySelector('[data-ln-cue="loop"]'),
 			loopSegments: dom.querySelector('[data-ln-loop-segments]')
 		};
@@ -121,6 +121,17 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		this.dom.addEventListener('ln-waveform:finish', function () {
 			self._onEnded();
+		});
+
+		this.dom.addEventListener('ln-waveform:peaks-available', function (e) {
+			if (!self.track) return;
+			_dispatch(self.dom, 'ln-deck:peaks-ready', {
+				deckId: self.deckId,
+				trackIndex: self.trackIndex,
+				trackUrl: self.track._originalUrl || self.track.url,
+				peaks: e.detail.peaks,
+				peaksDuration: e.detail.duration
+			});
 		});
 
 		// Audio metadata fallback (fires when <audio> has loaded enough to know duration)
@@ -215,11 +226,9 @@ if (!window[DOM_ATTRIBUTE]) {
 		const action = btn.getAttribute('data-ln-transport');
 
 		if (action === 'play') {
-			if (this.isPlaying) {
-				this.pause();
-			} else {
-				this.play();
-			}
+			this.play();
+		} else if (action === 'pause') {
+			this.pause();
 		} else if (action === 'stop') {
 			this.stop();
 		}
@@ -409,6 +418,8 @@ if (!window[DOM_ATTRIBUTE]) {
 				trackIndex: self.trackIndex
 			});
 		}).catch(function (err) {
+			self.isPlaying = false;
+			self._updatePlayButton(false);
 			console.warn('Play failed for deck ' + self.deckId + ':', err);
 		});
 	};

@@ -26,6 +26,28 @@ if (!window[DOM_ATTRIBUTE]) {
 		}));
 	}
 
+	function _validateTrack(raw, index) {
+		if (!raw || typeof raw !== 'object') {
+			console.warn('ln-library: skipping track[' + index + '] — not an object');
+			return null;
+		}
+		var url = typeof raw.url === 'string' ? raw.url.trim() : '';
+		var title = typeof raw.title === 'string' ? raw.title.trim() : '';
+		if (!url) {
+			console.warn('ln-library: skipping track[' + index + '] — missing url');
+			return null;
+		}
+		if (!title) {
+			console.warn('ln-library: skipping track[' + index + '] — missing title');
+			return null;
+		}
+		var validated = { url: url, title: title };
+		validated.artist = typeof raw.artist === 'string' ? raw.artist.trim() : '';
+		if (typeof raw.duration === 'string') validated.duration = raw.duration.trim();
+		if (typeof raw.durationSec === 'number' && isFinite(raw.durationSec)) validated.durationSec = raw.durationSec;
+		return validated;
+	}
+
 	/* ─── Constructor ─────────────────────────────────────────────── */
 
 	function constructor(domRoot) {
@@ -126,6 +148,9 @@ if (!window[DOM_ATTRIBUTE]) {
 		this._hideNoApi();
 		const self = this;
 
+		// Abort previous request if still in-flight
+		if (this._xhr) { this._xhr.abort(); this._xhr = null; }
+
 		// Show loading state
 		if (this._list) {
 			this._list.innerHTML = '';
@@ -135,14 +160,23 @@ if (!window[DOM_ATTRIBUTE]) {
 			this._list.appendChild(loadingLi);
 		}
 
-		const xhr = new XMLHttpRequest();
+		const xhr = this._xhr = new XMLHttpRequest();
 		xhr.open('GET', apiUrl);
 		xhr.responseType = 'json';
 
 		xhr.onload = function () {
 			self._loading = false;
+			self._xhr = null;
 			if (xhr.status >= 200 && xhr.status < 300 && Array.isArray(xhr.response)) {
-				self._tracks = xhr.response;
+				var valid = [];
+				var skipped = 0;
+				for (var i = 0; i < xhr.response.length; i++) {
+					var t = _validateTrack(xhr.response[i], i);
+					if (t) valid.push(t);
+					else skipped++;
+				}
+				if (skipped > 0) console.warn('ln-library: skipped ' + skipped + ' invalid track(s)');
+				self._tracks = valid;
 				self._loaded = true;
 				self._populate();
 				_dispatch(self.dom, 'ln-library:fetched', {
@@ -158,6 +192,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		xhr.onerror = function () {
 			self._loading = false;
+			self._xhr = null;
 			self._showError('Network error');
 			_dispatch(self.dom, 'ln-library:error', {
 				message: 'Network error'
@@ -252,8 +287,10 @@ if (!window[DOM_ATTRIBUTE]) {
 		const frag = _cloneTemplate('library-item');
 		const li = frag.querySelector('[data-ln-library-track]');
 
-		li.querySelector('.track-name').textContent = track.title;
-		li.querySelector('.track-artist').textContent = track.artist;
+		var nameEl = li.querySelector('.track-name');
+		var artistEl = li.querySelector('.track-artist');
+		if (nameEl) nameEl.textContent = track.title;
+		if (artistEl) artistEl.textContent = track.artist;
 
 		// Set data attributes on Add button for coordinator to read
 		const addBtn = li.querySelector('[data-ln-action="add-to-playlist"]');

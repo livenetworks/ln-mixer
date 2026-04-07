@@ -14,6 +14,10 @@ export default defineConfig({
 			'/api': {
 				target: 'http://ln-mixer.test',
 				changeOrigin: true
+			},
+			'/music': {
+				target: 'http://ln-mixer.test',
+				changeOrigin: true
 			}
 		}
 	},

@@ -654,9 +654,6 @@ if (!window[DOM_ATTRIBUTE]) {
 
 			if (Math.abs(deltaX) >= commitThreshold) {
 				// Commit: animate out → collapse → remove
-				content.style.transition = 'transform 0.2s ease-out';
-				content.style.transform = 'translateX(-100%)';
-
 				const trackIdx = parseInt(li.getAttribute('data-ln-track'), 10);
 				const playlistId = self.currentId;
 
@@ -671,15 +668,19 @@ if (!window[DOM_ATTRIBUTE]) {
 						self.removeSegment(playlistId, trackIdx);
 					});
 				});
+
+				content.style.transition = 'transform 0.2s ease-out';
+				content.style.transform = 'translateX(-100%)';
 			} else {
 				// Snap back
-				content.style.transition = 'transform 0.2s ease-out';
-				content.style.transform = '';
 				li.removeAttribute('data-ln-swiping');
 				content.addEventListener('transitionend', function handler() {
 					content.removeEventListener('transitionend', handler);
 					content.style.transition = '';
 				});
+
+				content.style.transition = 'transform 0.2s ease-out';
+				content.style.transform = '';
 			}
 
 			swiping = false;

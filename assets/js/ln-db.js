@@ -50,6 +50,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 			req.onsuccess = function (e) {
 				_db = e.target.result;
+				_opening = null;
 				resolve(_db);
 			};
 

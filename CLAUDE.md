@@ -186,6 +186,17 @@ ln-dj-mixer/
 
 ## Changelog
 
+### Defensive Data Validation (2026-04-07)
+
+- **API response validation** (`ln-library.js`) — new `_validateTrack()` helper validates each track from API: requires non-empty `url` and `title` (string), trims all fields, builds clean object with only known properties. Invalid tracks skipped with console warning.
+- **Null guards** in `_buildLibraryItem()` — `.track-name` / `.track-artist` querySelector results checked before `textContent` assignment (ROB-4 pattern)
+- **Import JSON validation** (`ln-mixer-transfer.js`) — six per-record validators: `_validateProfile`, `_validateTrackRecord`, `_validateLoop`, `_validateSegment`, `_validatePlaylist`. All strip C0/C1 control chars, trim, truncate to max length, return clean objects or null.
+- **Validation helpers** — `_stripControl(str)`, `_sanitizeString(val, maxLen)`, `_isFiniteNumber(val)` + constants (`MAX_STRING_LENGTH=2000`, `MAX_URL_LENGTH=4000`, `MAX_SEGMENTS_PER_PLAYLIST=500`, `MAX_LOOPS_PER_SEGMENT=50`)
+- **Simplified `_validateImportData()`** — structural checks only (app, version, non-empty profiles array, v2 arrays). Per-record validation moved to `_processImport` via validators.
+- **v1 + v2 import paths** both validate every record before `lnDb.put()`. Skip counts logged. Toast shows actual imported record count, not `data.profiles.length`.
+- **File size guard** — `_importFromFile` rejects files > 50MB before `JSON.parse`. `_importFromUrl` checks `content-length` header before parsing.
+- Files changed: `ln-library.js`, `ln-mixer-transfer.js`
+
 ### IDB Schema Normalization (2026-03-02)
 
 - **Normalized IndexedDB schema** from 3 stores to 5: `profiles`, `tracks`, `playlists`, `settings`, `audioFiles`
