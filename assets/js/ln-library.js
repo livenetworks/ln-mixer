@@ -1,21 +1,11 @@
+import { cloneTemplate, fillTemplate, fill } from 'ln-ashlar/js/ln-core/index.js';
+
 const DOM_SELECTOR = 'data-mixer-library';
 const DOM_ATTRIBUTE = 'lnLibrary';
 
 if (!window[DOM_ATTRIBUTE]) {
 
-	/* ─── Template Helper ─────────────────────────────────────────── */
 
-	const _tmplCache = {};
-	function _cloneTemplate(name) {
-		if (!_tmplCache[name]) {
-			_tmplCache[name] = document.querySelector('[data-ln-template="' + name + '"]');
-		}
-		if (!_tmplCache[name]) {
-			console.warn('ln-library: template "' + name + '" not found');
-			return document.createDocumentFragment();
-		}
-		return _tmplCache[name].content.cloneNode(true);
-	}
 
 	/* ─── Helpers ──────────────────────────────────────────────────── */
 
@@ -284,25 +274,10 @@ if (!window[DOM_ATTRIBUTE]) {
 	/* ─── Private: Populate ───────────────────────────────────────── */
 
 	_component.prototype._buildLibraryItem = function (track) {
-		const frag = _cloneTemplate('library-item');
-		const li = frag.querySelector('[data-mixer-library-track]');
-
-		var nameEl = li.querySelector('.track-name');
-		var artistEl = li.querySelector('.track-artist');
-		if (nameEl) nameEl.textContent = track.title;
-		if (artistEl) artistEl.textContent = track.artist;
-
-		// Set data attributes on Add button for coordinator to read
-		const addBtn = li.querySelector('[data-mixer-action="add-to-playlist"]');
-		if (addBtn) {
-			addBtn.setAttribute('data-track-title', track.title);
-			addBtn.setAttribute('data-track-artist', track.artist);
-			if (track.url) {
-				addBtn.setAttribute('data-track-url', track.url);
-			}
-		}
-
-		return li;
+		const frag = cloneTemplate('library-item', 'ln-library');
+		fillTemplate(frag, track);
+		fill(frag, track);
+		return frag.firstElementChild;
 	};
 
 	_component.prototype._populate = function () {

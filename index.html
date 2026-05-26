@@ -471,15 +471,17 @@
 	<template data-ln-template="track-item">
 		<li data-mixer-track>
 			<section class="track-content">
-				<span class="track-number" data-ln-sortable-handle></span>
+				<span class="track-number" data-ln-sortable-handle data-ln-field="number">{{ number }}</span>
 				<article class="track-info">
-					<p class="track-name"></p>
-					<p class="track-artist"></p>
-					<p class="track-duration"></p>
+					<p class="track-name" data-ln-field="title">{{ title }}</p>
+					<p class="track-artist" data-ln-field="artist">{{ artist }}</p>
+					<p class="track-duration" data-ln-field="duration">{{ duration }}</p>
 				</article>
 				<section class="track-meta-row">
-					<p class="track-notes"></p>
-					<nav class="track-indicators"></nav>
+					<p class="track-notes" data-ln-field="notes">{{ notes }}</p>
+					<nav class="track-indicators">
+						<span class="loop-count-badge" data-ln-show="hasLoops" data-ln-field="loopText"></span>
+					</nav>
 				</section>
 				<nav class="track-load-actions">
 					<button type="button" class="load-btn load-btn--a" data-mixer-load-to="a">A</button>
@@ -490,28 +492,29 @@
 	</template>
 
 	<template data-ln-template="playlist-group">
-		<section class="playlist-group" data-ln-toggle data-mixer-playlist-id>
-			<header data-ln-toggle-for>
-				<span class="playlist-name"></span>
+		<section class="playlist-group" data-ln-toggle data-mixer-playlist-id data-ln-attr="data-ln-toggle:toggleState, data-mixer-playlist-id:id, id:toggleId">
+			<header data-ln-toggle-for data-mixer-playlist-toggle data-ln-attr="data-ln-toggle-for:toggleId, data-mixer-playlist-toggle:id">
+				<span class="playlist-name">{{ name }}</span>
 				<button type="button" class="playlist-delete-btn ln-icon-remove--white"
 					data-mixer-action="remove-playlist"
+					data-ln-attr="data-mixer-playlist-id:id"
 					aria-label="Delete playlist"></button>
 			</header>
-			<ol class="track-list" data-mixer-track-list data-ln-sortable></ol>
+			<ol class="track-list" data-mixer-track-list data-ln-sortable data-ln-attr="data-mixer-track-list:id"></ol>
 		</section>
 	</template>
 
 	<template data-ln-template="profile-btn">
-		<button type="button" class="profile-btn" data-mixer-profile-id></button>
+		<button type="button" class="profile-btn" data-mixer-profile-id data-ln-attr="data-mixer-profile-id:id">{{ name }}</button>
 	</template>
 
 	<template data-ln-template="library-item">
 		<li data-mixer-library-track>
 			<article class="library-track-info">
-				<p class="track-name"></p>
-				<p class="track-artist"></p>
+				<p class="track-name" data-ln-field="title">{{ title }}</p>
+				<p class="track-artist" data-ln-field="artist">{{ artist }}</p>
 			</article>
-			<button type="button" class="ln-icon-add--white ln-icon--sm" data-mixer-action="add-to-playlist">Add</button>
+			<button type="button" class="ln-icon-add--white ln-icon--sm" data-mixer-action="add-to-playlist" data-ln-attr="data-track-title:title, data-track-artist:artist, data-track-url:url">Add</button>
 			<button type="button" class="library-uncache-btn ln-icon-remove--white ln-icon--sm" data-mixer-action="remove-cached"></button>
 			<figure class="library-download-progress" data-ln-progress
 				role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
@@ -521,8 +524,8 @@
 	</template>
 
 	<template data-ln-template="loop-seg-btn">
-		<button type="button" class="loop-seg-btn" data-mixer-loop-index>
-			<span class="loop-seg-label"></span>
+		<button type="button" class="loop-seg-btn" data-mixer-loop-index data-ln-attr="data-mixer-loop-index:index" data-ln-class="active:isActive">
+			<span class="loop-seg-label" data-ln-field="name">{{ name }}</span>
 			<span class="loop-seg-remove ln-icon-close--white" role="button" tabindex="0" aria-label="Remove loop"></span>
 		</button>
 	</template>

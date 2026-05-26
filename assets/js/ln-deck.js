@@ -1,3 +1,5 @@
+import { cloneTemplate, fillTemplate, fill } from 'ln-ashlar/js/ln-core/index.js';
+
 const DOM_SELECTOR = 'data-mixer-deck';
 const DOM_ATTRIBUTE = 'lnDeck';
 
@@ -7,17 +9,7 @@ if (!window[DOM_ATTRIBUTE]) {
 	   HELPERS
 	   ==================================================================== */
 
-	const _tmplCache = {};
-	function _cloneTemplate(name) {
-		if (!_tmplCache[name]) {
-			_tmplCache[name] = document.querySelector('[data-ln-template="' + name + '"]');
-		}
-		if (!_tmplCache[name]) {
-			console.warn('ln-deck: template "' + name + '" not found');
-			return document.createDocumentFragment();
-		}
-		return _tmplCache[name].content.cloneNode(true);
-	}
+
 
 	function _dispatch(element, eventName, detail) {
 		element.dispatchEvent(new CustomEvent(eventName, {
@@ -579,17 +571,18 @@ if (!window[DOM_ATTRIBUTE]) {
 		container.innerHTML = '';
 		if (!this.track || !this.track.loops || this.track.loops.length === 0) return;
 
-		for (let i = 0; i < this.track.loops.length; i++) {
-			const loop = this.track.loops[i];
-			const frag = _cloneTemplate('loop-seg-btn');
-			const btn = frag.querySelector('[data-mixer-loop-index]');
-			if (!btn) continue;
-			btn.setAttribute('data-mixer-loop-index', i);
-			if (i === this._activeLoopIndex) btn.classList.add('active');
-			const label = btn.querySelector('.loop-seg-label');
-			if (label) label.textContent = loop.name;
+		const self = this;
+		this.track.loops.forEach(function (loop, i) {
+			const frag = cloneTemplate('loop-seg-btn', 'ln-deck');
+			const data = {
+				index: i,
+				name: loop.name,
+				isActive: i === self._activeLoopIndex
+			};
+			fillTemplate(frag, data);
+			fill(frag, data);
 			container.appendChild(frag);
-		}
+		});
 	};
 
 	_component.prototype._updateSegmentHighlight = function () {

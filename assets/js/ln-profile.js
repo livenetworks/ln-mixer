@@ -1,3 +1,5 @@
+import { cloneTemplate, fillTemplate, fill } from 'ln-ashlar/js/ln-core/index.js';
+
 const DOM_SELECTOR = 'data-mixer-profile';
 const DOM_ATTRIBUTE = 'lnProfile';
 
@@ -25,19 +27,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		return base + '-' + counter;
 	}
 
-	/* ─── Template Helper ─────────────────────────────────────────── */
 
-	const _tmplCache = {};
-	function _cloneTemplate(name) {
-		if (!_tmplCache[name]) {
-			_tmplCache[name] = document.querySelector('[data-ln-template="' + name + '"]');
-		}
-		if (!_tmplCache[name]) {
-			console.warn('ln-profile: template "' + name + '" not found');
-			return document.createDocumentFragment();
-		}
-		return _tmplCache[name].content.cloneNode(true);
-	}
 
 	/* ─── Constructor ─────────────────────────────────────────────── */
 
@@ -135,11 +125,11 @@ if (!window[DOM_ATTRIBUTE]) {
 		const self = this;
 		const keys = Object.keys(this.profiles);
 		keys.forEach(function (id) {
-			const frag = _cloneTemplate('profile-btn');
-			const btn = frag.querySelector('[data-mixer-profile-id]');
-			btn.setAttribute('data-mixer-profile-id', id);
-			btn.textContent = self.profiles[id].name;
-			self.dom.insertBefore(btn, self.addBtn);
+			const frag = cloneTemplate('profile-btn', 'ln-profile');
+			const data = { id: id, name: self.profiles[id].name };
+			fillTemplate(frag, data);
+			fill(frag, data);
+			self.dom.insertBefore(frag.firstElementChild, self.addBtn);
 		});
 
 		this._updateActive();

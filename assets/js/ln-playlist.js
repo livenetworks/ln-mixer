@@ -1,3 +1,5 @@
+import { cloneTemplate, fillTemplate, fill } from 'ln-ashlar/js/ln-core/index.js';
+
 const DOM_SELECTOR = 'data-mixer-playlist';
 const DOM_ATTRIBUTE = 'lnPlaylist';
 
@@ -25,19 +27,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		return base + '-' + counter;
 	}
 
-	/* ─── Template Helper ─────────────────────────────────────────── */
 
-	const _tmplCache = {};
-	function _cloneTemplate(name) {
-		if (!_tmplCache[name]) {
-			_tmplCache[name] = document.querySelector('[data-ln-template="' + name + '"]');
-		}
-		if (!_tmplCache[name]) {
-			console.warn('ln-playlist: template "' + name + '" not found');
-			return document.createDocumentFragment();
-		}
-		return _tmplCache[name].content.cloneNode(true);
-	}
 
 	/* ─── Constructor ─────────────────────────────────────────────── */
 
@@ -330,8 +320,7 @@ if (!window[DOM_ATTRIBUTE]) {
 				if (segments[i].url === url && list) {
 					const li = list.querySelector('[data-mixer-track="' + i + '"]');
 					if (li) {
-						const durEl = li.querySelector('.track-duration');
-						if (durEl) durEl.textContent = trackData.duration || '';
+						fill(li, { duration: trackData.duration || '' });
 					}
 				}
 			}
@@ -467,26 +456,16 @@ if (!window[DOM_ATTRIBUTE]) {
 	/* ─── Rebuild Sidebar ─────────────────────────────────────────── */
 
 	_component.prototype._buildPlaylistGroup = function (id, name, isOpen) {
-		const toggleId = 'playlist-' + id;
-		const frag = _cloneTemplate('playlist-group');
-		const section = frag.querySelector('.playlist-group');
-
-		section.setAttribute('data-ln-toggle', isOpen ? 'open' : '');
-		section.setAttribute('data-mixer-playlist-id', id);
-		section.id = toggleId;
-
-		const hdr = section.querySelector('header');
-		hdr.setAttribute('data-ln-toggle-for', toggleId);
-
-		const nameSpan = hdr.querySelector('.playlist-name');
-		if (nameSpan) nameSpan.textContent = name;
-
-		const deleteBtn = hdr.querySelector('[data-mixer-action="remove-playlist"]');
-		if (deleteBtn) deleteBtn.setAttribute('data-mixer-playlist-id', id);
-
-		section.querySelector('.track-list').setAttribute('data-mixer-track-list', id);
-
-		return section;
+		const data = {
+			id: id,
+			name: name,
+			toggleState: isOpen ? 'open' : '',
+			toggleId: 'playlist-' + id
+		};
+		const frag = cloneTemplate('playlist-group', 'ln-playlist');
+		fillTemplate(frag, data);
+		fill(frag, data);
+		return frag.firstElementChild;
 	};
 
 	_component.prototype._rebuild = function () {
@@ -527,25 +506,23 @@ if (!window[DOM_ATTRIBUTE]) {
 	};
 
 	_component.prototype._buildTrackItem = function (segment, idx) {
-		const frag = _cloneTemplate('track-item');
-		const li = frag.querySelector('[data-mixer-track]');
 		const catalogEntry = this.trackCatalog[segment.url] || {};
-
+		const loopCount = segment.loops ? segment.loops.length : 0;
+		const data = {
+			index: idx,
+			number: idx + 1,
+			title: catalogEntry.title || segment.url || '',
+			artist: catalogEntry.artist || '',
+			duration: catalogEntry.duration || '',
+			notes: segment.notes || '',
+			hasLoops: loopCount > 0,
+			loopText: loopCount + ' loop' + (loopCount > 1 ? 's' : '')
+		};
+		const frag = cloneTemplate('track-item', 'ln-playlist');
+		fillTemplate(frag, data);
+		fill(frag, data);
+		const li = frag.firstElementChild;
 		li.setAttribute('data-mixer-track', idx);
-		li.querySelector('.track-number').textContent = idx + 1;
-		li.querySelector('.track-name').textContent = catalogEntry.title || segment.url || '';
-		li.querySelector('.track-artist').textContent = catalogEntry.artist || '';
-		li.querySelector('.track-duration').textContent = catalogEntry.duration || '';
-		li.querySelector('.track-notes').textContent = segment.notes || '';
-
-		const indicators = li.querySelector('.track-indicators');
-		if (segment.loops && segment.loops.length > 0) {
-			const loopBadge = document.createElement('span');
-			loopBadge.className = 'loop-count-badge';
-			loopBadge.textContent = segment.loops.length + ' loop' + (segment.loops.length > 1 ? 's' : '');
-			indicators.appendChild(loopBadge);
-		}
-
 		return li;
 	};
 
@@ -555,18 +532,12 @@ if (!window[DOM_ATTRIBUTE]) {
 		const li = list.querySelector('[data-mixer-track="' + trackIndex + '"]');
 		if (!li) return;
 
-		const indicators = li.querySelector('.track-indicators');
-		if (!indicators) return;
-
-		const existing = indicators.querySelector('.loop-count-badge');
-		if (existing) existing.remove();
-
-		if (segment.loops && segment.loops.length > 0) {
-			const badge = document.createElement('span');
-			badge.className = 'loop-count-badge';
-			badge.textContent = segment.loops.length + ' loop' + (segment.loops.length > 1 ? 's' : '');
-			indicators.appendChild(badge);
-		}
+		const loopCount = segment.loops ? segment.loops.length : 0;
+		const data = {
+			hasLoops: loopCount > 0,
+			loopText: loopCount + ' loop' + (loopCount > 1 ? 's' : '')
+		};
+		fill(li, data);
 	};
 
 	/* ─── Swipe-to-Delete ────────────────────────────────────────── */
