@@ -24,4 +24,4 @@ Data exists, but current search/filter shows nothing.
 - Type 1 appears only once — after first item created, never again
 - Empty state must never be visually heavier than the populated state
 
-> For implementation with ln-acme → see ln-acme components/empty-state.md
+> For implementation with ln-ashlar → see ln-ashlar components/empty-state.md

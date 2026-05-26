@@ -2,7 +2,7 @@
 
 > Thin glue layer that connects decoupled components via events and attributes. No DOM, no rendering.
 >
-> **Note:** Examples use ln-acme conventions (data attributes, CustomEvents, MutationObserver). The pattern itself is framework-agnostic — adapt the communication mechanism to your stack.
+> **Note:** Examples use ln-ashlar conventions (data attributes, CustomEvents, MutationObserver). The pattern itself is framework-agnostic — adapt the communication mechanism to your stack.
 
 ---
 
@@ -28,7 +28,7 @@ The coordinator never calls methods directly. It sets attributes — the compone
 
 ## Two Types
 
-### Library Coordinator (ln-acme)
+### Library Coordinator (ln-ashlar)
 
 Generic, reusable. Coordinates primitives from the same family.
 
@@ -37,7 +37,7 @@ Generic, reusable. Coordinates primitives from the same family.
 | `ln-accordion` | `ln-toggle` children | Listens `ln-toggle:open` → closes siblings via attribute |
 | `ln-form` | `ln-validate` children | Listens `ln-validate:valid/invalid` → enables/disables submit |
 
-Library coordinators live in ln-acme and are available to all projects.
+Library coordinators live in ln-ashlar and are available to all projects.
 
 ### Project Coordinator (project-specific)
 
@@ -68,7 +68,7 @@ ln-store:confirmed       →  coordinator  →  modal[data-ln-modal] = "close"
 ln-store:reverted        →  coordinator  →  toast("Error: " + error)
 ```
 
-Project coordinators live in the project's JS (e.g. `resources/js/coordinators/`), not in ln-acme.
+Project coordinators live in the project's JS (e.g. `resources/js/coordinators/`), not in ln-ashlar.
 
 ---
 
@@ -88,7 +88,7 @@ Project coordinators live in the project's JS (e.g. `resources/js/coordinators/`
 | Situation | Coordinator? |
 |---|---|
 | Two components on the same page need to communicate | Yes — project coordinator |
-| Primitive components form a family (toggle/accordion, validate/form) | Yes — library coordinator in ln-acme |
+| Primitive components form a family (toggle/accordion, validate/form) | Yes — library coordinator in ln-ashlar |
 | Component reacts to its own user input (click, keyup) | No — component handles internally |
 | Component needs data from server | No — ln-store handles, coordinator wires store events to UI |
 | Single component, no inter-component communication | No |

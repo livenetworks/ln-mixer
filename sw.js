@@ -8,7 +8,7 @@ const CACHE_NAME = 'ln-mixer-v19';
 const APP_SHELL = [
 	'./',
 	'./index.html',
-	'./assets/css/ln-acme-icons.css',
+	'./assets/css/ln-ashlar-icons.css',
 	'./assets/css/app.css',
 	'./assets/js/main.js',
 	'./assets/js/ln-db.js',

@@ -139,7 +139,7 @@ The component root uses `data-ln-playlist` (no value). Child playlist groups use
 
 ln-playlist uses **two** MutationObservers:
 
-1. **Global childList** (standard ln-acme pattern) - watches `document.body` for dynamically added DOM nodes that match `[data-ln-playlist]`
+1. **Global childList** (standard ln-ashlar pattern) - watches `document.body` for dynamically added DOM nodes that match `[data-ln-playlist]`
 
 2. **Attribute observer** (new pattern) - watches only `this.dom` for changes to the `data-ln-playlist-profile` attribute:
 
@@ -150,7 +150,7 @@ this._attrObserver.observe(this.dom, {
 });
 ```
 
-This is a pattern extension for ln-acme. Existing components (ln-toggle, ln-accordion, ln-toast) only use childList observers. ln-playlist introduces attribute observation for reactive data loading.
+This is a pattern extension for ln-ashlar. Existing components (ln-toggle, ln-accordion, ln-toast) only use childList observers. ln-playlist introduces attribute observation for reactive data loading.
 
 ## Managed dialogs
 

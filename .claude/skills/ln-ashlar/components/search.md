@@ -1,6 +1,6 @@
-# ln-acme — Search Implementation
+# ln-ashlar — Search Implementation
 
-> HOW to build search with ln-acme. For WHAT search must have → global ui/components/search.md.
+> HOW to build search with ln-ashlar. For WHAT search must have → global ui/components/search.md.
 
 ## Client-Side Search
 

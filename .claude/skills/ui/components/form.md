@@ -68,4 +68,4 @@ A form is a conversation: the system asks questions (labels), the user answers (
 - Validation rules in JS config instead of HTML attributes
 - Error text hardcoded in JS instead of HTML
 
-> For implementation with ln-acme → see ln-acme components/form.md
+> For implementation with ln-ashlar → see ln-ashlar components/form.md

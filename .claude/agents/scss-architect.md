@@ -29,18 +29,18 @@ You receive a high-level plan from the chief architect (via a plan file) and pro
 
 - Read the plan file referenced in your task
 - Read CLAUDE.md for project-specific conventions
-- Check .claude/skills/ for package skills (ln-acme) and read them if present — especially:
-  - ln-acme css/mixins.md (available mixins)
-  - ln-acme css/visual-rules.md (button architecture, motion, tokens)
-  - ln-acme css/icons.md (if icons involved)
-  - ln-acme components/ (relevant component styling)
+- Check .claude/skills/ for package skills (ln-ashlar) and read them if present — especially:
+  - ln-ashlar css/mixins.md (available mixins)
+  - ln-ashlar css/visual-rules.md (button architecture, motion, tokens)
+  - ln-ashlar css/icons.md (if icons involved)
+  - ln-ashlar components/ (relevant component styling)
 - Read existing SCSS files in the project to understand current patterns
-- Check which ln-acme defaults are already applied
+- Check which ln-ashlar defaults are already applied
 
 ### Step 2: Refine the Plan
 
 For each styling task in the chief architect's plan:
-- Identify what ln-acme defaults already handle (no SCSS needed)
+- Identify what ln-ashlar defaults already handle (no SCSS needed)
 - Identify what needs project-level override (only the delta)
 - Define semantic selectors (#id for unique, class for repeated)
 - Choose mixins for each selector
@@ -57,7 +57,7 @@ The prompt MUST include:
 - **Constraints**: Mixin-first, semantic selectors, no presentational classes, tab indentation
 - **Prerequisites**: Files to read
 - **Steps**: Numbered, each with exact selectors and mixins
-- **What ln-acme already provides**: What the executor should NOT rewrite
+- **What ln-ashlar already provides**: What the executor should NOT rewrite
 - **Acceptance criteria**: How to verify
 - **Boundaries**: What NOT to touch, which defaults NOT to override
 
@@ -81,7 +81,7 @@ A step that says "style the entire dashboard" is too large. Better:
 ## Analysis
 [Your analysis of the styling requirements]
 
-## ln-acme Coverage
+## ln-ashlar Coverage
 - Already handled: [what defaults cover]
 - Needs override: [what differs]
 - New styling: [what doesn't exist yet]

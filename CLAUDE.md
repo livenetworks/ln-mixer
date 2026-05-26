@@ -11,10 +11,10 @@ Use Chrome DevTools device mode (tablet landscape) for the intended experience.
 
 ## Architecture
 
-- **Vanilla JS** — ln-acme style IIFE components
+- **Vanilla JS** — ln-ashlar style IIFE components
 - **ln-mixer.js** — Thin event coordinator bridging components via events + attributes
 - **IndexedDB** — Persistence for profiles, playlists, settings (native API, no library)
-- **ln-modal (from ln-acme)** — Modal dialogs via `lnModal.open()/close()`
+- **ln-modal (from ln-ashlar)** — Modal dialogs via `lnModal.open()/close()`
 - **WaveSurfer.js v7** — Waveform rendering (internal to ln-deck, `media` option syncs with `<audio>`)
 - **Web Audio API** — AudioContext + masterGain in ln-mixer, per-deck MediaElementSourceNode
 
@@ -38,20 +38,21 @@ DB: `lnDjMixer`, version: 3
 
 Empty state: no profiles, no playlists — user starts by pressing [+] to create a profile.
 
-## ln-acme Principles
+## ln-ashlar Principles
 
-This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventions:
+This project follows [ln-ashlar](https://github.com/livenetworks/ln-ashlar) conventions:
 
 ### HTML
 - NO bare `<div>` — use `<section>`, `<article>`, `<nav>`, `<header>`, `<figure>`, `<aside>`, `<main>`, `<output>`, `<mark>`, `<fieldset>`
 - `type="button"` on all `<button>` elements (except `type="submit"` for form submit buttons)
 - `data-ln-*` attributes for JS hooks (never class names)
+- Do NOT bind project-specific attributes (e.g. `data-mixer-*`) declaratively via `data-ln-attr` in HTML templates; populate them programmatically in JavaScript.
 - Native `<audio>` element (hidden, no `controls` attribute)
 - Each `<dialog>` wraps content in `<form method="dialog" data-ln-form="...">` — identity + context via `data-ln-*` on the form (no hidden inputs)
 
 ### CSS
-- `.ln-icon-*` classes for all icons — sourced from `ln-acme/dist/ln-acme-icons.css` (Feather Icons, SVG data URIs in `::before` pseudo-elements, NO emojis)
-- Dark theme overrides in `:root` redirect `--icon-{name}-gray` → `var(--icon-{name}-white)` so ln-acme gray icons render white on dark bg
+- `.ln-icon-*` classes for all icons — sourced from `ln-ashlar/dist/ln-ashlar-icons.css` (Feather Icons, SVG data URIs in `::before` pseudo-elements, NO emojis)
+- Dark theme overrides in `:root` redirect `--icon-{name}-gray` → `var(--icon-{name}-white)` so ln-ashlar gray icons render white on dark bg
 - CSS custom properties (`--var`) for all design tokens
 - Dark theme with `--accent: #ffa500`
 - Touch targets minimum 44x44px
@@ -136,7 +137,7 @@ ln-dj-mixer/
     index.php             — PHP track library API (scans /music/, returns JSON)
   music/                  — audio files (Artist - Title.mp3 format)
   assets/
-    css/style.css         — tokens, layout, components (icons from ln-acme)
+    css/style.css         — tokens, layout, components (icons from ln-ashlar)
     js/ln-db.js           — shared IndexedDB module (window.lnDb)
     js/ln-profile.js      — profile CRUD component
     js/ln-playlist.js     — playlist/track management component
@@ -154,8 +155,8 @@ ln-dj-mixer/
     img/placeholder.svg
     img/icon.svg          — PWA app icon (SVG, 512x512 viewBox)
   manifest.webmanifest    — PWA manifest (app name, icon, display mode)
-  ln-acme/
-    dist/ln-acme-icons.css  — icon system (Feather Icons, built from ln-acme SCSS)
+  ln-ashlar/
+    dist/ln-ashlar-icons.css  — icon system (Feather Icons, built from ln-ashlar SCSS)
   sw.js                   — Service Worker (app shell caching, offline support)
 ```
 
@@ -168,7 +169,7 @@ ln-dj-mixer/
   - [x] Mocked data removed — empty-start architecture
   - [x] Component refactor: ln-profile extracted from app.js
   - [x] Component refactor: ln-playlist + ln-mixer extracted from app.js
-  - [x] Use ln-accordion + ln-toggle from ln-acme for sidebar playlists
+  - [x] Use ln-accordion + ln-toggle from ln-ashlar for sidebar playlists
   - [x] Component refactor: ln-deck (deck state, transport, cue, progress)
   - [x] Component refactor: ln-settings (settings module, API URL, brand logo)
   - [x] Wire Library dialog to PHP API (ln-library.js component)
@@ -216,18 +217,18 @@ ln-dj-mixer/
 - SW: cache bumped to v13
 - Files changed: `ln-db.js`, `ln-profile.js`, `ln-playlist.js`, `ln-mixer-settings.js`, `ln-mixer-cache.js`, `ln-mixer-deck.js`, `ln-mixer-transfer.js`, `sw.js`, `CLAUDE.md`
 
-### Unified Icon System — Feather Icons in ln-acme (2026-02-28)
+### Unified Icon System — Feather Icons in ln-ashlar (2026-02-28)
 
-- **All icons unified in ln-acme** using Feather Icons (stroke-based, 24x24 viewBox, stroke-width 2, round linecap/linejoin)
-- **`ln-acme/scss/config/_icons.scss`** fully rewritten: ~50 icons, each with gray (`#374151`) + white variants
+- **All icons unified in ln-ashlar** using Feather Icons (stroke-based, 24x24 viewBox, stroke-width 2, round linecap/linejoin)
+- **`ln-ashlar/scss/config/_icons.scss`** fully rewritten: ~50 icons, each with gray (`#374151`) + white variants
 - Replaced all Heroicons-style SVGs with Feather equivalents
-- Added 23 mixer-specific icons to ln-acme: play, pause, stop, mark, cue, loop, music, volume, next, folder, zoom-in, zoom-out, drag, chevron-up, chevron-down
-- **Icons-only build**: `ln-acme/scss/icons-only.scss` → `dist/ln-acme-icons.css` (46KB), avoids importing full ln-acme.css
-- **Mixer dark-theme strategy**: `:root` overrides redirect `--icon-{name}-gray` → `var(--icon-{name}-white)` so ln-acme gray icons render white
+- Added 23 mixer-specific icons to ln-ashlar: play, pause, stop, mark, cue, loop, music, volume, next, folder, zoom-in, zoom-out, drag, chevron-up, chevron-down
+- **Icons-only build**: `ln-ashlar/scss/icons-only.scss` → `dist/ln-ashlar-icons.css` (46KB), avoids importing full ln-ashlar.css
+- **Mixer dark-theme strategy**: `:root` overrides redirect `--icon-{name}-gray` → `var(--icon-{name}-white)` so ln-ashlar gray icons render white
 - Special overrides: `--icon-drag-gray` uses mid-gray fill (`#666`), `--icon-check-gray` uses green stroke (`#22c55e`)
-- Removed all icon definitions and `.ln-icon-*` classes from mixer `style.css` — now sourced from ln-acme
-- SW: cache bumped to v4, `ln-acme-icons.css` added to LN_ACME cache array
-- Files changed: `ln-acme/scss/config/_icons.scss`, `ln-acme/scss/icons-only.scss` (new), `ln-acme/package.json`, `index.html`, `style.css`, `sw.js`, `CLAUDE.md`
+- Removed all icon definitions and `.ln-icon-*` classes from mixer `style.css` — now sourced from ln-ashlar
+- SW: cache bumped to v4, `ln-ashlar-icons.css` added to ln_ashlar cache array
+- Files changed: `ln-ashlar/scss/config/_icons.scss`, `ln-ashlar/scss/icons-only.scss` (new), `ln-ashlar/package.json`, `index.html`, `style.css`, `sw.js`, `CLAUDE.md`
 
 ### Waveform Component Extraction + Zoom + Timeline (2026-02-27)
 
@@ -254,7 +255,7 @@ ln-dj-mixer/
 - **BUG-2** `style.css` — `--surface-bg` and `--text-primary` custom properties were used in `.empty-state-icon` and `.library-no-api-icon` but never defined in `:root`. Fix: added `--surface-bg: #222` and `--text-primary: #eee` to design tokens.
 - **BUG-3** `api/index.php` — `$baseUrl` hardcoded to domain root, producing wrong music URLs when app runs in a subdirectory (e.g. `/ln-mixer/`). Fix: derive base path from `dirname(dirname(SCRIPT_NAME))`.
 
-**Architecture (ln-acme principles):**
+**Architecture (ln-ashlar principles):**
 
 - **ARCH-1** `ln-profile.js` → `ln-mixer.js` — `_updateEmptyState()` was in the profile component, directly toggling `hidden` on empty-state, decks-panel, and sidebar elements. This is coordinator UI work. Moved to `ln-mixer-settings.js` where it reacts to `ln-profile:ready`, `ln-profile:created`, and `ln-profile:deleted` events.
 - **ARCH-2** `ln-playlist.js` → `ln-mixer.js` — `openEditTrack()` reached into `document` to set `data-ln-track-index` and `data-ln-playlist-id` on the edit-track `<form>`. This form attribute wiring belongs in the coordinator. Moved to `ln-mixer.js` `ln-playlist:open-edit` handler; component now only dispatches the event with detail data.
@@ -282,7 +283,7 @@ ln-dj-mixer/
 
 - `manifest.webmanifest`: standalone display, landscape orientation, SVG icon, dark theme
 - `sw.js`: Service Worker with cache-first app shell strategy, network-first for API
-  - Pre-caches all HTML/CSS/JS/images on install (ln-acme components cached individually, failures skipped)
+  - Pre-caches all HTML/CSS/JS/images on install (ln-ashlar components cached individually, failures skipped)
   - Stale-while-revalidate for app shell (serves cached, updates in background)
   - API requests (`/api/`) go network-first with cache fallback for offline
   - Audio files (`/music/`) skipped — already cached as blobs in IndexedDB by the app
@@ -292,9 +293,9 @@ ln-dj-mixer/
 - Files added: `sw.js`, `manifest.webmanifest`, `assets/img/icon.svg`
 - Files changed: `index.html`, `CLAUDE.md`
 
-## Available ln-acme Components
+## Available ln-ashlar Components
 
-Located at `c:\Users\Dalibor Sojic\ln-acme\js\`:
+Located at `c:\Users\Dalibor Sojic\ln-ashlar\js\`:
 
 | Component | Attribute | Use in this project |
 |---|---|---|

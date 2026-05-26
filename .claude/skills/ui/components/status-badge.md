@@ -28,4 +28,4 @@ A badge communicates state through THREE signals: color dot + text + tinted back
 - Custom colors per status (fragments visual language)
 - Status codes instead of human text
 
-> For implementation with ln-acme → see ln-acme components/status-badge.md
+> For implementation with ln-ashlar → see ln-ashlar components/status-badge.md

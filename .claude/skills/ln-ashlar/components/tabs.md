@@ -1,6 +1,6 @@
-# ln-acme — Tabs Implementation
+# ln-ashlar — Tabs Implementation
 
-> HOW to build tabs with ln-acme. For WHAT tabs must have → global ui/components/tabs.md.
+> HOW to build tabs with ln-ashlar. For WHAT tabs must have → global ui/components/tabs.md.
 
 ## Component
 

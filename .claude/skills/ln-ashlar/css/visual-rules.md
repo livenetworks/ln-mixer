@@ -1,10 +1,10 @@
-# ln-acme — Visual Rules Implementation
+# ln-ashlar — Visual Rules Implementation
 
-> Concrete ln-acme values for the principles in global ui/visual-language.md §1-§8.
+> Concrete ln-ashlar values for the principles in global ui/visual-language.md §1-§8.
 
 ---
 
-## §1 Radius + Spacing — ln-acme Implementation
+## §1 Radius + Spacing — ln-ashlar Implementation
 
 ```scss
 // Rounded nav links MUST have mx() — never flush to container
@@ -22,7 +22,7 @@
 
 ## §3 Icon Set
 
-ln-acme standard: **Tabler Icons, outline variant, stroke-width 2**
+ln-ashlar standard: **Tabler Icons, outline variant, stroke-width 2**
 
 ## §4 Spacing Scale
 
@@ -225,10 +225,10 @@ Container names: noun, singular, lowercase, no hyphens (`foldersgrid`, not `fold
 
 ## Override Discipline
 
-### Don't duplicate ln-acme globals
+### Don't duplicate ln-ashlar globals
 
 ```scss
-// WRONG — ln-acme already does this
+// WRONG — ln-ashlar already does this
 body { margin: 0; background-color: hsl(var(--color-bg-body)); }
 a { text-decoration: none; color: hsl(var(--color-primary)); }
 button { border: none; cursor: pointer; }
@@ -240,7 +240,7 @@ body { font-feature-settings: 'cv02', 'cv03', 'cv04'; }
 ### Don't restate inherited properties
 
 ```scss
-// WRONG — headings already have text-primary from ln-acme
+// WRONG — headings already have text-primary from ln-ashlar
 #content h1 { @include text-primary; }
 
 // RIGHT — only the delta

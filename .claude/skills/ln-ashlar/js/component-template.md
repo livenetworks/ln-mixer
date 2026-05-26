@@ -1,6 +1,6 @@
-# ln-acme — JS Component Template
+# ln-ashlar — JS Component Template
 
-> Full IIFE boilerplate for creating new ln-acme components.
+> Full IIFE boilerplate for creating new ln-ashlar components.
 > For architecture principles → global js skill.
 
 ---

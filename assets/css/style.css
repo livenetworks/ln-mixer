@@ -59,7 +59,7 @@
 	--transition-fast: 0.15s ease;
 	--transition-base: 0.25s ease;
 
-	/* ln-acme token mapping — bare HSL triplets (ln-acme v3 wraps with hsl()) */
+	/* ln-ashlar token mapping — bare HSL triplets (ln-ashlar v3 wraps with hsl()) */
 	--color-bg-primary: 0 0% 10%;
 	--color-bg-secondary: 0 0% 13%;
 	--color-bg-body: 0 0% 7%;
@@ -80,7 +80,7 @@
 	--text-lg: 1.125rem;
 	--font-semibold: 600;
 
-	/* ln-acme toast token mapping */
+	/* ln-ashlar toast token mapping */
 	--ln-toast-bg: var(--surface);
 	--ln-toast-fg: var(--text);
 	--ln-toast-fg-muted: var(--text-muted);
@@ -1208,7 +1208,7 @@ button[data-mixer-cue="loop"].active::before {
 }
 
 /* ==========================================================================
-   8. MODALS — overrides (base from ln-acme-modal.css)
+   8. MODALS — overrides (base from ln-ashlar-modal.css)
    ========================================================================== */
 
 .ln-modal {
@@ -1551,7 +1551,7 @@ button[data-mixer-cue="loop"].active::before {
 	display: none;
 }
 
-/* --- Toast — overrides (base from ln-acme-toast.css) --- */
+/* --- Toast — overrides (base from ln-ashlar-toast.css) --- */
 
 [data-ln-toast] {
 	top: auto;

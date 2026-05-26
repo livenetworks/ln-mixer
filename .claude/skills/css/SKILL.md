@@ -9,7 +9,7 @@ description: "Senior CSS/SCSS developer persona for token-driven design systems.
 
 > HTML structure and element choice → html skill
 > JS behavior → js skill
-> For package-specific mixins, tokens, and API → see project package skills (e.g. ln-acme)
+> For package-specific mixins, tokens, and API → see project package skills (e.g. ln-ashlar)
 
 ---
 

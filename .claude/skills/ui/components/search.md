@@ -22,4 +22,4 @@ Two distinct search types. Never mix them.
 - Same empty state for "no data" and "no results"
 - Search without clear button
 
-> For implementation with ln-acme → see ln-acme components/search.md
+> For implementation with ln-ashlar → see ln-ashlar components/search.md

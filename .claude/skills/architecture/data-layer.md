@@ -29,7 +29,7 @@ This is NOT an offline-first architecture (though it supports offline reads). It
                       │ read/write            │ mutations
 ┌─────────────────────▼───────────────────────▼───────────────────┐
 │                       ln-store                                  │
-│                  (ln-acme component)                             │
+│                  (ln-ashlar component)                             │
 │                                                                 │
 │  ┌──────────────┐  ┌───────────────┐  ┌──────────────────────┐ │
 │  │  IndexedDB    │  │  Sync Engine  │  │  Mutation Manager    │ │

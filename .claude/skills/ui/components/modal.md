@@ -48,4 +48,4 @@ A modal interrupts the user's flow. The interruption must be justified by the co
 - Two primary buttons in one modal
 - Full-viewport modal on desktop (that's a page)
 
-> For implementation with ln-acme → see ln-acme components/modal.md
+> For implementation with ln-ashlar → see ln-ashlar components/modal.md

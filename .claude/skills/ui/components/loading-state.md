@@ -21,4 +21,4 @@
 - Blank screen during loading (no indicator at all)
 - Spinner for a 45-second operation (use progress bar)
 
-> For implementation with ln-acme → see ln-acme components/loading-state.md
+> For implementation with ln-ashlar → see ln-ashlar components/loading-state.md

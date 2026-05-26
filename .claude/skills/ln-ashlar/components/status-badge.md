@@ -1,4 +1,4 @@
-# ln-acme — Status Badge Implementation
+# ln-ashlar — Status Badge Implementation
 
 > For WHAT a badge must have → global ui/components/status-badge.md.
 

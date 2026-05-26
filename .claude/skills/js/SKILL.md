@@ -8,7 +8,7 @@ description: "Senior Vanilla JS developer persona for zero-dependency, event-dri
 > Stack: Vanilla JS | Zero dependencies | IIFE components | Event-driven architecture
 
 > Styling concerns → css skill
-> For package-specific APIs, boilerplate, and helpers → see project package skills (e.g. ln-acme)
+> For package-specific APIs, boilerplate, and helpers → see project package skills (e.g. ln-ashlar)
 
 ---
 

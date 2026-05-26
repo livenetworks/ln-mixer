@@ -1,16 +1,16 @@
 ---
-name: ln-acme
-description: "Implementation reference for the ln-acme frontend library. Use this skill when working on a project that uses ln-acme for CSS/JS. Covers: SCSS mixins and token values, JS component boilerplate, ln-core helpers API, icon system, naming conventions, and component-specific implementation patterns."
+name: ln-ashlar
+description: "Implementation reference for the ln-ashlar frontend library. Use this skill when working on a project that uses ln-ashlar for CSS/JS. Covers: SCSS mixins and token values, JS component boilerplate, ln-core helpers API, icon system, naming conventions, and component-specific implementation patterns."
 ---
 
-# ln-acme — Implementation Reference
+# ln-ashlar — Implementation Reference
 
-> This skill covers HOW to build with ln-acme.
+> This skill covers HOW to build with ln-ashlar.
 > For WHY and WHAT decisions → see global skills (css, js, html, ui, ux).
 
 ---
 
-## What is ln-acme?
+## What is ln-ashlar?
 
 Unified frontend library: **SCSS CSS framework** + **vanilla JS components**. Zero dependencies. Used in Laravel projects via npm or git submodule.
 
@@ -30,7 +30,7 @@ JS: IIFE components + ln-core helpers
 ## Build
 
 ```bash
-npm run build    # dist/ln-acme.css + .js + .iife.js
+npm run build    # dist/ln-ashlar.css + .js + .iife.js
 npm run dev      # Watch mode
 ```
 
@@ -41,7 +41,7 @@ npm run dev      # Watch mode
 | `css/mixins.md` | Complete mixin reference with examples |
 | `css/tokens.md` | Token values (colors, spacing, radii, shadows) |
 | `css/icons.md` | SVG sprite system, Tabler icons, custom icons |
-| `css/visual-rules.md` | ln-acme specific visual rules (§1-§8 implementation) |
+| `css/visual-rules.md` | ln-ashlar specific visual rules (§1-§8 implementation) |
 | `js/component-template.md` | Full IIFE boilerplate for new components |
 | `js/naming.md` | `data-ln-*`, `window.ln*`, event naming conventions |
 | `js/ln-core-api.md` | fill, renderList, cloneTemplate, reactive, batcher API |
@@ -52,7 +52,7 @@ npm run dev      # Watch mode
 
 ```scss
 // Project integration
-@use 'ln-acme/scss/ln-acme';       // full framework
+@use 'ln-ashlar/scss/ln-ashlar';       // full framework
 @use 'scss/overrides';              // project tokens
 @use 'scss/components/feature';     // project components
 

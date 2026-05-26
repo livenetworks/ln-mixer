@@ -319,7 +319,7 @@ Focus is a design choice with six valid approaches, organized by where the signa
 
 **Outer signals** — the effect extends beyond the field boundary:
 
-*Ring (outer glow)* — border stays unchanged, a soft `box-shadow` ring appears outside the field. No layout shift. Non-invasive, universally compatible. The Tailwind / Vercel / shadcn convention. Current ln-acme default.
+*Ring (outer glow)* — border stays unchanged, a soft `box-shadow` ring appears outside the field. No layout shift. Non-invasive, universally compatible. The Tailwind / Vercel / shadcn convention. Current ln-ashlar default.
 
 *Border thicken* — border grows from 1px to 2px in primary color. No glow. Sharp, structural, precise. Material Design convention. Risk: 1px border growth causes layout shift unless implemented with `outline` or inset border techniques.
 

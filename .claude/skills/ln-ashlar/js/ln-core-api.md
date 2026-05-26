@@ -1,6 +1,6 @@
-# ln-acme — ln-core API Reference
+# ln-ashlar — ln-core API Reference
 
-> Shared helpers imported by all ln-acme components. Located in `js/ln-core/`.
+> Shared helpers imported by all ln-ashlar components. Located in `js/ln-core/`.
 > For architecture principles → global js skill §9 (three layers), §11 (reactive state).
 
 ---

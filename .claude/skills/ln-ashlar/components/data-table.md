@@ -1,6 +1,6 @@
-# ln-acme — Data Table Implementation
+# ln-ashlar — Data Table Implementation
 
-> HOW to build data tables with ln-acme. For WHAT a data table must have → global ui/components/data-table.md.
+> HOW to build data tables with ln-ashlar. For WHAT a data table must have → global ui/components/data-table.md.
 
 ## Components
 

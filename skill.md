@@ -1,7 +1,7 @@
-# ln-acme Vanilla JS Project — Claude Code Skill
+# ln-ashlar Vanilla JS Project — Claude Code Skill
 
-Reusable rules for building vanilla JS apps with the ln-acme component system.
-Apply this skill to any new project that follows ln-acme conventions.
+Reusable rules for building vanilla JS apps with the ln-ashlar component system.
+Apply this skill to any new project that follows ln-ashlar conventions.
 
 ---
 
@@ -12,7 +12,7 @@ Apply this skill to any new project that follows ln-acme conventions.
 - **CSS custom properties** — all design tokens in `:root`
 - **IndexedDB** — client-side persistence (native API, no library)
 - **HTML `<template>`** — all repeatable DOM structures
-- **ln-acme library** — reusable UI primitives (modal, toast, accordion, sortable, search, progress, tabs, etc.)
+- **ln-ashlar library** — reusable UI primitives (modal, toast, accordion, sortable, search, progress, tabs, etc.)
 
 ---
 
@@ -157,6 +157,7 @@ One coordinator file (e.g. `ln-mixer.js`) that:
 | Icons | `.ln-icon-*` class (CSS `::before`) | Emojis, HTML entities, inline SVG |
 | Dialogs | `<dialog>` + `<form method="dialog" data-ln-form="...">` | Hidden inputs for context |
 | Context data | `data-ln-*` attributes on `<form>` | Hidden `<input>` fields |
+| Project attributes | Set programmatically in JS (e.g. `data-mixer-track`) | Bind declaratively via `data-ln-attr` in HTML |
 | DOM structure | `<template data-ln-template="...">` | `createElement` chains in JS |
 
 ### Template System

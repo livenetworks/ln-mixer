@@ -101,4 +101,4 @@ A data table is a VIEWPORT into a dataset — not a paginated slice. The user wo
 - Full-page loading indicator instead of scoped skeleton
 - Sorting/filtering on server when dataset fits in client cache
 
-> For implementation with ln-acme → see ln-acme components/data-table.md
+> For implementation with ln-ashlar → see ln-ashlar components/data-table.md

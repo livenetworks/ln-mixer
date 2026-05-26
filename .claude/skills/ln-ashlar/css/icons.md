@@ -1,4 +1,4 @@
-# ln-acme — Icon System
+# ln-ashlar — Icon System
 
 > SVG sprite injection via `ln-icons.js`. For icon consistency principles → global ui/visual-language.md §3.
 

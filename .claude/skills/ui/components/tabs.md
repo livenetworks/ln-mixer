@@ -32,4 +32,4 @@ Tabs organize content that shares a parent context but represents different face
 - No URL hash sync (user can't bookmark or share specific tab)
 - Tabs for unrelated content (use navigation instead)
 
-> For implementation with ln-acme → see ln-acme components/tabs.md
+> For implementation with ln-ashlar → see ln-ashlar components/tabs.md

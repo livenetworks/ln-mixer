@@ -1,6 +1,6 @@
-# ln-acme — Modal Implementation
+# ln-ashlar — Modal Implementation
 
-> HOW to build modals with ln-acme. For WHAT a modal must have → global ui/components/modal.md.
+> HOW to build modals with ln-ashlar. For WHAT a modal must have → global ui/components/modal.md.
 
 ## Component
 

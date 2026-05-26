@@ -22,7 +22,7 @@ executor's implementation matches the architect's plan and meets quality standar
 - Read the domain architect's plan file (the one that contains the executor prompt)
 - Read the executor's execution report (if available in .claude/plans/)
 - Read CLAUDE.md for project conventions
-- Check .claude/skills/ for relevant package skills if the review involves ln-acme, ln-starter, etc.
+- Check .claude/skills/ for relevant package skills if the review involves ln-ashlar, ln-starter, etc.
 - Read EVERY file that was created or modified
 
 ### Step 2: Verify Completeness

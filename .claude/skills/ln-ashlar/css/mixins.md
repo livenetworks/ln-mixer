@@ -1,4 +1,4 @@
-# ln-acme — Mixin Reference
+# ln-ashlar — Mixin Reference
 
 > Complete list of available SCSS mixins. For philosophy → global css skill.
 
@@ -7,7 +7,7 @@
 ## Usage
 
 ```scss
-@use 'ln-acme/scss/config/mixins' as *;
+@use 'ln-ashlar/scss/config/mixins' as *;
 
 // Apply mixin to semantic selector
 #add-user { @include btn; }
@@ -139,13 +139,13 @@ scss/components/*.scss          → Apply mixins to default selectors (generate 
 2. Register: `@forward 'thing'` in `scss/config/mixins/_index.scss`
 3. Update header comment in `scss/config/_mixins.scss`
 4. Create `scss/components/_thing.scss`: `#thing { @include thing; }`
-5. Add `@use 'components/thing'` to `scss/ln-acme.scss`
+5. Add `@use 'components/thing'` to `scss/ln-ashlar.scss`
 
 ### Project integration
 
 ```scss
 // project/app.scss
-@use 'ln-acme/scss/ln-acme';           // full framework
+@use 'ln-ashlar/scss/ln-ashlar';           // full framework
 @use 'scss/overrides';                  // project token overrides
 @use 'scss/components/my-feature';      // project components
 ```
