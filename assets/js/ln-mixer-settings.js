@@ -10,13 +10,13 @@ let _deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', function (e) {
 	e.preventDefault();
 	_deferredInstallPrompt = e;
-	const field = document.querySelector('[data-ln-install-field]');
+	const field = document.querySelector('[data-mixer-install-field]');
 	if (field) field.hidden = false;
 });
 
 window.addEventListener('appinstalled', function () {
 	_deferredInstallPrompt = null;
-	const field = document.querySelector('[data-ln-install-field]');
+	const field = document.querySelector('[data-mixer-install-field]');
 	if (field) field.hidden = true;
 });
 
@@ -25,7 +25,7 @@ export function setupSettings(mixer) {
 	/* ─── Settings Form Helpers ──────────────────────────────────── */
 
 	mixer._populateSettingsForm = function () {
-		const apiInput = document.querySelector('[data-ln-setting="api-url"]');
+		const apiInput = document.querySelector('[data-mixer-setting="api-url"]');
 		if (apiInput) apiInput.value = lnSettings.getApiUrl();
 		this._pendingLogo = lnSettings.getBrandLogo();
 		this._updateLogoPreview();
@@ -33,7 +33,7 @@ export function setupSettings(mixer) {
 	};
 
 	mixer._updateLogoPreview = function () {
-		const preview = document.querySelector('[data-ln-logo-preview]');
+		const preview = document.querySelector('[data-mixer-logo-preview]');
 		if (!preview) return;
 
 		const logo = this._pendingLogo !== null ? this._pendingLogo : lnSettings.getBrandLogo();
@@ -59,7 +59,7 @@ export function setupSettings(mixer) {
 			if (!sidebar) return;
 
 			const profileId = e.detail.profileId;
-			sidebar.setAttribute('data-ln-playlist-profile', profileId || '');
+			sidebar.setAttribute('data-mixer-playlist-profile', profileId || '');
 
 			if (!profileId) {
 				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-load-profile', {
@@ -129,7 +129,8 @@ export function setupSettings(mixer) {
 			self._updateEmptyState();
 			lnDb.delete('profiles', e.detail.profileId);
 			lnDb.deleteByIndex('playlists', 'profileId', e.detail.profileId);
-			lnModal.close('modal-settings');
+			const modalEl = document.getElementById('modal-settings');
+			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: { type: 'info', message: 'Profile deleted' }
 			}));
@@ -154,21 +155,23 @@ export function setupSettings(mixer) {
 		});
 
 		this.dom.addEventListener('ln-playlist:track-edited', function () {
-			lnModal.close('modal-edit-track');
+			const modalEl = document.getElementById('modal-edit-track');
+			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: { type: 'success', message: 'Track updated' }
 			}));
 		});
 
 		this.dom.addEventListener('ln-playlist:track-removed', function (e) {
-			lnModal.close('modal-edit-track');
+			const modalEl = document.getElementById('modal-edit-track');
+			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: { type: 'warn', message: 'Track removed' }
 			}));
 
 			// Adjust deck indices
 			const removedIdx = e.detail.trackIndex;
-			self.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
+			self.dom.querySelectorAll('[data-mixer-deck]').forEach(function (deckEl) {
 				if (!deckEl.lnDeck) return;
 				const currentIdx = deckEl.lnDeck.trackIndex;
 
@@ -194,7 +197,7 @@ export function setupSettings(mixer) {
 			// Reset decks if no playlists remain
 			const sidebar = self._getSidebar();
 			if (!sidebar || !sidebar.lnPlaylist || !sidebar.lnPlaylist.currentId) {
-				self.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
+				self.dom.querySelectorAll('[data-mixer-deck]').forEach(function (deckEl) {
 					if (deckEl.lnDeck) {
 						deckEl.dispatchEvent(new CustomEvent('ln-deck:request-reset'));
 					}
@@ -210,8 +213,8 @@ export function setupSettings(mixer) {
 
 			const form = document.querySelector('[data-ln-form="edit-track"]');
 			if (form) {
-				form.setAttribute('data-ln-track-index', e.detail.index);
-				form.setAttribute('data-ln-playlist-id', e.detail.playlistId);
+				form.setAttribute('data-mixer-track-index', e.detail.index);
+				form.setAttribute('data-mixer-playlist-id', e.detail.playlistId);
 			}
 
 			const titleEl = document.querySelector('[data-ln-field="edit-track-title"]');
@@ -222,7 +225,8 @@ export function setupSettings(mixer) {
 			if (artistEl) artistEl.textContent = track.artist + ' \u2014 ' + track.duration;
 			if (notesInput) notesInput.value = track.notes || '';
 
-			lnModal.open('modal-edit-track');
+			const modalEl = document.getElementById('modal-edit-track');
+			if (modalEl) modalEl.setAttribute('data-ln-modal', 'open');
 
 			if (notesInput) notesInput.focus();
 		});
@@ -233,16 +237,11 @@ export function setupSettings(mixer) {
 	mixer._bindProfileActions = function () {
 		const self = this;
 
-		// Open new-profile dialog
-		document.addEventListener('click', function (e) {
-			if (e.target.closest('[data-ln-action="new-profile"]')) {
-				lnModal.open('modal-new-profile');
-			}
-		});
+
 
 		// Delete current profile
 		document.addEventListener('click', function (e) {
-			if (e.target.closest('[data-ln-action="delete-profile"]')) {
+			if (e.target.closest('[data-mixer-action="delete-profile"]')) {
 				const nav = self._getNav();
 				if (nav && nav.lnProfile) {
 					nav.dispatchEvent(new CustomEvent('ln-profile:request-remove', {
@@ -271,31 +270,32 @@ export function setupSettings(mixer) {
 			}
 
 			input.value = '';
-			lnModal.close('modal-new-profile');
+			const modalEl = document.getElementById('modal-new-profile');
+			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
 		});
 	};
 
 	mixer._bindSettingsActions = function () {
 		const self = this;
 
-		// Open settings dialog
-		document.addEventListener('click', function (e) {
-			if (e.target.closest('[data-ln-action="open-settings"]')) {
+		// Populate settings before opening
+		const settingsModal = document.getElementById('modal-settings');
+		if (settingsModal) {
+			settingsModal.addEventListener('ln-modal:before-open', function () {
 				self._populateSettingsForm();
-				lnModal.open('modal-settings');
-			}
-		});
+			});
+		}
 
 		// Install app (PWA)
 		document.addEventListener('click', function (e) {
-			if (!e.target.closest('[data-ln-action="install-app"]')) return;
+			if (!e.target.closest('[data-mixer-action="install-app"]')) return;
 			if (!_deferredInstallPrompt) return;
 
 			_deferredInstallPrompt.prompt();
 			_deferredInstallPrompt.userChoice.then(function (result) {
 				if (result.outcome === 'accepted') {
 					_deferredInstallPrompt = null;
-					const field = document.querySelector('[data-ln-install-field]');
+					const field = document.querySelector('[data-mixer-install-field]');
 					if (field) field.hidden = true;
 				}
 			});
@@ -303,14 +303,14 @@ export function setupSettings(mixer) {
 
 		// Upload logo button
 		document.addEventListener('click', function (e) {
-			if (e.target.closest('[data-ln-action="upload-logo"]')) {
-				const input = document.querySelector('[data-ln-logo-input]');
+			if (e.target.closest('[data-mixer-action="upload-logo"]')) {
+				const input = document.querySelector('[data-mixer-logo-input]');
 				if (input) input.click();
 			}
 		});
 
 		// Logo file input change
-		const logoInput = document.querySelector('[data-ln-logo-input]');
+		const logoInput = document.querySelector('[data-mixer-logo-input]');
 		if (logoInput) {
 			logoInput.addEventListener('change', function () {
 				const file = logoInput.files[0];
@@ -329,7 +329,7 @@ export function setupSettings(mixer) {
 		document.addEventListener('ln-form:submit', function (e) {
 			if (e.target.getAttribute('data-ln-form') !== 'settings') return;
 
-			const apiInput = document.querySelector('[data-ln-setting="api-url"]');
+			const apiInput = document.querySelector('[data-mixer-setting="api-url"]');
 			const apiUrl = apiInput ? apiInput.value.trim() : '';
 			const brandLogo = self._pendingLogo !== null ? self._pendingLogo : lnSettings.getBrandLogo();
 
@@ -345,7 +345,8 @@ export function setupSettings(mixer) {
 			});
 
 			self._pendingLogo = null;
-			lnModal.close('modal-settings');
+			const modalEl = document.getElementById('modal-settings');
+			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: { type: 'success', message: 'Settings saved' }
 			}));

@@ -2,14 +2,19 @@
 // _sidebar.scss — Sidebar container, playlist accordion, footer
 // ==========================================================================
 
+@use '../../../ln-ashlar/scss/config/mixins' as *;
+
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
 
 .sidebar {
 	background: hsl(var(--color-surface-sunken));
-	border-left: 1px solid hsl(var(--color-border));
-	display: flex;
-	flex-direction: column;
+	border-inline-start: 1px solid hsl(var(--color-border));
+	border-inline-end: none;
 	overflow-y: auto;
+
+	> * {
+		padding-inline: 0; // Let playlist accordion expand edge-to-edge
+	}
 }
 
 // ─── Playlist accordion group ─────────────────────────────────────────────────
@@ -20,7 +25,7 @@
 	> header {
 		display: flex;
 		align-items: center;
-		padding: var(--spacing-sm) var(--spacing-md);
+		padding: var(--size-sm) var(--size-md);
 		font-size: 0.8rem;
 		font-weight: 700;
 		text-transform: uppercase;
@@ -42,7 +47,7 @@
 			display: inline-block;
 			width: 0.75rem;
 			height: 0.75rem;
-			margin-right: var(--spacing-sm);
+			margin-right: var(--size-sm);
 			background-image: var(--icon-chevron-down-white);
 			background-size: contain;
 			background-repeat: no-repeat;
@@ -119,6 +124,6 @@
 
 .sidebar-footer {
 	margin-top: auto;
-	padding: var(--spacing-sm) var(--spacing-md);
+	padding: var(--size-sm) var(--size-md);
 	border-top: 1px solid hsl(var(--color-border));
 }

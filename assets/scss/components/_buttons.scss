@@ -1,36 +1,17 @@
+@use '../../../ln-ashlar/scss/config/mixins' as *;
+
 // ==========================================================================
-// _buttons.scss — Global button override + LED toggle + semantic variants
+// _buttons.scss — Global button override + LED mixin + semantic variants
 // ==========================================================================
-// DO NOT use @mixin btn — mixer needs glass/frosted buttons not solid-fill.
 // button[type="submit"] glass override is in _overrides.scss.
-// .btn--led class STAYS (used by JS for loop/autoplay LED state).
 // ==========================================================================
 
 // ─── Global button override ─────────────────────────────────────────────────
-// ln-acme does NOT style the bare button element.
-// Full structure (flex, padding, colors, radius) defined here.
+// ln-ashlar handles standard button styling globally via button-base.
+// Project specific deltas (like the active state) are specified here.
 
 button {
-	display: inline-flex;
-	align-items: center;
-	background: hsl(var(--color-button-bg));
-	border: 1px solid hsl(var(--color-button-border));
-	color: hsl(var(--color-text-primary));
-	padding: 0.5rem 1rem;
-	cursor: pointer;
-	font-size: 0.875rem;
-	border-radius: var(--radius-sm);
-	gap: 0.4rem;
-	transition: background var(--transition-fast), border-color var(--transition-fast);
 	touch-action: manipulation;
-	white-space: nowrap;
-	min-height: unset;
-	min-width: unset;
-
-	&:hover:not(:disabled) {
-		background: hsl(var(--color-button-hover));
-		color: hsl(var(--color-text-primary));
-	}
 
 	// Active state (e.g. transport play button pressed)
 	&.active {
@@ -44,22 +25,28 @@ button {
 	}
 }
 
-// ─── Ghost buttons (modal close, zoom buttons) ──────────────────────────────
+// ─── Ghost buttons (zoom buttons) ───────────────────────────────────────────
+// Modal close buttons are handled natively by ln-ashlar's panel-header.
 
-.ln-modal header button[data-ln-modal-close],
 .waveform-zoom button {
-	background: transparent;
-	border-color: transparent;
+	justify-content: center;
+	min-width: var(--touch-min);
+	min-height: var(--touch-min);
+	padding: 2px;
+	background: hsl(0 0% 0% / 0.6);
+	border: 1px solid transparent;
+	border-radius: var(--radius-md);
+	touch-action: manipulation;
 
 	&:hover:not(:disabled) {
-		background: rgba(255, 255, 255, 0.08);
+		background: hsl(0 0% 100% / 0.08);
 	}
 }
 
 // ─── Danger / destructive actions ───────────────────────────────────────────
 
-[data-ln-form="edit-track"] footer [data-ln-action="remove-track"],
-[data-ln-form="settings"] footer [data-ln-action="delete-profile"],
+[data-ln-form="edit-track"] footer [data-mixer-action="remove-track"],
+[data-ln-form="settings"] footer [data-mixer-action="delete-profile"],
 [data-ln-form="confirm-delete-playlist"] footer [type="submit"] {
 	&:hover {
 		background: hsl(var(--color-cue) / 0.2);
@@ -67,36 +54,51 @@ button {
 	}
 }
 
-// ─── LED Button — loop toggle ────────────────────────────────────────────────
-// .btn--led class is kept: referenced by JS for LED state management.
+// ─── LED Button mixin and semantic selectors ─────────────────────────────────
 
-.btn--led {
+@mixin led-button {
 	position: relative;
-	padding-left: 1.6rem;
+	padding-left: 1.6rem; // To make space for the LED dot on the left
 
-	&::after {
+	&::before {
 		content: '';
 		position: absolute;
 		left: 0.5rem;
 		top: 50%;
 		transform: translateY(-50%);
+
 		width: 8px;
 		height: 8px;
 		border-radius: 50%;
 		background: hsl(var(--color-text-muted));
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		border: 1px solid hsl(0 0% 100% / 0.1);
 		transition: background var(--transition-fast), box-shadow var(--transition-fast);
+		background-image: none !important; // override any background icon from class
 	}
 
-	&.active::after {
-		background: hsl(var(--color-primary));
-		box-shadow: 0 0 8px hsl(var(--color-primary)), 0 0 16px hsl(var(--color-primary) / 0.3);
+	&.active {
+		// Reset/override global button.active style to keep the button body neutral
+		background: hsl(var(--color-button-bg)) !important;
+		color: hsl(var(--color-text-secondary)) !important;
+		border-color: hsl(var(--color-button-border)) !important;
+
+		&::before {
+			background: hsl(var(--color-primary)) !important;
+			box-shadow: 0 0 8px hsl(var(--color-primary)), 0 0 16px hsl(var(--color-primary) / 0.3) !important;
+			background-image: none !important; // keep background-image overridden when active
+			filter: none !important; // override active icon filters
+		}
 	}
+}
+
+button[data-mixer-action="toggle-autoplay"],
+button[data-mixer-cue="loop"] {
+	@include led-button;
 }
 
 // ─── Empty state action button ───────────────────────────────────────────────
 
-[data-ln-empty-state] button {
+[data-mixer-empty-state] button {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.4rem;

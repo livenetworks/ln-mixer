@@ -7,7 +7,7 @@
 .loop-segments {
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--spacing-xs);
+	gap: var(--size-xs);
 	flex-shrink: 0;
 
 	&:empty {
@@ -32,12 +32,12 @@
 	color: hsl(var(--color-primary));
 	cursor: pointer;
 	touch-action: manipulation;
-	min-height: 44px;
 	position: relative;
 	overflow: hidden;
 	transition: background var(--transition-fast), color var(--transition-fast);
 
-	// LED dot (same pattern as .btn--led)
+	// LED dot (same pattern as LED buttons)
+
 	&::before {
 		content: '';
 		position: absolute;

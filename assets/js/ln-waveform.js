@@ -1,6 +1,6 @@
 import WaveSurfer from 'wavesurfer.js';
 
-const DOM_SELECTOR = 'data-ln-waveform';
+const DOM_SELECTOR = 'data-mixer-waveform';
 const DOM_ATTRIBUTE = 'lnWaveform';
 
 if (!window[DOM_ATTRIBUTE]) {
@@ -99,9 +99,9 @@ if (!window[DOM_ATTRIBUTE]) {
 		const container = this.dom.closest('.waveform-container') || this.dom.parentElement;
 		if (container) {
 			container.addEventListener('click', function (e) {
-				const zoomBtn = e.target.closest('[data-ln-zoom]');
+				const zoomBtn = e.target.closest('[data-mixer-zoom]');
 				if (zoomBtn) {
-					self.zoom(zoomBtn.getAttribute('data-ln-zoom'));
+					self.zoom(zoomBtn.getAttribute('data-mixer-zoom'));
 				}
 			});
 		}

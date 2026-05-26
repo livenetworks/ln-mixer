@@ -4,7 +4,7 @@ import { setupDeck } from './ln-mixer-deck.js';
 import { setupSettings } from './ln-mixer-settings.js';
 import { setupTransfer } from './ln-mixer-transfer.js';
 
-const DOM_SELECTOR = 'data-ln-mixer';
+const DOM_SELECTOR = 'data-mixer';
 const DOM_ATTRIBUTE = 'lnMixer';
 
 if (window[DOM_ATTRIBUTE] === undefined) {
@@ -59,6 +59,7 @@ if (window[DOM_ATTRIBUTE] === undefined) {
 		this._bindScopedEvents();
 		this._bindGlobalEvents();
 		this._loadProfiles();
+		this._updateEmptyState();
 
 		return this;
 	}
@@ -85,11 +86,21 @@ if (window[DOM_ATTRIBUTE] === undefined) {
 		const nav = this._getNav();
 		const hasProfiles = nav && nav.lnProfile && Object.keys(nav.lnProfile.profiles).length > 0;
 
-		const emptyState = this.dom.querySelector('[data-ln-empty-state]');
+		console.log('[ln-mixer] _updateEmptyState called:', {
+			navFound: !!nav,
+			lnProfileReady: !!(nav && nav.lnProfile),
+			profilesCount: (nav && nav.lnProfile && nav.lnProfile.profiles) ? Object.keys(nav.lnProfile.profiles).length : 0,
+			hasProfiles: hasProfiles
+		});
+
+		const emptyState = this.dom.querySelector('[data-mixer-empty-state]');
 		const decksPanel = this.dom.querySelector('.decks-panel');
 		const sidebar = this._getSidebar();
 
-		if (emptyState) emptyState.hidden = hasProfiles;
+		if (emptyState) {
+			emptyState.hidden = hasProfiles;
+			console.log('[ln-mixer] emptyState hidden set to:', hasProfiles);
+		}
 		if (decksPanel) decksPanel.hidden = !hasProfiles;
 		if (sidebar) sidebar.hidden = !hasProfiles;
 	};
@@ -97,27 +108,27 @@ if (window[DOM_ATTRIBUTE] === undefined) {
 	/* ─── Child Component Queries (scoped to this.dom) ───────────── */
 
 	_component.prototype._getNav = function () {
-		return this.dom.querySelector('[data-ln-profile]');
+		return this.dom.querySelector('[data-mixer-profile]');
 	};
 
 	_component.prototype._getSidebar = function () {
-		return this.dom.querySelector('[data-ln-playlist]');
+		return this.dom.querySelector('[data-mixer-playlist]');
 	};
 
 	_component.prototype._getDeck = function (deckId) {
-		return this.dom.querySelector('[data-ln-deck="' + deckId + '"]');
+		return this.dom.querySelector('[data-mixer-deck="' + deckId + '"]');
 	};
 
 	_component.prototype._getLibraryEl = function () {
-		return document.querySelector('[data-ln-library]');
+		return document.querySelector('[data-mixer-library]');
 	};
 
 	_component.prototype._refreshDeckHighlights = function () {
 		const sidebar = this._getSidebar();
 		if (!sidebar) return;
 
-		this.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
-			const deckId = deckEl.getAttribute('data-ln-deck');
+		this.dom.querySelectorAll('[data-mixer-deck]').forEach(function (deckEl) {
+			const deckId = deckEl.getAttribute('data-mixer-deck');
 			const idx = (deckEl.lnDeck) ? deckEl.lnDeck.trackIndex : -1;
 			sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-highlight', {
 				detail: { deckId: deckId, index: idx }

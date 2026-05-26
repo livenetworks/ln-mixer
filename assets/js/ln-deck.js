@@ -1,4 +1,4 @@
-const DOM_SELECTOR = 'data-ln-deck';
+const DOM_SELECTOR = 'data-mixer-deck';
 const DOM_ATTRIBUTE = 'lnDeck';
 
 if (!window[DOM_ATTRIBUTE]) {
@@ -75,7 +75,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		this._loopEnabled = false;     // LED toggle
 
 		// Audio
-		this._audio = dom.querySelector('[data-ln-audio]');
+		this._audio = dom.querySelector('[data-mixer-audio]');
 
 		// Cache DOM (all within this.dom)
 		this._els = {
@@ -84,11 +84,11 @@ if (!window[DOM_ATTRIBUTE]) {
 			artist:      dom.querySelector('[data-ln-field="artist"]'),
 			timeCurrent: dom.querySelector('[data-ln-field="time-current"]'),
 			timeTotal:   dom.querySelector('[data-ln-field="time-total"]'),
-			waveformEl:  dom.querySelector('[data-ln-waveform]'),
-			playBtn:     dom.querySelector('[data-ln-transport="play"]'),
-			pauseBtn:    dom.querySelector('[data-ln-transport="pause"]'),
-			loopBtn:     dom.querySelector('[data-ln-cue="loop"]'),
-			loopSegments: dom.querySelector('[data-ln-loop-segments]')
+			waveformEl:  dom.querySelector('[data-mixer-waveform]'),
+			playBtn:     dom.querySelector('[data-mixer-transport="play"]'),
+			pauseBtn:    dom.querySelector('[data-mixer-transport="pause"]'),
+			loopBtn:     dom.querySelector('[data-mixer-cue="loop"]'),
+			loopSegments: dom.querySelector('[data-mixer-loop-segments]')
 		};
 
 		this._bindEvents();
@@ -143,19 +143,19 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		// Click delegation within this deck root
 		this.dom.addEventListener('click', function (e) {
-			const transportBtn = e.target.closest('[data-ln-transport]');
+			const transportBtn = e.target.closest('[data-mixer-transport]');
 			if (transportBtn) {
 				self._handleTransport(transportBtn);
 				return;
 			}
 
-			const cueBtn = e.target.closest('[data-ln-cue]');
+			const cueBtn = e.target.closest('[data-mixer-cue]');
 			if (cueBtn) {
 				self._handleCue(cueBtn);
 				return;
 			}
 
-			const editBtn = e.target.closest('[data-ln-action="edit-track"]');
+			const editBtn = e.target.closest('[data-mixer-action="edit-track"]');
 			if (editBtn) {
 				self._handleEditRequest();
 				return;
@@ -169,9 +169,9 @@ if (!window[DOM_ATTRIBUTE]) {
 				const removeBtn = e.target.closest('.loop-seg-remove');
 				if (removeBtn) {
 					e.stopPropagation();
-					const segBtn = removeBtn.closest('[data-ln-loop-index]');
+					const segBtn = removeBtn.closest('[data-mixer-loop-index]');
 					if (segBtn) {
-						const idx = parseInt(segBtn.getAttribute('data-ln-loop-index'), 10);
+						const idx = parseInt(segBtn.getAttribute('data-mixer-loop-index'), 10);
 						_dispatch(self.dom, 'ln-deck:loop-delete-requested', {
 							deckId: self.deckId,
 							trackIndex: self.trackIndex,
@@ -181,9 +181,9 @@ if (!window[DOM_ATTRIBUTE]) {
 					return;
 				}
 
-				const loopBtn = e.target.closest('[data-ln-loop-index]');
+				const loopBtn = e.target.closest('[data-mixer-loop-index]');
 				if (loopBtn) {
-					const loopIdx = parseInt(loopBtn.getAttribute('data-ln-loop-index'), 10);
+					const loopIdx = parseInt(loopBtn.getAttribute('data-mixer-loop-index'), 10);
 					self.activateLoop(loopIdx);
 				}
 			});
@@ -223,7 +223,7 @@ if (!window[DOM_ATTRIBUTE]) {
 	   ==================================================================== */
 
 	_component.prototype._handleTransport = function (btn) {
-		const action = btn.getAttribute('data-ln-transport');
+		const action = btn.getAttribute('data-mixer-transport');
 
 		if (action === 'play') {
 			this.play();
@@ -235,7 +235,7 @@ if (!window[DOM_ATTRIBUTE]) {
 	};
 
 	_component.prototype._handleCue = function (btn) {
-		const action = btn.getAttribute('data-ln-cue');
+		const action = btn.getAttribute('data-mixer-cue');
 
 		if (action === 'loop') {
 			this._loopEnabled = !this._loopEnabled;
@@ -582,9 +582,9 @@ if (!window[DOM_ATTRIBUTE]) {
 		for (let i = 0; i < this.track.loops.length; i++) {
 			const loop = this.track.loops[i];
 			const frag = _cloneTemplate('loop-seg-btn');
-			const btn = frag.querySelector('[data-ln-loop-index]');
+			const btn = frag.querySelector('[data-mixer-loop-index]');
 			if (!btn) continue;
-			btn.setAttribute('data-ln-loop-index', i);
+			btn.setAttribute('data-mixer-loop-index', i);
 			if (i === this._activeLoopIndex) btn.classList.add('active');
 			const label = btn.querySelector('.loop-seg-label');
 			if (label) label.textContent = loop.name;
@@ -596,10 +596,10 @@ if (!window[DOM_ATTRIBUTE]) {
 		const container = this._els.loopSegments;
 		if (!container) return;
 
-		const btns = container.querySelectorAll('[data-ln-loop-index]');
+		const btns = container.querySelectorAll('[data-mixer-loop-index]');
 		const self = this;
 		btns.forEach(function (btn) {
-			const idx = parseInt(btn.getAttribute('data-ln-loop-index'), 10);
+			const idx = parseInt(btn.getAttribute('data-mixer-loop-index'), 10);
 			btn.classList.toggle('active', idx === self._activeLoopIndex);
 		});
 	};

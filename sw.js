@@ -3,7 +3,7 @@
    Strategy: pre-cache app shell on install, network-first at runtime
    ==================================================================== */
 
-const CACHE_NAME = 'ln-mixer-v15';
+const CACHE_NAME = 'ln-mixer-v19';
 
 const APP_SHELL = [
 	'./',
@@ -29,14 +29,8 @@ const APP_SHELL = [
 	'./assets/img/icon.svg'
 ];
 
-const LN_ACME = [
-	'./ln-acme/js/ln-toggle/ln-toggle.js',
-	'./ln-acme/js/ln-accordion/ln-accordion.js',
-	'./ln-acme/js/ln-modal/ln-modal.js',
-	'./ln-acme/js/ln-toast/ln-toast.js',
-	'./ln-acme/js/ln-search/ln-search.js',
-	'./ln-acme/js/ln-sortable/ln-sortable.js',
-	'./ln-acme/js/ln-progress/ln-progress.js'
+const LN_ASHLAR = [
+	'./ln-ashlar/demo/dist/ln-ashlar.js'
 ];
 
 /* ─── Install ─────────────────────────────────────────────────────── */
@@ -45,9 +39,9 @@ self.addEventListener('install', function (e) {
 	e.waitUntil(
 		caches.open(CACHE_NAME).then(function (cache) {
 			return cache.addAll(APP_SHELL).then(function () {
-				// ln-acme files — skip failures (submodule may differ)
+				// ln-ashlar files — skip failures (submodule may differ)
 				return Promise.allSettled(
-					LN_ACME.map(function (url) { return cache.add(url); })
+					LN_ASHLAR.map(function (url) { return cache.add(url); })
 				);
 			});
 		}).then(function () {

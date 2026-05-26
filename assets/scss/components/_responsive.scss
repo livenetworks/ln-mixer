@@ -5,21 +5,176 @@
 // These breakpoints control the shell layout: sidebar visibility, column count.
 // ==========================================================================
 
+// ─── Tablet & Small Screen Landscape Layout (Width 901px - 1200px) ─────────
+@media (min-width: 901px) and (max-width: 1200px) {
+	.main-area {
+		// Increase sidebar width to 36% for better track name readability
+		grid-template-columns: 1fr 36%;
+	}
+
+	.track-content {
+		// More compact spacing on tablet landscapes
+		padding: var(--size-sm) var(--size-sm);
+		column-gap: var(--size-xs);
+	}
+
+	.track-name {
+		font-size: 0.8rem;
+	}
+
+	.track-info .track-artist {
+		font-size: 0.7rem;
+	}
+
+	.track-load-actions {
+		gap: 4px; // tighter gap for A/B load buttons
+	}
+
+	.load-btn {
+		min-width: 42px;
+		min-height: 42px;
+		font-size: 0.9rem;
+	}
+}
+
+// ─── Tablet Portrait & Mobile Layout (Width <= 900px) ──────────────────────
 @media (max-width: 900px) {
 	.main-area {
 		grid-template-columns: 1fr;
-		grid-template-rows: 1fr auto;
+		grid-template-rows: 1fr 38vh; // Sidebar at bottom takes up 38% of viewport height
 	}
 
 	.sidebar {
 		border-left: none;
 		border-top: 1px solid hsl(var(--color-border));
-		max-height: 35vh;
+		max-height: 38vh;
+	}
+
+	.track-content {
+		padding: var(--size-sm) var(--size-md);
+	}
+
+	// Hide brand in topbar to maximize touch controls space
+	.topbar .brand {
+		display: none !important;
+	}
+	
+	.topbar {
+		gap: var(--size-sm);
+	}
+
+	.volume-control {
+		input[type="range"] {
+			width: 90px; // slightly shorter volume slider
+		}
 	}
 }
 
+// ─── Short Viewport Height Optimization (Height <= 768px - Tablet landscapes) ─
+@media (max-height: 768px) {
+	:root {
+		--waveform-height: 65px; // shrink waveform to fit loops
+		--topbar-height: 48px;   // slightly shorter topbar
+	}
+
+	.deck {
+		padding: var(--size-xs) var(--size-md);
+		gap: 2px;
+	}
+
+	.deck-header {
+		h2 {
+			font-size: 0.7rem;
+		}
+	}
+
+	.deck .track-info {
+		margin-bottom: 2px;
+	}
+
+	.deck .track-title {
+		font-size: 0.9rem;
+	}
+
+	.deck .track-artist {
+		font-size: 0.8rem;
+	}
+
+	.time-display {
+		font-size: 1.1rem;
+	}
+
+	.controls {
+		gap: var(--size-xs);
+	}
+	
+	.controls button {
+		padding: var(--size-xs) var(--size-sm);
+		font-size: 0.8rem;
+		min-height: 36px; // Tighter buttons but still accessible
+	}
+
+	.controls [data-mixer-transport="play"] {
+		min-width: 4rem;
+	}
+
+	.loop-segments {
+		gap: var(--size-xs);
+		
+		&:empty {
+			min-height: 34px;
+		}
+	}
+
+	.loop-seg-btn {
+		font-size: 0.7rem;
+		min-height: 34px;
+	}
+
+	.loop-seg-label {
+		padding: 0.2rem 0.5rem;
+		padding-left: 1.2rem;
+	}
+
+	.loop-seg-remove {
+		min-width: 32px;
+	}
+}
+
+// ─── Super Short Viewports (Height <= 640px) ───────────────────────────────
+@media (max-height: 640px) {
+	:root {
+		--waveform-height: 50px;
+	}
+
+	.deck {
+		padding: 2px var(--size-md);
+	}
+
+	.deck .track-notes:not(:empty) {
+		font-size: 0.85rem;
+	}
+
+	.deck:has(.track-notes:not(:empty)) .track-title {
+		font-size: 0.75rem;
+	}
+
+	.controls button {
+		min-height: 32px;
+		padding: 2px 6px;
+	}
+}
+
+// ─── Touch target coarse optimizations ──────────────────────────────────────
 @media (pointer: coarse) {
+	// Comfortable touch target size but not overly padded on small widths
 	.track-content {
-		padding: var(--spacing-md);
+		padding: 10px var(--size-md);
+	}
+	
+	@media (max-width: 1200px) {
+		.track-content {
+			padding: 10px var(--size-sm);
+		}
 	}
 }

@@ -1,4 +1,4 @@
-const DOM_SELECTOR = 'data-ln-library';
+const DOM_SELECTOR = 'data-mixer-library';
 const DOM_ATTRIBUTE = 'lnLibrary';
 
 if (!window[DOM_ATTRIBUTE]) {
@@ -76,8 +76,8 @@ if (!window[DOM_ATTRIBUTE]) {
 		this._loaded = false;
 		this._loading = false;
 
-		this._list = dom.querySelector('[data-ln-library-list]');
-		this._noApi = dom.querySelector('[data-ln-library-no-api]');
+		this._list = dom.querySelector('[data-mixer-library-list]');
+		this._noApi = dom.querySelector('[data-mixer-library-no-api]');
 		this._search = dom.querySelector('[data-ln-search]');
 
 		this._bindEvents();
@@ -207,16 +207,16 @@ if (!window[DOM_ATTRIBUTE]) {
 		const urlSet = {};
 		cachedUrls.forEach(function (u) { urlSet[u] = true; });
 
-		const items = this._list.querySelectorAll('[data-ln-library-track]');
+		const items = this._list.querySelectorAll('[data-mixer-library-track]');
 		items.forEach(function (li) {
-			const addBtn = li.querySelector('[data-ln-action="add-to-playlist"]');
+			const addBtn = li.querySelector('[data-mixer-action="add-to-playlist"]');
 			const url = addBtn ? addBtn.getAttribute('data-track-url') : '';
 			const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 			if (url && urlSet[url]) {
-				li.setAttribute('data-ln-cached', '');
+				li.setAttribute('data-mixer-cached', '');
 				if (bar) bar.setAttribute('data-ln-progress', '100');
 			} else {
-				li.removeAttribute('data-ln-cached');
+				li.removeAttribute('data-mixer-cached');
 				if (bar) bar.setAttribute('data-ln-progress', '0');
 			}
 		});
@@ -226,9 +226,9 @@ if (!window[DOM_ATTRIBUTE]) {
 
 	_component.prototype._findItemByUrl = function (url) {
 		if (!this._list) return null;
-		const items = this._list.querySelectorAll('[data-ln-library-track]');
+		const items = this._list.querySelectorAll('[data-mixer-library-track]');
 		for (let i = 0; i < items.length; i++) {
-			const btn = items[i].querySelector('[data-ln-action="add-to-playlist"]');
+			const btn = items[i].querySelector('[data-mixer-action="add-to-playlist"]');
 			if (btn && btn.getAttribute('data-track-url') === url) {
 				return items[i];
 			}
@@ -240,11 +240,11 @@ if (!window[DOM_ATTRIBUTE]) {
 		const li = this._findItemByUrl(url);
 		if (!li) return;
 		if (active) {
-			li.setAttribute('data-ln-downloading', '');
+			li.setAttribute('data-mixer-downloading', '');
 			const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 			if (bar) bar.setAttribute('data-ln-progress', '0');
 		} else {
-			li.removeAttribute('data-ln-downloading');
+			li.removeAttribute('data-mixer-downloading');
 		}
 	};
 
@@ -258,7 +258,7 @@ if (!window[DOM_ATTRIBUTE]) {
 	_component.prototype._markSingleCached = function (url) {
 		const li = this._findItemByUrl(url);
 		if (!li) return;
-		li.setAttribute('data-ln-cached', '');
+		li.setAttribute('data-mixer-cached', '');
 		const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 		if (bar) bar.setAttribute('data-ln-progress', '100');
 	};
@@ -266,16 +266,16 @@ if (!window[DOM_ATTRIBUTE]) {
 	_component.prototype._markSingleUncached = function (url) {
 		const li = this._findItemByUrl(url);
 		if (!li) return;
-		li.removeAttribute('data-ln-cached');
+		li.removeAttribute('data-mixer-cached');
 		const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 		if (bar) bar.setAttribute('data-ln-progress', '0');
 	};
 
 	_component.prototype._clearAllCached = function () {
 		if (!this._list) return;
-		const items = this._list.querySelectorAll('[data-ln-cached]');
+		const items = this._list.querySelectorAll('[data-mixer-cached]');
 		items.forEach(function (li) {
-			li.removeAttribute('data-ln-cached');
+			li.removeAttribute('data-mixer-cached');
 			const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
 			if (bar) bar.setAttribute('data-ln-progress', '0');
 		});
@@ -285,7 +285,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 	_component.prototype._buildLibraryItem = function (track) {
 		const frag = _cloneTemplate('library-item');
-		const li = frag.querySelector('[data-ln-library-track]');
+		const li = frag.querySelector('[data-mixer-library-track]');
 
 		var nameEl = li.querySelector('.track-name');
 		var artistEl = li.querySelector('.track-artist');
@@ -293,7 +293,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		if (artistEl) artistEl.textContent = track.artist;
 
 		// Set data attributes on Add button for coordinator to read
-		const addBtn = li.querySelector('[data-ln-action="add-to-playlist"]');
+		const addBtn = li.querySelector('[data-mixer-action="add-to-playlist"]');
 		if (addBtn) {
 			addBtn.setAttribute('data-track-title', track.title);
 			addBtn.setAttribute('data-track-artist', track.artist);

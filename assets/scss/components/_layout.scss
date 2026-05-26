@@ -2,6 +2,8 @@
 // _layout.scss — .player grid, main-area, decks-panel, empty-state, footer, progress
 // ==========================================================================
 
+@use '../../../ln-ashlar/scss/config/mixins' as *;
+
 // ─── Player grid ────────────────────────────────────────────────────────────
 
 .player {
@@ -33,13 +35,9 @@
 // ─── App footer ─────────────────────────────────────────────────────────────
 
 .app-footer {
-	padding: var(--spacing-xs) var(--spacing-md);
-	border-top: 1px solid hsl(var(--color-border));
-	text-align: center;
-	color: hsl(var(--color-text-muted));
+	@include app-footer;
+	justify-content: center;
 	font-size: 0.7rem;
-	letter-spacing: 0.04em;
-	user-select: none;
 
 	a {
 		color: hsl(var(--color-primary));
@@ -74,19 +72,12 @@
 
 .empty-state {
 	grid-column: 1 / -1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: var(--spacing-md);
-	padding: var(--spacing-xl);
-	text-align: center;
-	color: hsl(var(--color-text-secondary));
+	@include empty-state;
+	max-width: none;
 
 	h2 {
 		font-size: 1.25rem;
 		color: hsl(var(--color-text-primary));
-		margin: 0;
 	}
 
 	h2::before {
@@ -99,12 +90,11 @@
 		background-size: 32px 32px;
 		background-position: center;
 		opacity: 0.5;
-		margin: 0 auto var(--spacing-md);
+		margin: 0 auto var(--size-md);
 	}
 
 	p {
 		font-size: 0.9rem;
-		margin: 0;
 	}
 }
 
@@ -119,5 +109,5 @@
 	background-size: 32px 32px;
 	background-position: center;
 	opacity: 0.5;
-	margin: 0 auto var(--spacing-md);
+	margin: 0 auto var(--size-md);
 }

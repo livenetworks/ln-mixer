@@ -80,49 +80,49 @@ This project follows [ln-acme](https://github.com/livenetworks/ln-acme) conventi
 
 | Attribute | Purpose |
 |---|---|
-| `data-ln-deck="a"` / `"b"` | Deck root element (ln-deck component) — two instances |
-| `data-ln-deck-target="a"` / `"b"` | Links transport/cue buttons to their deck |
-| `data-ln-load-to="a"` / `"b"` | Sidebar [A] [B] buttons to load track into specific deck |
-| `data-ln-drag-handle` | Drag reorder handle (on `.track-number` span) |
-| `data-ln-transport="play"` / `"stop"` | Transport control buttons (per deck) |
-| `data-ln-cue="mark-start"` / `"mark-end"` / `"loop"` | Cue point and loop controls (per deck). Loop button is LED toggle (`.btn--led` with `<mark class="led-indicator">`) |
-| `data-ln-waveform="a"` / `"b"` | Waveform figure container — ln-waveform component (WaveSurfer, zoom, timeline) |
-| `data-ln-zoom="in"` / `"out"` | Waveform zoom buttons (handled by ln-waveform) |
-| `data-ln-audio="a"` / `"b"` | Hidden `<audio>` element inside each deck (WaveSurfer `media` option) |
-| `data-ln-potentiometer="master"` | Master volume slider (controls AudioContext masterGain) |
-| `data-ln-playlist` | Sidebar root element (ln-playlist component) |
-| `data-ln-playlist-profile="..."` | Reactive attribute — profile ID to load (set by ln-mixer) |
-| `data-ln-playlist-id="..."` | Child playlist group identifier (`<section>`) |
-| `data-ln-playlist-toggle="..."` | Accordion toggle header |
-| `data-ln-track-list="..."` | Track list `<ol>` containers (one per playlist) |
-| `data-ln-dialog="new-playlist"` / `"track-library"` / `"edit-track"` / `"settings"` / `"new-profile"` / `"name-loop"` | Dialog elements |
-| `data-ln-form="new-playlist"` / `"track-library"` / `"edit-track"` / `"settings"` / `"new-profile"` / `"name-loop"` | `<form>` inside each dialog |
-| `data-ln-track-index` / `data-ln-playlist-id` | Context attributes on edit-track `<form>` (set by JS, no hidden inputs) |
-| `data-ln-action="..."` | Action buttons (new-playlist, create-playlist, open-library, add-to-playlist, edit-track, save-track-edit, remove-track, open-settings, save-settings, upload-logo, new-profile, create-profile, delete-profile, remove-cached, clear-audio-cache) |
-| `data-ln-setting="api-url"` | Settings form fields |
-| `data-ln-brand` / `data-ln-brand-logo` | Topbar branding elements |
-| `data-ln-logo-input` / `data-ln-logo-preview` | Settings dialog internal elements |
-| `data-ln-profile` | Profile component root (`<nav>` in topbar) |
-| `data-ln-empty-state` | Empty state section (hidden when profiles exist) |
-| `data-ln-global-progress` | Global download progress bar (`<figure>`, managed by ln-mixer-cache) |
-| `data-ln-library-no-api` | "No API configured" notice in library dialog (hidden when API URL is set) |
-| `data-ln-install-field` | PWA install button fieldset (hidden until `beforeinstallprompt` fires) |
-| `data-ln-field="new-profile-name"` | Profile name input in new-profile dialog |
-| `data-ln-field="new-playlist-name"` | Playlist name input in new-playlist dialog |
-| `data-ln-field="title"` / `"artist"` / `"time-current"` / `"time-total"` | Deck display fields (within each deck root) |
-| `data-ln-library` | Library component root (on track-library `<form>`) |
-| `data-ln-library-list` | Library track list `<ul>` |
-| `data-ln-search="library-list"` | ln-search component on library search fieldset |
-| `data-ln-toast` | Toast notification container |
-| `data-ln-cache-size` | Settings `<output>` — shows cached tracks count + size |
-| `data-ln-cached` | Library `<li>` — track audio is cached in IDB |
-| `data-ln-downloading` | Library `<li>` — download in progress |
-| `data-ln-loop-segments="a"` / `"b"` | Loop segment button container below deck controls |
-| `data-ln-loop-index="0"` / `"1"` / ... | Individual loop segment button (JS-generated, per deck) |
-| `data-ln-field="loop-name"` | Loop name input in name-loop dialog |
-| `data-ln-field="loop-range"` | Loop time range display in name-loop dialog |
-| `data-ln-loop-start` / `data-ln-loop-end` | Loop time (sec) context attributes on name-loop `<form>` |
-| `data-ln-loop-start-pct` / `data-ln-loop-end-pct` | Loop percentage context attributes on name-loop `<form>` |
+| `data-mixer-deck="a"` / `"b"` | Deck root element (ln-deck component) — two instances |
+| `data-mixer-deck-target="a"` / `"b"` | Links transport/cue buttons to their deck |
+| `data-mixer-load-to="a"` / `"b"` | Sidebar [A] [B] buttons to load track into specific deck |
+| `data-ln-sortable-handle` | Drag reorder handle (on `.track-number` span) — framework |
+| `data-mixer-transport="play"` / `"stop"` | Transport control buttons (per deck) |
+| `data-mixer-cue="mark-start"` / `"mark-end"` / `"loop"` | Cue point and loop controls (per deck). Loop button is LED toggle |
+| `data-mixer-waveform="a"` / `"b"` | Waveform figure container — ln-waveform component (WaveSurfer, zoom, timeline) |
+| `data-mixer-zoom="in"` / `"out"` | Waveform zoom buttons (handled by ln-waveform) |
+| `data-mixer-audio="a"` / `"b"` | Hidden `<audio>` element inside each deck (WaveSurfer `media` option) |
+| `data-mixer-potentiometer="master"` | Master volume slider (controls AudioContext masterGain) |
+| `data-mixer-playlist` | Sidebar root element (ln-playlist component) |
+| `data-mixer-playlist-profile="..."` | Reactive attribute — profile ID to load (set by ln-mixer) |
+| `data-mixer-playlist-id="..."` | Child playlist group identifier (`<section>`) |
+| `data-mixer-track-list="..."` | Track list `<ol>` containers (one per playlist) |
+| `data-ln-modal` | Dialog modal identifier — framework |
+| `data-ln-form="new-playlist"` / `"track-library"` / `"edit-track"` / `"settings"` / `"new-profile"` / `"name-loop"` | `<form>` inside each dialog — framework |
+| `data-mixer-track-index` / `data-mixer-playlist-id` | Context attributes on edit-track `<form>` (set by JS, no hidden inputs) |
+| `data-mixer-action="..."` | Action buttons (new-playlist, create-playlist, open-library, add-to-playlist, edit-track, save-track-edit, remove-track, open-settings, save-settings, upload-logo, new-profile, create-profile, delete-profile, remove-cached, clear-audio-cache) |
+| `data-mixer-setting="api-url"` | Settings form fields |
+| `data-mixer-brand` / `data-mixer-brand-logo` | Topbar branding elements |
+| `data-mixer-logo-input` / `data-mixer-logo-preview` | Settings dialog internal elements |
+| `data-mixer-profile` | Profile component root (`<nav>` in topbar) |
+| `data-mixer-empty-state` | Empty state section (hidden when profiles exist) |
+| `data-mixer-progress` | Global download progress bar (`<figure>`, managed by ln-mixer-cache) |
+| `data-mixer-library-no-api` | "No API configured" notice in library dialog (hidden when API URL is set) |
+| `data-mixer-install-field` | PWA install button fieldset (hidden until `beforeinstallprompt` fires) |
+| `data-ln-field="new-profile-name"` | Profile name input in new-profile dialog — framework |
+| `data-ln-field="new-playlist-name"` | Playlist name input in new-playlist dialog — framework |
+| `data-ln-field="title"` / `"artist"` / `"time-current"` / `"time-total"` | Deck display fields (within each deck root) — framework |
+| `data-mixer-library` | Library component root (on track-library `<form>`) |
+| `data-mixer-library-list` | Library track list `<ul>` |
+| `data-ln-search="library-list"` | ln-search component on library search fieldset — framework |
+| `data-ln-toast` | Toast notification container — framework |
+| `data-mixer-cache-size` | Settings `<output>` — shows cached tracks count + size |
+| `data-mixer-cached` | Library `<li>` — track audio is cached in IDB |
+| `data-mixer-downloading` | Library `<li>` — download in progress |
+| `data-mixer-loop-segments="a"` / `"b"` | Loop segment button container below deck controls |
+| `data-mixer-loop-index="0"` / `"1"` / ... | Individual loop segment button (JS-generated, per deck) |
+| `data-ln-field="loop-name"` | Loop name input in name-loop dialog — framework |
+| `data-ln-field="loop-range"` | Loop time range display in name-loop dialog — framework |
+| `data-mixer-loop-start` / `data-mixer-loop-end` | Loop time (sec) context attributes on name-loop `<form>` |
+| `data-mixer-loop-start-pct` / `data-mixer-loop-end-pct` | Loop percentage context attributes on name-loop `<form>` |
+
 
 **Layout**: Deck A (orange) + Deck B (blue) stacked vertically on left (~70%), playlist sidebar on right (~30%). Sidebar uses ln-toggle/ln-accordion for one-at-a-time. Each deck has transport + cue + Loop LED toggle + "Opis" (edit track notes) button, followed by named loop segment buttons strip. Each sidebar track has explicit [A] [B] buttons (48x48px touch targets) to load into a specific deck. Drag & drop reorder via Pointer Events API. "New Playlist" button in sidebar footer.
 
@@ -272,7 +272,7 @@ ln-dj-mixer/
 - Multiple named loop segments per track (replaces single cue start/end pair)
 - Track data: `loops: [{ name, startSec, endSec, startPct, endPct }]` — old `cueStart/cueEnd/cueStartPct/cueEndPct/loop` fields removed
 - UX flow: Cue A (mark-start) → Cue B (mark-end) → Name dialog → segment button appears below deck controls
-- Loop LED toggle: `.btn--led` button with `<mark class="led-indicator">`, enables loop enforcement (`_onTimeUpdate` seeks back to `startSec` when `currentTime >= endSec`)
+- Loop LED toggle: enables loop enforcement (`_onTimeUpdate` seeks back to `startSec` when `currentTime >= endSec`)
 - Segment buttons: click to activate + seek to start, X to delete
 - Coordinator wiring: `ln-deck:loop-captured` → modal → `ln-playlist:request-add-loop` → persist → `ln-deck:request-set-loops`
 - Sidebar indicators: loop count badge (e.g. "2 loops") in track meta row

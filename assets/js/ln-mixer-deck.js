@@ -16,7 +16,7 @@ export function setupDeck(mixer) {
 	mixer._autoplayTick = function () {
 		if (!this._autoplay || this._autoplayPreloaded) return;
 
-		const decks = this.dom.querySelectorAll('[data-ln-deck]');
+		const decks = this.dom.querySelectorAll('[data-mixer-deck]');
 		let playing = null, free = null;
 		decks.forEach(function (d) {
 			if (!d.lnDeck) return;
@@ -49,13 +49,13 @@ export function setupDeck(mixer) {
 		};
 
 		free.dataset.lnFromPlaylist = plId;
-		this._loadTrackToDeck(free.getAttribute('data-ln-deck'), nextIdx, nextTrack);
+		this._loadTrackToDeck(free.getAttribute('data-mixer-deck'), nextIdx, nextTrack);
 		this._autoplayPreloaded = true;
 	};
 
 	mixer._autoplayOnEnded = function (endedEl) {
 		if (!this._autoplay) return;
-		const decks = this.dom.querySelectorAll('[data-ln-deck]');
+		const decks = this.dom.querySelectorAll('[data-mixer-deck]');
 		for (let i = 0; i < decks.length; i++) {
 			if (decks[i] !== endedEl && decks[i].lnDeck && decks[i].lnDeck.trackIndex >= 0) {
 				this._autoplayPreloaded = false;
@@ -75,9 +75,9 @@ export function setupDeck(mixer) {
 			if (self._autoplayTimer) { clearInterval(self._autoplayTimer); self._autoplayTimer = null; }
 			self._autoplayPreloaded = false;
 
-			const decks = self.dom.querySelectorAll('[data-ln-deck]');
+			const decks = self.dom.querySelectorAll('[data-mixer-deck]');
 			decks.forEach(function (deckEl) {
-				const id = deckEl.getAttribute('data-ln-deck');
+				const id = deckEl.getAttribute('data-mixer-deck');
 				if (self._blobUrls[id]) {
 					URL.revokeObjectURL(self._blobUrls[id]);
 					delete self._blobUrls[id];
@@ -96,7 +96,7 @@ export function setupDeck(mixer) {
 
 		// Exclusive play — stop all other decks (accordion-style) + autoplay timer
 		this.dom.addEventListener('ln-deck:played', function (e) {
-			const allDecks = self.dom.querySelectorAll('[data-ln-deck]');
+			const allDecks = self.dom.querySelectorAll('[data-mixer-deck]');
 			allDecks.forEach(function (deck) {
 				if (deck !== e.target) {
 					deck.dispatchEvent(new CustomEvent('ln-deck:request-stop'));
@@ -119,7 +119,7 @@ export function setupDeck(mixer) {
 			self.dom.addEventListener(evt, function () {
 				if (!self._autoplayTimer) return;
 				let any = false;
-				self.dom.querySelectorAll('[data-ln-deck]').forEach(function (d) {
+				self.dom.querySelectorAll('[data-mixer-deck]').forEach(function (d) {
 					if (d.lnDeck && d.lnDeck.isPlaying) any = true;
 				});
 				if (!any) { clearInterval(self._autoplayTimer); self._autoplayTimer = null; }
@@ -184,7 +184,7 @@ export function setupDeck(mixer) {
 		this.dom.addEventListener('ln-playlist:reordered', function (e) {
 			const oldToNew = e.detail.oldToNew;
 
-			self.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
+			self.dom.querySelectorAll('[data-mixer-deck]').forEach(function (deckEl) {
 				if (!deckEl.lnDeck) return;
 				const oldIdx = deckEl.lnDeck.trackIndex;
 
@@ -201,10 +201,10 @@ export function setupDeck(mixer) {
 
 		// Track added → auto-load to first empty deck (cache-aware)
 		this.dom.addEventListener('ln-playlist:track-added', function (e) {
-			const decks = self.dom.querySelectorAll('[data-ln-deck]');
+			const decks = self.dom.querySelectorAll('[data-mixer-deck]');
 			for (let i = 0; i < decks.length; i++) {
 				if (decks[i].lnDeck && decks[i].lnDeck.trackIndex < 0) {
-					self._loadTrackToDeck(decks[i].getAttribute('data-ln-deck'), e.detail.trackIndex, e.detail.track);
+					self._loadTrackToDeck(decks[i].getAttribute('data-mixer-deck'), e.detail.trackIndex, e.detail.track);
 					return;
 				}
 			}
@@ -231,12 +231,12 @@ export function setupDeck(mixer) {
 			const form = document.querySelector('[data-ln-form="name-loop"]');
 			if (!form) return;
 
-			form.setAttribute('data-ln-deck-id', e.detail.deckId);
-			form.setAttribute('data-ln-track-index', e.detail.trackIndex);
-			form.setAttribute('data-ln-loop-start', e.detail.startSec);
-			form.setAttribute('data-ln-loop-end', e.detail.endSec);
-			form.setAttribute('data-ln-loop-start-pct', e.detail.startPct);
-			form.setAttribute('data-ln-loop-end-pct', e.detail.endPct);
+			form.setAttribute('data-mixer-deck-id', e.detail.deckId);
+			form.setAttribute('data-mixer-track-index', e.detail.trackIndex);
+			form.setAttribute('data-mixer-loop-start', e.detail.startSec);
+			form.setAttribute('data-mixer-loop-end', e.detail.endSec);
+			form.setAttribute('data-mixer-loop-start-pct', e.detail.startPct);
+			form.setAttribute('data-mixer-loop-end-pct', e.detail.endPct);
 
 			const rangeEl = document.querySelector('[data-ln-field="loop-range"]');
 			if (rangeEl) {
@@ -246,7 +246,8 @@ export function setupDeck(mixer) {
 			const nameInput = document.querySelector('[data-ln-field="loop-name"]');
 			if (nameInput) nameInput.value = '';
 
-			lnModal.open('modal-name-loop');
+			const modalEl = document.getElementById('modal-name-loop');
+			if (modalEl) modalEl.setAttribute('data-ln-modal', 'open');
 			if (nameInput) nameInput.focus();
 		});
 
@@ -274,7 +275,7 @@ export function setupDeck(mixer) {
 		// Loop added/removed → refresh deck segment buttons
 		this.dom.addEventListener('ln-playlist:loop-added', function (e) {
 			const d = e.detail;
-			self.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
+			self.dom.querySelectorAll('[data-mixer-deck]').forEach(function (deckEl) {
 				if (deckEl.lnDeck && deckEl.lnDeck.trackIndex === d.trackIndex) {
 					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
 						detail: { loops: d.loops }
@@ -285,7 +286,7 @@ export function setupDeck(mixer) {
 
 		this.dom.addEventListener('ln-playlist:loop-removed', function (e) {
 			const d = e.detail;
-			self.dom.querySelectorAll('[data-ln-deck]').forEach(function (deckEl) {
+			self.dom.querySelectorAll('[data-mixer-deck]').forEach(function (deckEl) {
 				if (deckEl.lnDeck && deckEl.lnDeck.trackIndex === d.trackIndex) {
 					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
 						detail: { loops: d.loops }
@@ -301,7 +302,7 @@ export function setupDeck(mixer) {
 		const self = this;
 
 		document.addEventListener('click', function (e) {
-			const btn = e.target.closest('[data-ln-action="toggle-autoplay"]');
+			const btn = e.target.closest('[data-mixer-action="toggle-autoplay"]');
 			if (!btn) return;
 
 			self._autoplay = !self._autoplay;
@@ -334,12 +335,12 @@ export function setupDeck(mixer) {
 				return;
 			}
 
-			const deckId = form.getAttribute('data-ln-deck-id');
-			const trackIndex = parseInt(form.getAttribute('data-ln-track-index'), 10);
-			const startSec = parseFloat(form.getAttribute('data-ln-loop-start'));
-			const endSec = parseFloat(form.getAttribute('data-ln-loop-end'));
-			const startPct = parseFloat(form.getAttribute('data-ln-loop-start-pct'));
-			const endPct = parseFloat(form.getAttribute('data-ln-loop-end-pct'));
+			const deckId = form.getAttribute('data-mixer-deck-id');
+			const trackIndex = parseInt(form.getAttribute('data-mixer-track-index'), 10);
+			const startSec = parseFloat(form.getAttribute('data-mixer-loop-start'));
+			const endSec = parseFloat(form.getAttribute('data-mixer-loop-end'));
+			const startPct = parseFloat(form.getAttribute('data-mixer-loop-start-pct'));
+			const endPct = parseFloat(form.getAttribute('data-mixer-loop-end-pct'));
 
 			const loopData = {
 				name: name,
@@ -361,7 +362,8 @@ export function setupDeck(mixer) {
 				}));
 			}
 
-			lnModal.close('modal-name-loop');
+			const modalEl = document.getElementById('modal-name-loop');
+			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
 			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 				detail: { type: 'success', message: 'Loop "' + name + '" saved' }
 			}));
@@ -369,10 +371,12 @@ export function setupDeck(mixer) {
 
 		// Open settings from library empty state
 		document.addEventListener('click', function (e) {
-			if (e.target.closest('[data-ln-action="open-settings-from-library"]')) {
-				lnModal.close('modal-track-library');
+			if (e.target.closest('[data-mixer-action="open-settings-from-library"]')) {
+				const libModal = document.getElementById('modal-track-library');
+				if (libModal) libModal.setAttribute('data-ln-modal', 'close');
 				self._populateSettingsForm();
-				lnModal.open('modal-settings');
+				const setModal = document.getElementById('modal-settings');
+				if (setModal) setModal.setAttribute('data-ln-modal', 'open');
 			}
 		});
 	};

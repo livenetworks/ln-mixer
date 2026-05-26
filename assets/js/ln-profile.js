@@ -1,4 +1,4 @@
-const DOM_SELECTOR = 'data-ln-profile';
+const DOM_SELECTOR = 'data-mixer-profile';
 const DOM_ATTRIBUTE = 'lnProfile';
 
 if (!window[DOM_ATTRIBUTE]) {
@@ -66,7 +66,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		this.profiles = {};
 		this.currentId = null;
 
-		this.addBtn = dom.querySelector('[data-ln-action="new-profile"]');
+		this.addBtn = dom.querySelector('[data-mixer-action="new-profile"]');
 
 		this._bindEvents();
 
@@ -80,9 +80,9 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		// Click delegation on nav for profile switching (own buttons only)
 		this.dom.addEventListener('click', function (e) {
-			const btn = e.target.closest('[data-ln-profile-id]');
+			const btn = e.target.closest('[data-mixer-profile-id]');
 			if (btn) {
-				const id = btn.getAttribute('data-ln-profile-id');
+				const id = btn.getAttribute('data-mixer-profile-id');
 				if (id !== self.currentId) {
 					self.switchTo(id);
 				}
@@ -128,7 +128,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 	_component.prototype._renderButtons = function () {
 		// Remove old profile buttons
-		this.dom.querySelectorAll('[data-ln-profile-id]').forEach(function (btn) {
+		this.dom.querySelectorAll('[data-mixer-profile-id]').forEach(function (btn) {
 			btn.remove();
 		});
 
@@ -136,8 +136,8 @@ if (!window[DOM_ATTRIBUTE]) {
 		const keys = Object.keys(this.profiles);
 		keys.forEach(function (id) {
 			const frag = _cloneTemplate('profile-btn');
-			const btn = frag.querySelector('[data-ln-profile-id]');
-			btn.setAttribute('data-ln-profile-id', id);
+			const btn = frag.querySelector('[data-mixer-profile-id]');
+			btn.setAttribute('data-mixer-profile-id', id);
 			btn.textContent = self.profiles[id].name;
 			self.dom.insertBefore(btn, self.addBtn);
 		});
@@ -147,8 +147,8 @@ if (!window[DOM_ATTRIBUTE]) {
 
 	_component.prototype._updateActive = function () {
 		const self = this;
-		this.dom.querySelectorAll('[data-ln-profile-id]').forEach(function (btn) {
-			btn.classList.toggle('active', btn.getAttribute('data-ln-profile-id') === self.currentId);
+		this.dom.querySelectorAll('[data-mixer-profile-id]').forEach(function (btn) {
+			btn.classList.toggle('active', btn.getAttribute('data-mixer-profile-id') === self.currentId);
 		});
 	};
 

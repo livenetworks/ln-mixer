@@ -19,8 +19,8 @@ if (!window[DOM_ATTRIBUTE]) {
 	let _brandLogo = null;
 
 	function _cacheBrandDom() {
-		_brand = document.querySelector('[data-ln-brand]');
-		_brandLogo = document.querySelector('[data-ln-brand-logo]');
+		_brand = document.querySelector('[data-mixer-brand]');
+		_brandLogo = document.querySelector('[data-mixer-brand-logo]');
 	}
 
 	/* ====================================================================

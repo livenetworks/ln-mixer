@@ -2,12 +2,14 @@
 // _settings.scss — Settings form, logo preview, cache info, transfer, import-url
 // ==========================================================================
 
+@use '../../../ln-ashlar/scss/config/mixins' as *;
+
 // ─── Settings form ────────────────────────────────────────────────────────────
 
 .settings-form {
 	display: flex;
 	flex-direction: column;
-	gap: var(--spacing-lg);
+	gap: var(--size-lg);
 
 	.form-field .field-hint {
 		font-size: 0.7rem;
@@ -21,7 +23,7 @@
 .logo-preview {
 	display: flex;
 	align-items: center;
-	gap: var(--spacing-md);
+	gap: var(--size-md);
 
 	img {
 		max-width: 64px;
@@ -51,63 +53,56 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--spacing-sm);
+	gap: var(--size-sm);
 
 	output {
 		font-size: 0.875rem;
 		color: hsl(var(--color-text-secondary));
 	}
+}
 
-	button {
-		white-space: nowrap;
-	}
+.cache-info button {
+	white-space: nowrap;
 }
 
 // ─── Transfer actions ─────────────────────────────────────────────────────────
 
 .transfer-actions {
 	display: flex;
-	gap: var(--spacing-sm);
+	gap: var(--size-sm);
+}
 
-	button {
-		flex: 1;
-	}
+.transfer-actions button {
+	flex: 1;
 }
 
 // ─── Import URL row ───────────────────────────────────────────────────────────
 
 .import-url-row {
 	display: flex;
-	gap: var(--spacing-sm);
+	gap: var(--size-sm);
 	align-items: center;
 
 	input[type="url"] {
 		flex: 1;
-		background: hsl(var(--color-input-bg));
-		border: 1px solid hsl(var(--color-input-border));
+		@include form-input;
+		--color-bg: hsl(var(--color-input-bg));
+		--color-border: hsl(var(--color-input-border));
 		border-radius: var(--radius-sm);
-		color: hsl(var(--color-text-primary));
-		padding: 0.5rem 0.75rem;
-		font-size: 0.9rem;
-		font-family: var(--font-sans);
-
-		&::placeholder {
-			color: hsl(var(--color-text-muted));
-		}
 	}
+}
 
-	button {
-		white-space: nowrap;
-	}
+.import-url-row button {
+	white-space: nowrap;
 }
 
 // ─── Transfer status ──────────────────────────────────────────────────────────
 
-[data-ln-transfer-status] {
+[data-mixer-transfer-status] {
 	display: block;
 	font-size: 0.8rem;
 	color: hsl(var(--color-primary));
-	margin-top: var(--spacing-xs);
+	margin-top: var(--size-xs);
 	font-style: italic;
 
 	&[hidden] {

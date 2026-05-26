@@ -1,11 +1,5 @@
-// ln-acme components (side-effect imports)
-import 'ln-acme/js/ln-toggle/ln-toggle.js';
-import 'ln-acme/js/ln-accordion/ln-accordion.js';
-import 'ln-acme/js/ln-modal/ln-modal.js';
-import 'ln-acme/js/ln-toast/ln-toast.js';
-import 'ln-acme/js/ln-search/ln-search.js';
-import 'ln-acme/js/ln-sortable/ln-sortable.js';
-import 'ln-acme/js/ln-progress/ln-progress.js';
+// ln-ashlar master bundle (pre-built unified JS components + styles)
+import 'ln-ashlar/demo/dist/ln-ashlar.js';
 
 // Mixer components (side-effect imports, order matters)
 import './ln-db.js';
@@ -38,3 +32,5 @@ document.addEventListener('submit', function (e) {
 if ('serviceWorker' in navigator) {
 	navigator.serviceWorker.register('./sw.js');
 }
+
+

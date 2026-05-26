@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html data-theme="dark" lang="en">
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,7 +15,7 @@
 	<script type="importmap">
 	{
 		"imports": {
-			"ln-acme/": "./ln-acme/",
+			"ln-ashlar/": "./ln-ashlar/",
 			"wavesurfer.js": "./assets/js/vendor/wavesurfer.js"
 		}
 	}
@@ -23,40 +23,40 @@
 </head>
 <body>
 
-	<form class="player" data-ln-mixer>
+	<form class="player" data-mixer>
 
 		<!-- ============================================================
 		     TOPBAR
 		     ============================================================ -->
 		<header class="topbar">
 			<nav class="topbar-left">
-				<figure class="brand" data-ln-brand hidden>
-					<img src="" alt="Logo" data-ln-brand-logo />
+				<figure class="brand" data-mixer-brand hidden>
+					<img src="" alt="Logo" data-mixer-brand-logo />
 				</figure>
 			</nav>
 
-			<nav class="profile-bar" data-ln-profile>
-				<button type="button" class="profile-add ln-icon-add--white ln-icon--sm" data-ln-action="new-profile"></button>
+			<nav class="profile-bar" data-mixer-profile>
+				<button type="button" class="profile-add ln-icon-add--white ln-icon--sm" data-ln-modal-for="modal-new-profile"></button>
 			</nav>
 
 			<fieldset class="volume-control">
 				<legend class="sr-only">Master Volume</legend>
 				<span class="ln-icon-volume--white ln-icon--sm"></span>
 				<input type="range" id="master-volume" min="0" max="100" value="80"
-					data-ln-potentiometer="master" aria-label="Master Volume" />
+					data-mixer-potentiometer="master" aria-label="Master Volume" />
 			</fieldset>
 
 			<nav class="autoplay-control">
-				<button type="button" class="btn--led ln-icon-next--white" data-ln-action="toggle-autoplay" aria-pressed="false">Auto</button>
+				<button type="button" class="ln-icon-next--white" data-mixer-action="toggle-autoplay" aria-pressed="false">Auto</button>
 			</nav>
 
 			<nav class="topbar-actions">
-				<button type="button" class="ln-icon-folder--white" data-ln-action="open-library">Library</button>
-				<button type="button" class="ln-icon-settings--white" data-ln-action="open-settings">Settings</button>
+				<button type="button" class="ln-icon-folder--white" data-ln-modal-for="modal-track-library">Library</button>
+				<button type="button" class="ln-icon-settings--white" data-ln-modal-for="modal-settings">Settings</button>
 			</nav>
 		</header>
 
-		<figure class="global-progress" data-ln-global-progress hidden
+		<figure class="global-progress" data-mixer-progress hidden
 			role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
 			<mark data-ln-progress="0"></mark>
 		</figure>
@@ -67,17 +67,17 @@
 		<main class="main-area">
 
 			<!-- ====== EMPTY STATE (no profile) ====== -->
-			<section class="empty-state" data-ln-empty-state hidden>
+			<section class="empty-state" data-mixer-empty-state hidden>
 				<h2 class="ln-icon-add--white">Welcome to LN DJ Mixer</h2>
 				<p>Create your first profile to get started.</p>
-				<button type="button" class="ln-icon-add--white ln-icon--sm" data-ln-action="new-profile">New Profile</button>
+				<button type="button" class="ln-icon-add--white ln-icon--sm" data-ln-modal-for="modal-new-profile">New Profile</button>
 			</section>
 
 			<!-- ====== DECKS (left) ====== -->
 			<section class="decks-panel" hidden>
 
 				<!-- DECK A — Now Playing -->
-				<article class="deck deck--a" data-ln-deck="a">
+				<article class="deck deck--a" data-mixer-deck="a">
 					<header class="deck-header">
 						<h2>Deck A <mark class="deck-badge">Now Playing</mark></h2>
 					</header>
@@ -90,7 +90,7 @@
 
 					<!-- Waveform -->
 					<fieldset class="waveform-container">
-						<figure class="waveform" data-ln-waveform>
+						<figure class="waveform" data-mixer-waveform>
 							<figcaption class="sr-only">Deck A waveform</figcaption>
 							<mark class="cue-region" style="display: none;"></mark>
 							<mark class="cue-marker cue-marker--start" style="display: none;"></mark>
@@ -101,8 +101,8 @@
 							<nav class="waveform-timeline" aria-hidden="true"></nav>
 						</figure>
 						<nav class="waveform-zoom">
-							<button type="button" class="ln-icon-zoom-in--white" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"></button>
-							<button type="button" class="ln-icon-zoom-out--white" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"></button>
+							<button type="button" class="ln-icon-zoom-in--white" data-mixer-zoom="in" aria-label="Zoom in" title="Zoom in"></button>
+							<button type="button" class="ln-icon-zoom-out--white" data-mixer-zoom="out" aria-label="Zoom out" title="Zoom out"></button>
 						</nav>
 					</fieldset>
 
@@ -116,31 +116,31 @@
 					<!-- Transport -->
 					<ul class="controls">
 						<li>
-							<button type="button" class="ln-icon-play--white" data-ln-transport="play" data-ln-deck-target="a">Play</button>
-							<button type="button" class="ln-icon-pause--white" data-ln-transport="pause" data-ln-deck-target="a" hidden>Pause</button>
+							<button type="button" class="ln-icon-play--white" data-mixer-transport="play" data-mixer-deck-target="a">Play</button>
+							<button type="button" class="ln-icon-pause--white" data-mixer-transport="pause" data-mixer-deck-target="a" hidden>Pause</button>
 						</li>
 						<li>
-							<button type="button" class="ln-icon-stop--white" data-ln-transport="stop" data-ln-deck-target="a">Stop</button>
+							<button type="button" class="ln-icon-stop--white" data-mixer-transport="stop" data-mixer-deck-target="a">Stop</button>
 						</li>
 						<li>
-							<button type="button" class="ln-icon-mark--white" data-ln-cue="mark-start" data-ln-deck-target="a">Cue A</button>
+							<button type="button" class="ln-icon-mark--white" data-mixer-cue="mark-start" data-mixer-deck-target="a">Cue A</button>
 						</li>
 						<li>
-							<button type="button" class="ln-icon-cue--white" data-ln-cue="mark-end" data-ln-deck-target="a">Cue B</button>
+							<button type="button" class="ln-icon-cue--white" data-mixer-cue="mark-end" data-mixer-deck-target="a">Cue B</button>
 						</li>
 						<li>
-							<button type="button" class="btn--led ln-icon-loop--white" data-ln-cue="loop" data-ln-deck-target="a" aria-pressed="false">Loop</button>
+							<button type="button" class="ln-icon-loop--white" data-mixer-cue="loop" data-mixer-deck-target="a" aria-pressed="false">Loop</button>
 						</li>
 						<li>
-							<button type="button" class="ln-icon-edit--white" data-ln-action="edit-track" data-ln-deck-target="a">Opis</button>
+							<button type="button" class="ln-icon-edit--white" data-mixer-action="edit-track" data-mixer-deck-target="a">Opis</button>
 						</li>
 					</ul>
-					<nav class="loop-segments" data-ln-loop-segments="a"></nav>
-					<audio preload="auto" crossorigin="anonymous" data-ln-audio="a"></audio>
+					<nav class="loop-segments" data-mixer-loop-segments="a"></nav>
+					<audio preload="auto" crossorigin="anonymous" data-mixer-audio="a"></audio>
 				</article>
 
 				<!-- DECK B — Next / Cue -->
-				<article class="deck deck--b" data-ln-deck="b">
+				<article class="deck deck--b" data-mixer-deck="b">
 					<header class="deck-header">
 						<h2>Deck B <mark class="deck-badge">Next / Cue</mark></h2>
 					</header>
@@ -153,7 +153,7 @@
 
 					<!-- Waveform -->
 					<fieldset class="waveform-container">
-						<figure class="waveform" data-ln-waveform>
+						<figure class="waveform" data-mixer-waveform>
 							<figcaption class="sr-only">Deck B waveform</figcaption>
 							<mark class="cue-region" style="display: none;"></mark>
 							<mark class="cue-marker cue-marker--start" style="display: none;"></mark>
@@ -164,8 +164,8 @@
 							<nav class="waveform-timeline" aria-hidden="true"></nav>
 						</figure>
 						<nav class="waveform-zoom">
-							<button type="button" class="ln-icon-zoom-in--white" data-ln-zoom="in" aria-label="Zoom in" title="Zoom in"></button>
-							<button type="button" class="ln-icon-zoom-out--white" data-ln-zoom="out" aria-label="Zoom out" title="Zoom out"></button>
+							<button type="button" class="ln-icon-zoom-in--white" data-mixer-zoom="in" aria-label="Zoom in" title="Zoom in"></button>
+							<button type="button" class="ln-icon-zoom-out--white" data-mixer-zoom="out" aria-label="Zoom out" title="Zoom out"></button>
 						</nav>
 					</fieldset>
 
@@ -179,38 +179,38 @@
 					<!-- Transport -->
 					<ul class="controls">
 						<li>
-							<button type="button" class="ln-icon-play--white" data-ln-transport="play" data-ln-deck-target="b">Play</button>
-							<button type="button" class="ln-icon-pause--white" data-ln-transport="pause" data-ln-deck-target="b" hidden>Pause</button>
+							<button type="button" class="ln-icon-play--white" data-mixer-transport="play" data-mixer-deck-target="b">Play</button>
+							<button type="button" class="ln-icon-pause--white" data-mixer-transport="pause" data-mixer-deck-target="b" hidden>Pause</button>
 						</li>
 						<li>
-							<button type="button" class="ln-icon-stop--white" data-ln-transport="stop" data-ln-deck-target="b">Stop</button>
+							<button type="button" class="ln-icon-stop--white" data-mixer-transport="stop" data-mixer-deck-target="b">Stop</button>
 						</li>
 						<li>
-							<button type="button" class="ln-icon-mark--white" data-ln-cue="mark-start" data-ln-deck-target="b">Cue A</button>
+							<button type="button" class="ln-icon-mark--white" data-mixer-cue="mark-start" data-mixer-deck-target="b">Cue A</button>
 						</li>
 						<li>
-							<button type="button" class="ln-icon-cue--white" data-ln-cue="mark-end" data-ln-deck-target="b">Cue B</button>
+							<button type="button" class="ln-icon-cue--white" data-mixer-cue="mark-end" data-mixer-deck-target="b">Cue B</button>
 						</li>
 						<li>
-							<button type="button" class="btn--led ln-icon-loop--white" data-ln-cue="loop" data-ln-deck-target="b" aria-pressed="false">Loop</button>
+							<button type="button" class="ln-icon-loop--white" data-mixer-cue="loop" data-mixer-deck-target="b" aria-pressed="false">Loop</button>
 						</li>
 						<li>
-							<button type="button" class="ln-icon-edit--white" data-ln-action="edit-track" data-ln-deck-target="b">Opis</button>
+							<button type="button" class="ln-icon-edit--white" data-mixer-action="edit-track" data-mixer-deck-target="b">Opis</button>
 						</li>
 					</ul>
-					<nav class="loop-segments" data-ln-loop-segments="b"></nav>
-					<audio preload="auto" crossorigin="anonymous" data-ln-audio="b"></audio>
+					<nav class="loop-segments" data-mixer-loop-segments="b"></nav>
+					<audio preload="auto" crossorigin="anonymous" data-mixer-audio="b"></audio>
 				</article>
 
 			</section>
 
 			<!-- ====== SIDEBAR (right) ====== -->
-			<aside class="sidebar" data-ln-playlist data-ln-accordion hidden>
+			<aside class="sidebar" data-mixer-playlist data-ln-accordion hidden>
 
 				<!-- Playlists rendered by JS from IndexedDB -->
 
 				<footer class="sidebar-footer">
-					<button type="button" class="ln-icon-add--white" data-ln-action="new-playlist">New Playlist</button>
+					<button type="button" class="ln-icon-add--white" data-ln-modal-for="modal-new-playlist">New Playlist</button>
 				</footer>
 
 			</aside>
@@ -226,254 +226,240 @@
 	<!-- ============================================================
 	     NEW PLAYLIST MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-new-playlist">
-		<article class="ln-modal__content">
-			<form method="dialog" data-ln-form="new-playlist">
-				<header>
-					<h2>New Playlist</h2>
-					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
-				</header>
-				<main>
-					<fieldset class="form-field">
-						<label for="new-playlist-name">Playlist Name</label>
-						<input type="text" id="new-playlist-name" placeholder="e.g. Workout Mix" data-ln-field="new-playlist-name" required />
-					</fieldset>
-				</main>
-				<footer>
-					<span></span>
-					<button type="submit" class="ln-icon-add--white" data-ln-action="create-playlist">Create</button>
-				</footer>
-			</form>
-		</article>
+	<section class="ln-modal" id="modal-new-playlist" data-ln-modal>
+		<form method="dialog" data-ln-form="new-playlist">
+			<header>
+				<h2>New Playlist</h2>
+				<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
+			</header>
+			<main>
+				<fieldset class="form-field">
+					<label for="new-playlist-name">Playlist Name</label>
+					<input type="text" id="new-playlist-name" placeholder="e.g. Workout Mix" data-ln-field="new-playlist-name" required />
+				</fieldset>
+			</main>
+			<footer>
+				<span></span>
+				<button type="submit" class="ln-icon-add--white" data-mixer-action="create-playlist">Create</button>
+			</footer>
+		</form>
 	</section>
 
 	<!-- ============================================================
 	     TRACK LIBRARY MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-track-library">
-		<article class="ln-modal__content">
-			<form method="dialog" data-ln-form="track-library" data-ln-library>
-				<header>
-					<h2>Track Library</h2>
-					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
-				</header>
-				<main>
-					<section class="library-no-api" data-ln-library-no-api hidden>
-						<h3 class="ln-icon-settings--white">No API configured</h3>
-						<p>Set the Library API URL in Settings to load tracks.</p>
-						<button type="button" class="ln-icon-settings--white ln-icon--sm" data-ln-action="open-settings-from-library">Open Settings</button>
-					</section>
+	<section class="ln-modal" id="modal-track-library" data-ln-modal>
+		<form method="dialog" data-ln-form="track-library" data-mixer-library>
+			<header>
+				<h2>Track Library</h2>
+				<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
+			</header>
+			<main>
+				<section class="library-no-api" data-mixer-library-no-api hidden>
+					<h3 class="ln-icon-settings--white">No API configured</h3>
+					<p>Set the Library API URL in Settings to load tracks.</p>
+					<button type="button" class="ln-icon-settings--white ln-icon--sm" data-mixer-action="open-settings-from-library">Open Settings</button>
+				</section>
 
-					<fieldset class="library-search" data-ln-search="library-list">
-						<legend class="sr-only">Search tracks</legend>
-						<span class="ln-icon-search--white ln-icon--sm"></span>
-						<input type="search" placeholder="Search tracks..." data-ln-search-input />
-					</fieldset>
+				<fieldset class="library-search" data-ln-search="library-list">
+					<legend class="sr-only">Search tracks</legend>
+					<span class="ln-icon-search--white ln-icon--sm"></span>
+					<input type="search" placeholder="Search tracks..." data-ln-search-input />
+				</fieldset>
 
-					<ul class="library-list" id="library-list" data-ln-library-list>
-						<!-- Populated by JS from API -->
-					</ul>
-				</main>
-				<footer>
-					<span></span>
-					<button type="button" data-ln-modal-close>
-						Close
-					</button>
-				</footer>
-			</form>
-		</article>
+				<ul class="library-list" id="library-list" data-mixer-library-list>
+					<!-- Populated by JS from API -->
+				</ul>
+			</main>
+			<footer>
+				<span></span>
+				<button type="button" data-ln-modal-close>
+					Close
+				</button>
+			</footer>
+		</form>
 	</section>
 
 	<!-- ============================================================
 	     EDIT TRACK MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-edit-track">
-		<article class="ln-modal__content">
-			<form method="dialog" data-ln-form="edit-track" data-ln-track-index="-1" data-ln-playlist-id="">
-				<header>
-					<h2>Edit Track</h2>
-					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
-				</header>
-				<main>
-					<p class="edit-track-title" data-ln-field="edit-track-title"></p>
-					<p class="edit-track-artist" data-ln-field="edit-track-artist"></p>
-					<fieldset class="form-field">
-						<label for="edit-track-notes">Notes</label>
-						<input type="text" id="edit-track-notes" name="notes" data-ln-field="edit-track-notes"
-							placeholder="e.g. Blindfold removal moment" />
-					</fieldset>
-				</main>
-				<footer>
-					<button type="button" class="ln-icon-remove--white ln-icon--sm" data-ln-action="remove-track">Remove</button>
-					<button type="submit" data-ln-action="save-track-edit">
-						Save
-					</button>
-				</footer>
-			</form>
-		</article>
+	<section class="ln-modal" id="modal-edit-track" data-ln-modal>
+		<form method="dialog" data-ln-form="edit-track" data-mixer-track-index="-1" data-mixer-playlist-id="">
+			<header>
+				<h2>Edit Track</h2>
+				<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
+			</header>
+			<main>
+				<p class="edit-track-title" data-ln-field="edit-track-title"></p>
+				<p class="edit-track-artist" data-ln-field="edit-track-artist"></p>
+				<fieldset class="form-field">
+					<label for="edit-track-notes">Notes</label>
+					<input type="text" id="edit-track-notes" name="notes" data-ln-field="edit-track-notes"
+						placeholder="e.g. Blindfold removal moment" />
+				</fieldset>
+			</main>
+			<footer>
+				<button type="button" class="ln-icon-remove--white ln-icon--sm" data-mixer-action="remove-track">Remove</button>
+				<button type="submit" data-mixer-action="save-track-edit">
+					Save
+				</button>
+			</footer>
+		</form>
 	</section>
 
 	<!-- ============================================================
 	     NAME LOOP MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-name-loop">
-		<article class="ln-modal__content ln-modal__content--sm">
-			<form method="dialog" data-ln-form="name-loop" data-ln-deck-id="" data-ln-track-index="-1"
-				data-ln-loop-start="" data-ln-loop-end=""
-				data-ln-loop-start-pct="" data-ln-loop-end-pct="">
-				<header>
-					<h2>Name Loop Segment</h2>
-					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
-				</header>
-				<main>
-					<output class="loop-range-display" data-ln-field="loop-range">0:00 – 0:00</output>
-					<fieldset class="form-field">
-						<label for="loop-name">Loop Name</label>
-						<input type="text" id="loop-name" placeholder="e.g. Chorus, Intro, Drop" data-ln-field="loop-name" required />
-					</fieldset>
-				</main>
-				<footer>
-					<span></span>
-					<button type="submit" class="ln-icon-add--white ln-icon--sm">Save Loop</button>
-				</footer>
-			</form>
-		</article>
+	<section class="ln-modal" id="modal-name-loop" data-ln-modal>
+		<form method="dialog" data-ln-form="name-loop" data-mixer-deck-id="" data-mixer-track-index="-1"
+			data-mixer-loop-start="" data-mixer-loop-end=""
+			data-mixer-loop-start-pct="" data-mixer-loop-end-pct="">
+			<header>
+				<h2>Name Loop Segment</h2>
+				<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
+			</header>
+			<main>
+				<output class="loop-range-display" data-ln-field="loop-range">0:00 – 0:00</output>
+				<fieldset class="form-field">
+					<label for="loop-name">Loop Name</label>
+					<input type="text" id="loop-name" placeholder="e.g. Chorus, Intro, Drop" data-ln-field="loop-name" required />
+				</fieldset>
+			</main>
+			<footer>
+				<span></span>
+				<button type="submit" class="ln-icon-add--white ln-icon--sm">Save Loop</button>
+			</footer>
+		</form>
 	</section>
 
 	<!-- ============================================================
 	     CONFIRM DELETE PLAYLIST MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-confirm-delete-playlist">
-		<article class="ln-modal__content ln-modal__content--sm">
-			<form method="dialog" data-ln-form="confirm-delete-playlist" data-ln-playlist-id="">
-				<header>
-					<h2>Delete Playlist</h2>
-					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
-				</header>
-				<main>
-					<p data-ln-field="confirm-delete-message">Delete this playlist?</p>
-				</main>
-				<footer>
-					<button type="button" data-ln-modal-close>Cancel</button>
-					<button type="submit" class="ln-icon-remove--white ln-icon--sm">Delete</button>
-				</footer>
-			</form>
-		</article>
+	<section class="ln-modal" id="modal-confirm-delete-playlist" data-ln-modal>
+		<form method="dialog" data-ln-form="confirm-delete-playlist" data-mixer-playlist-id="">
+			<header>
+				<h2>Delete Playlist</h2>
+				<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
+			</header>
+			<main>
+				<p data-ln-field="confirm-delete-message">Delete this playlist?</p>
+			</main>
+			<footer>
+				<button type="button" data-ln-modal-close>Cancel</button>
+				<button type="submit" class="ln-icon-remove--white ln-icon--sm">Delete</button>
+			</footer>
+		</form>
 	</section>
 
 	<!-- ============================================================
 	     SETTINGS MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-settings">
-		<article class="ln-modal__content">
-			<form method="dialog" data-ln-form="settings">
-				<header>
-					<h2>Settings</h2>
-					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
-				</header>
-				<main>
-					<section class="settings-form">
-						<fieldset class="form-field">
-							<label for="settings-api-url">Library API URL</label>
-							<input type="url" id="settings-api-url" name="api-url" data-ln-setting="api-url"
-								placeholder="https://yourserver.com/api/tracks.php" />
-							<p class="field-hint">Base URL for the remote track library API</p>
-						</fieldset>
+	<section class="ln-modal" id="modal-settings" data-ln-modal>
+		<form method="dialog" data-ln-form="settings">
+			<header>
+				<h2>Settings</h2>
+				<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
+			</header>
+			<main>
+				<section class="settings-form">
+					<fieldset class="form-field">
+						<label for="settings-api-url">Library API URL</label>
+						<input type="url" id="settings-api-url" name="api-url" data-mixer-setting="api-url"
+							placeholder="https://yourserver.com/api/tracks.php" />
+						<p class="field-hint">Base URL for the remote track library API</p>
+					</fieldset>
 
-						<fieldset class="form-field">
-							<label>Logo</label>
-							<section class="logo-preview">
-								<figure class="logo-placeholder" data-ln-logo-preview>
-									<span>No logo</span>
-								</figure>
-								<nav>
-									<button type="button" class="ln-icon-upload--white ln-icon--sm" data-ln-action="upload-logo">Choose Image</button>
-								</nav>
-							</section>
-							<input type="file" accept="image/*" data-ln-logo-input hidden />
-							<p class="field-hint">Shown in the topbar. Square image recommended (64x64px or larger)</p>
-						</fieldset>
+					<fieldset class="form-field">
+						<label>Logo</label>
+						<section class="logo-preview">
+							<figure class="logo-placeholder" data-mixer-logo-preview>
+								<span>No logo</span>
+							</figure>
+							<nav>
+								<button type="button" class="ln-icon-upload--white ln-icon--sm" data-mixer-action="upload-logo">Choose Image</button>
+							</nav>
+						</section>
+						<input type="file" accept="image/*" data-mixer-logo-input hidden />
+						<p class="field-hint">Shown in the topbar. Square image recommended (64x64px or larger)</p>
+					</fieldset>
 
-						<fieldset class="form-field" data-ln-install-field hidden>
-							<label>Install App</label>
-							<section class="cache-info">
-								<output data-ln-install-status>Install as app on this device</output>
-								<button type="button" class="ln-icon-download--white ln-icon--sm" data-ln-action="install-app">Install</button>
-							</section>
-							<p class="field-hint">Add to home screen for fullscreen, offline-capable experience</p>
-						</fieldset>
+					<fieldset class="form-field" data-mixer-install-field hidden>
+						<label>Install App</label>
+						<section class="cache-info">
+							<output data-mixer-install-status>Install as app on this device</output>
+							<button type="button" class="ln-icon-download--white ln-icon--sm" data-mixer-action="install-app">Install</button>
+						</section>
+						<p class="field-hint">Add to home screen for fullscreen, offline-capable experience</p>
+					</fieldset>
 
-						<fieldset class="form-field">
-							<label>Audio Cache</label>
-							<section class="cache-info">
-								<output data-ln-cache-size>No cached tracks</output>
-								<button type="button" class="ln-icon-remove--white ln-icon--sm" data-ln-action="clear-audio-cache">Clear Cache</button>
-							</section>
-							<p class="field-hint">Downloaded audio files stored locally for offline playback</p>
-						</fieldset>
+					<fieldset class="form-field">
+						<label>Audio Cache</label>
+						<section class="cache-info">
+							<output data-mixer-cache-size>No cached tracks</output>
+							<button type="button" class="ln-icon-remove--white ln-icon--sm" data-mixer-action="clear-audio-cache">Clear Cache</button>
+						</section>
+						<p class="field-hint">Downloaded audio files stored locally for offline playback</p>
+					</fieldset>
 
-						<fieldset class="form-field">
-							<label>Data Transfer</label>
-							<section class="transfer-actions">
-								<button type="button" class="ln-icon-download--white ln-icon--sm" data-ln-action="export-data">Export</button>
-								<button type="button" class="ln-icon-upload--white ln-icon--sm" data-ln-action="import-file">Import File</button>
-							</section>
-							<input type="file" accept=".json,application/json" data-ln-import-file hidden />
-							<p class="field-hint">Export all profiles and settings as JSON, or import from a file</p>
-						</fieldset>
+					<fieldset class="form-field">
+						<label>Data Transfer</label>
+						<section class="transfer-actions">
+							<button type="button" class="ln-icon-download--white ln-icon--sm" data-mixer-action="export-data">Export</button>
+							<button type="button" class="ln-icon-upload--white ln-icon--sm" data-mixer-action="import-file">Import File</button>
+						</section>
+						<input type="file" accept=".json,application/json" data-mixer-import-file hidden />
+						<p class="field-hint">Export all profiles and settings as JSON, or import from a file</p>
+					</fieldset>
 
-						<fieldset class="form-field">
-							<label>Import from URL</label>
-							<section class="import-url-row">
-								<input type="url" placeholder="https://example.com/mixer-data.json" data-ln-field="import-url" />
-								<button type="button" class="ln-icon-download--white ln-icon--sm" data-ln-action="import-from-url">Fetch</button>
-							</section>
-							<output data-ln-transfer-status hidden></output>
-							<p class="field-hint">Paste a URL to a hosted JSON export file</p>
-						</fieldset>
+					<fieldset class="form-field">
+						<label>Import from URL</label>
+						<section class="import-url-row">
+							<input type="url" placeholder="https://example.com/mixer-data.json" data-ln-field="import-url" />
+							<button type="button" class="ln-icon-download--white ln-icon--sm" data-mixer-action="import-from-url">Fetch</button>
+						</section>
+						<output data-mixer-transfer-status hidden></output>
+						<p class="field-hint">Paste a URL to a hosted JSON export file</p>
+					</fieldset>
 
-						<fieldset class="form-field">
-							<label>Batch Download</label>
-							<section class="cache-info">
-								<output data-ln-batch-status>Download all track audio for offline use</output>
-								<button type="button" class="ln-icon-download--white ln-icon--sm" data-ln-action="batch-download">Download All</button>
-							</section>
-							<p class="field-hint">Downloads audio files from original URLs (useful after import)</p>
-						</fieldset>
-					</section>
-				</main>
-				<footer>
-					<button type="button" class="ln-icon-remove--white ln-icon--sm" data-ln-action="delete-profile">Delete Profile</button>
-					<button type="submit" data-ln-action="save-settings">
-						Save
-					</button>
-				</footer>
-			</form>
-		</article>
+					<fieldset class="form-field">
+						<label>Batch Download</label>
+						<section class="cache-info">
+							<output data-mixer-batch-status>Download all track audio for offline use</output>
+							<button type="button" class="ln-icon-download--white ln-icon--sm" data-mixer-action="batch-download">Download All</button>
+						</section>
+						<p class="field-hint">Downloads audio files from original URLs (useful after import)</p>
+					</fieldset>
+				</section>
+			</main>
+			<footer>
+				<button type="button" class="ln-icon-remove--white ln-icon--sm" data-mixer-action="delete-profile">Delete Profile</button>
+				<button type="submit" data-mixer-action="save-settings">
+					Save
+				</button>
+			</footer>
+		</form>
 	</section>
 
 	<!-- ============================================================
 	     NEW PROFILE MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-new-profile">
-		<article class="ln-modal__content">
-			<form method="dialog" data-ln-form="new-profile">
-				<header>
-					<h2>New Profile</h2>
-					<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
-				</header>
-				<main>
-					<fieldset class="form-field">
-						<label for="new-profile-name">Profile Name</label>
-						<input type="text" id="new-profile-name" name="profile-name" placeholder="e.g. My Setup" data-ln-field="new-profile-name" required />
-					</fieldset>
-				</main>
-				<footer>
-					<span></span>
-					<button type="submit" class="ln-icon-add--white" data-ln-action="create-profile">Create</button>
-				</footer>
-			</form>
-		</article>
+	<section class="ln-modal" id="modal-new-profile" data-ln-modal>
+		<form method="dialog" data-ln-form="new-profile">
+			<header>
+				<h2>New Profile</h2>
+				<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
+			</header>
+			<main>
+				<fieldset class="form-field">
+					<label for="new-profile-name">Profile Name</label>
+					<input type="text" id="new-profile-name" name="profile-name" placeholder="e.g. My Setup" data-ln-field="new-profile-name" required />
+				</fieldset>
+			</main>
+			<footer>
+				<span></span>
+				<button type="submit" class="ln-icon-add--white" data-mixer-action="create-profile">Create</button>
+			</footer>
+		</form>
 	</section>
 
 	<!-- Toast notification -->
@@ -483,7 +469,7 @@
 	     TEMPLATES (inert, cloned by JS components)
 	     ============================================================ -->
 	<template data-ln-template="track-item">
-		<li data-ln-track>
+		<li data-mixer-track>
 			<section class="track-content">
 				<span class="track-number" data-ln-sortable-handle></span>
 				<article class="track-info">
@@ -496,37 +482,37 @@
 					<nav class="track-indicators"></nav>
 				</section>
 				<nav class="track-load-actions">
-					<button type="button" class="load-btn load-btn--a" data-ln-load-to="a">A</button>
-					<button type="button" class="load-btn load-btn--b" data-ln-load-to="b">B</button>
+					<button type="button" class="load-btn load-btn--a" data-mixer-load-to="a">A</button>
+					<button type="button" class="load-btn load-btn--b" data-mixer-load-to="b">B</button>
 				</nav>
 			</section>
 		</li>
 	</template>
 
 	<template data-ln-template="playlist-group">
-		<section class="playlist-group" data-ln-toggle data-ln-playlist-id>
-			<header data-ln-toggle-for data-ln-playlist-toggle>
+		<section class="playlist-group" data-ln-toggle data-mixer-playlist-id>
+			<header data-ln-toggle-for>
 				<span class="playlist-name"></span>
 				<button type="button" class="playlist-delete-btn ln-icon-remove--white"
-					data-ln-action="remove-playlist"
+					data-mixer-action="remove-playlist"
 					aria-label="Delete playlist"></button>
 			</header>
-			<ol class="track-list" data-ln-track-list data-ln-sortable></ol>
+			<ol class="track-list" data-mixer-track-list data-ln-sortable></ol>
 		</section>
 	</template>
 
 	<template data-ln-template="profile-btn">
-		<button type="button" class="profile-btn" data-ln-profile-id></button>
+		<button type="button" class="profile-btn" data-mixer-profile-id></button>
 	</template>
 
 	<template data-ln-template="library-item">
-		<li data-ln-library-track>
+		<li data-mixer-library-track>
 			<article class="library-track-info">
 				<p class="track-name"></p>
 				<p class="track-artist"></p>
 			</article>
-			<button type="button" class="ln-icon-add--white ln-icon--sm" data-ln-action="add-to-playlist">Add</button>
-			<button type="button" class="library-uncache-btn ln-icon-remove--white ln-icon--sm" data-ln-action="remove-cached"></button>
+			<button type="button" class="ln-icon-add--white ln-icon--sm" data-mixer-action="add-to-playlist">Add</button>
+			<button type="button" class="library-uncache-btn ln-icon-remove--white ln-icon--sm" data-mixer-action="remove-cached"></button>
 			<figure class="library-download-progress" data-ln-progress
 				role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
 				<mark data-ln-progress="0"></mark>
@@ -535,13 +521,21 @@
 	</template>
 
 	<template data-ln-template="loop-seg-btn">
-		<button type="button" class="loop-seg-btn" data-ln-loop-index>
+		<button type="button" class="loop-seg-btn" data-mixer-loop-index>
 			<span class="loop-seg-label"></span>
 			<span class="loop-seg-remove ln-icon-close--white" role="button" tabindex="0" aria-label="Remove loop"></span>
 		</button>
 	</template>
 
+	<!-- Declarative Data Stores for ln-data-store component -->
+	<div data-ln-data-store="profiles"></div>
+	<div data-ln-data-store="settings"></div>
+	<div data-ln-data-store="audioFiles"></div>
+	<div data-ln-data-store="tracks"></div>
+	<div data-ln-data-store="playlists" data-ln-store-indexes="profileId"></div>
+
 	<script type="module" src="./assets/js/main.js"></script>
 
 </body>
 </html>
+

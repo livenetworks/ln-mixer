@@ -12,7 +12,7 @@ export function setupCache(mixer) {
 	/* ─── Progress Bar ───────────────────────────────────────────── */
 
 	mixer._getGlobalProgressBar = function () {
-		return this.dom.querySelector('[data-ln-global-progress]');
+		return this.dom.querySelector('[data-mixer-progress]');
 	};
 
 	mixer._updateGlobalProgress = function () {
@@ -238,7 +238,7 @@ export function setupCache(mixer) {
 			delete self._blobUrls[deckId];
 		}
 
-		const waveformEl = deckEl.querySelector('[data-ln-waveform]');
+		const waveformEl = deckEl.querySelector('[data-mixer-waveform]');
 
 		function _dispatchLoad(loadTrack, peaks, peaksDuration) {
 			if (waveformEl) waveformEl.classList.remove('waveform--decoding');
@@ -318,7 +318,7 @@ export function setupCache(mixer) {
 	/* ─── Cache Info ─────────────────────────────────────────────── */
 
 	mixer._updateCacheInfo = function () {
-		const output = document.querySelector('[data-ln-cache-size]');
+		const output = document.querySelector('[data-mixer-cache-size]');
 		if (!output) return;
 
 		lnDb.getAll('audioFiles').then(function (records) {
@@ -347,40 +347,40 @@ export function setupCache(mixer) {
 	mixer._bindPlaylistActions = function () {
 		const self = this;
 
-		// Open new-playlist dialog
-		document.addEventListener('click', function (e) {
-			if (e.target.closest('[data-ln-action="new-playlist"]')) {
+		// Validate new-playlist before opening
+		const newPlaylistModal = document.getElementById('modal-new-playlist');
+		if (newPlaylistModal) {
+			newPlaylistModal.addEventListener('ln-modal:before-open', function (e) {
 				const sidebar = self._getSidebar();
 				if (!sidebar || !sidebar.lnPlaylist || !sidebar.lnPlaylist.playlists) {
+					e.preventDefault();
 					window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
 						detail: { type: 'warn', message: 'Create a profile first' }
 					}));
-					return;
 				}
-				lnModal.open('modal-new-playlist');
-			}
-		});
+			});
+		}
 
-		// Open library dialog → fetch tracks + open modal
-		document.addEventListener('click', function (e) {
-			if (e.target.closest('[data-ln-action="open-library"]')) {
+		// Fetch tracks on library opening
+		const libraryModal = document.getElementById('modal-track-library');
+		if (libraryModal) {
+			libraryModal.addEventListener('ln-modal:before-open', function () {
 				const libraryEl = self._getLibraryEl();
 				if (libraryEl) {
 					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-fetch', {
 						detail: { apiUrl: lnSettings.getApiUrl() }
 					}));
 				}
-				lnModal.open('modal-track-library');
-			}
-		});
+			});
+		}
 
 		// Remove track (from edit dialog)
 		document.addEventListener('click', function (e) {
-			if (e.target.closest('[data-ln-action="remove-track"]')) {
+			if (e.target.closest('[data-mixer-action="remove-track"]')) {
 				const form = document.querySelector('[data-ln-form="edit-track"]');
 				if (!form) return;
-				const idx = parseInt(form.getAttribute('data-ln-track-index'), 10);
-				const playlistId = form.getAttribute('data-ln-playlist-id');
+				const idx = parseInt(form.getAttribute('data-mixer-track-index'), 10);
+				const playlistId = form.getAttribute('data-mixer-playlist-id');
 				if (idx < 0 || !playlistId) return;
 
 				const sidebar = self._getSidebar();
@@ -394,12 +394,12 @@ export function setupCache(mixer) {
 
 		// Remove playlist — open confirmation modal
 		document.addEventListener('click', function (e) {
-			const btn = e.target.closest('[data-ln-action="remove-playlist"]');
+			const btn = e.target.closest('[data-mixer-action="remove-playlist"]');
 			if (!btn) return;
 
 			e.stopPropagation();
 
-			const playlistId = btn.getAttribute('data-ln-playlist-id');
+			const playlistId = btn.getAttribute('data-mixer-playlist-id');
 			if (!playlistId) return;
 
 			const sidebar = self._getSidebar();
@@ -409,7 +409,7 @@ export function setupCache(mixer) {
 			if (!playlist) return;
 
 			const form = document.querySelector('[data-ln-form="confirm-delete-playlist"]');
-			if (form) form.setAttribute('data-ln-playlist-id', playlistId);
+			if (form) form.setAttribute('data-mixer-playlist-id', playlistId);
 
 			const msgEl = document.querySelector('[data-ln-field="confirm-delete-message"]');
 			if (msgEl) {
@@ -418,7 +418,8 @@ export function setupCache(mixer) {
 					trackCount + (trackCount === 1 ? ' track.' : ' tracks.');
 			}
 
-			lnModal.open('modal-confirm-delete-playlist');
+			const modalEl = document.getElementById('modal-confirm-delete-playlist');
+			if (modalEl) modalEl.setAttribute('data-ln-modal', 'open');
 		});
 
 		// Confirm delete playlist
@@ -426,7 +427,7 @@ export function setupCache(mixer) {
 			if (e.target.getAttribute('data-ln-form') !== 'confirm-delete-playlist') return;
 
 			const form = e.target;
-			const playlistId = form.getAttribute('data-ln-playlist-id');
+			const playlistId = form.getAttribute('data-mixer-playlist-id');
 			if (!playlistId) return;
 
 			const sidebar = self._getSidebar();
@@ -436,12 +437,13 @@ export function setupCache(mixer) {
 				}));
 			}
 
-			lnModal.close('modal-confirm-delete-playlist');
+			const modalEl = document.getElementById('modal-confirm-delete-playlist');
+			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
 		});
 
 		// Add track to playlist (from library dialog) — download-aware
 		document.addEventListener('click', function (e) {
-			const btn = e.target.closest('[data-ln-action="add-to-playlist"]');
+			const btn = e.target.closest('[data-mixer-action="add-to-playlist"]');
 			if (!btn) return;
 
 			const title = btn.getAttribute('data-track-title');
@@ -516,7 +518,8 @@ export function setupCache(mixer) {
 			}
 
 			input.value = '';
-			lnModal.close('modal-new-playlist');
+			const modalEl = document.getElementById('modal-new-playlist');
+			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
 		});
 
 		// Edit track from form submit
@@ -524,8 +527,8 @@ export function setupCache(mixer) {
 			if (e.target.getAttribute('data-ln-form') !== 'edit-track') return;
 
 			const form = e.target;
-			const idx = parseInt(form.getAttribute('data-ln-track-index'), 10);
-			const playlistId = form.getAttribute('data-ln-playlist-id');
+			const idx = parseInt(form.getAttribute('data-mixer-track-index'), 10);
+			const playlistId = form.getAttribute('data-mixer-playlist-id');
 			if (idx < 0 || !playlistId) return;
 
 			const notesInput = document.querySelector('[data-ln-field="edit-track-notes"]');
@@ -567,13 +570,13 @@ export function setupCache(mixer) {
 
 		// Remove single cached track
 		document.addEventListener('click', function (e) {
-			const btn = e.target.closest('[data-ln-action="remove-cached"]');
+			const btn = e.target.closest('[data-mixer-action="remove-cached"]');
 			if (!btn) return;
 
-			const li = btn.closest('[data-ln-library-track]');
+			const li = btn.closest('[data-mixer-library-track]');
 			if (!li) return;
 
-			const addBtn = li.querySelector('[data-ln-action="add-to-playlist"]');
+			const addBtn = li.querySelector('[data-mixer-action="add-to-playlist"]');
 			const url = addBtn ? addBtn.getAttribute('data-track-url') : '';
 			if (!url) return;
 
@@ -592,13 +595,13 @@ export function setupCache(mixer) {
 
 		// Clear all cached audio
 		document.addEventListener('click', function (e) {
-			if (!e.target.closest('[data-ln-action="clear-audio-cache"]')) return;
+			if (!e.target.closest('[data-mixer-action="clear-audio-cache"]')) return;
 
 			lnDb.clear('audioFiles').then(function () {
 				// Revoke any active blob URLs
-				const decks = self.dom.querySelectorAll('[data-ln-deck]');
+				const decks = self.dom.querySelectorAll('[data-mixer-deck]');
 				decks.forEach(function (deckEl) {
-					const id = deckEl.getAttribute('data-ln-deck');
+					const id = deckEl.getAttribute('data-mixer-deck');
 					if (self._blobUrls[id]) {
 						URL.revokeObjectURL(self._blobUrls[id]);
 						delete self._blobUrls[id];

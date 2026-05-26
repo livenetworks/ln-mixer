@@ -1,4 +1,4 @@
-const DOM_SELECTOR = 'data-ln-playlist';
+const DOM_SELECTOR = 'data-mixer-playlist';
 const DOM_ATTRIBUTE = 'lnPlaylist';
 
 if (!window[DOM_ATTRIBUTE]) {
@@ -51,8 +51,8 @@ if (!window[DOM_ATTRIBUTE]) {
 			items.push(root);
 		}
 		items.forEach(function (el) {
-			// Skip child playlist groups (they have data-ln-playlist-id)
-			if (el.hasAttribute('data-ln-playlist-id')) return;
+			// Skip child playlist groups (they have data-mixer-playlist-id)
+			if (el.hasAttribute('data-mixer-playlist-id')) return;
 			if (!el[DOM_ATTRIBUTE]) {
 				el[DOM_ATTRIBUTE] = new _component(el);
 			}
@@ -83,7 +83,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		// Click delegation on sidebar (own child elements only)
 		this.dom.addEventListener('click', function (e) {
-			const loadBtn = e.target.closest('[data-ln-load-to]');
+			const loadBtn = e.target.closest('[data-mixer-load-to]');
 			if (loadBtn) {
 				self._handleLoadToDeck(e);
 				return;
@@ -92,7 +92,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		// Playlist accordion — switch playlist when ln-toggle opens
 		this.dom.addEventListener('ln-toggle:open', function (e) {
-			const playlistId = e.target.getAttribute('data-ln-playlist-id');
+			const playlistId = e.target.getAttribute('data-mixer-playlist-id');
 			if (playlistId) {
 				self._switchPlaylist(playlistId);
 			}
@@ -100,7 +100,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		// Sortable reorder (ln-sortable component handles pointer interaction)
 		this.dom.addEventListener('ln-sortable:reordered', function (e) {
-			const list = e.target.closest('[data-ln-track-list]');
+			const list = e.target.closest('[data-mixer-track-list]');
 			if (!list) return;
 			self._syncAfterReorder(list);
 		});
@@ -291,9 +291,9 @@ if (!window[DOM_ATTRIBUTE]) {
 		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
 
 		// Update DOM
-		const list = this.dom.querySelector('[data-ln-track-list="' + playlistId + '"]');
+		const list = this.dom.querySelector('[data-mixer-track-list="' + playlistId + '"]');
 		if (list) {
-			const li = list.querySelector('[data-ln-track="' + index + '"]');
+			const li = list.querySelector('[data-mixer-track="' + index + '"]');
 			if (li) {
 				const notesP = li.querySelector('.track-notes');
 				if (notesP) notesP.textContent = data.notes || '';
@@ -324,11 +324,11 @@ if (!window[DOM_ATTRIBUTE]) {
 		for (const pid in this.playlists) {
 			if (!this.playlists.hasOwnProperty(pid)) continue;
 			const segments = this.playlists[pid].segments;
-			const list = this.dom.querySelector('[data-ln-track-list="' + pid + '"]');
+			const list = this.dom.querySelector('[data-mixer-track-list="' + pid + '"]');
 
 			for (let i = 0; i < segments.length; i++) {
 				if (segments[i].url === url && list) {
-					const li = list.querySelector('[data-ln-track="' + i + '"]');
+					const li = list.querySelector('[data-mixer-track="' + i + '"]');
 					if (li) {
 						const durEl = li.querySelector('.track-duration');
 						if (durEl) durEl.textContent = trackData.duration || '';
@@ -348,14 +348,14 @@ if (!window[DOM_ATTRIBUTE]) {
 		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
 
 		// Remove from DOM + renumber
-		const list = this.dom.querySelector('[data-ln-track-list="' + playlistId + '"]');
+		const list = this.dom.querySelector('[data-mixer-track-list="' + playlistId + '"]');
 		if (list) {
-			const li = list.querySelector('[data-ln-track="' + index + '"]');
+			const li = list.querySelector('[data-mixer-track="' + index + '"]');
 			if (li) li.remove();
 
-			const items = Array.from(list.querySelectorAll('[data-ln-track]'));
+			const items = Array.from(list.querySelectorAll('[data-mixer-track]'));
 			items.forEach(function (item, newIdx) {
-				item.setAttribute('data-ln-track', newIdx);
+				item.setAttribute('data-mixer-track', newIdx);
 				const numSpan = item.querySelector('.track-number');
 				if (numSpan) numSpan.textContent = newIdx + 1;
 			});
@@ -420,7 +420,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		delete this.playlists[playlistId];
 
 		// Remove DOM section
-		const section = this.dom.querySelector('[data-ln-playlist-id="' + playlistId + '"]');
+		const section = this.dom.querySelector('[data-mixer-playlist-id="' + playlistId + '"]');
 		if (section) section.remove();
 
 		// If deleted playlist was the current one, switch to first remaining or null
@@ -435,7 +435,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			this.currentId = firstId;
 
 			if (firstId) {
-				const nextSection = this.dom.querySelector('[data-ln-playlist-id="' + firstId + '"]');
+				const nextSection = this.dom.querySelector('[data-mixer-playlist-id="' + firstId + '"]');
 				if (nextSection) {
 					nextSection.dispatchEvent(new CustomEvent('ln-toggle:request-open'));
 				}
@@ -472,20 +472,19 @@ if (!window[DOM_ATTRIBUTE]) {
 		const section = frag.querySelector('.playlist-group');
 
 		section.setAttribute('data-ln-toggle', isOpen ? 'open' : '');
-		section.setAttribute('data-ln-playlist-id', id);
+		section.setAttribute('data-mixer-playlist-id', id);
 		section.id = toggleId;
 
 		const hdr = section.querySelector('header');
 		hdr.setAttribute('data-ln-toggle-for', toggleId);
-		hdr.setAttribute('data-ln-playlist-toggle', id);
 
 		const nameSpan = hdr.querySelector('.playlist-name');
 		if (nameSpan) nameSpan.textContent = name;
 
-		const deleteBtn = hdr.querySelector('[data-ln-action="remove-playlist"]');
-		if (deleteBtn) deleteBtn.setAttribute('data-ln-playlist-id', id);
+		const deleteBtn = hdr.querySelector('[data-mixer-action="remove-playlist"]');
+		if (deleteBtn) deleteBtn.setAttribute('data-mixer-playlist-id', id);
 
-		section.querySelector('.track-list').setAttribute('data-ln-track-list', id);
+		section.querySelector('.track-list').setAttribute('data-mixer-track-list', id);
 
 		return section;
 	};
@@ -529,10 +528,10 @@ if (!window[DOM_ATTRIBUTE]) {
 
 	_component.prototype._buildTrackItem = function (segment, idx) {
 		const frag = _cloneTemplate('track-item');
-		const li = frag.querySelector('[data-ln-track]');
+		const li = frag.querySelector('[data-mixer-track]');
 		const catalogEntry = this.trackCatalog[segment.url] || {};
 
-		li.setAttribute('data-ln-track', idx);
+		li.setAttribute('data-mixer-track', idx);
 		li.querySelector('.track-number').textContent = idx + 1;
 		li.querySelector('.track-name').textContent = catalogEntry.title || segment.url || '';
 		li.querySelector('.track-artist').textContent = catalogEntry.artist || '';
@@ -551,9 +550,9 @@ if (!window[DOM_ATTRIBUTE]) {
 	};
 
 	_component.prototype._updateTrackLoopIndicator = function (playlistId, trackIndex, segment) {
-		const list = this.dom.querySelector('[data-ln-track-list="' + playlistId + '"]');
+		const list = this.dom.querySelector('[data-mixer-track-list="' + playlistId + '"]');
 		if (!list) return;
-		const li = list.querySelector('[data-ln-track="' + trackIndex + '"]');
+		const li = list.querySelector('[data-mixer-track="' + trackIndex + '"]');
 		if (!li) return;
 
 		const indicators = li.querySelector('.track-indicators');
@@ -590,7 +589,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			// Ignore buttons
 			if (e.target.closest('button')) return;
 			// Must be on a track item
-			const li = e.target.closest('[data-ln-track]');
+			const li = e.target.closest('[data-mixer-track]');
 			if (!li) return;
 
 			startX = e.clientX;
@@ -619,7 +618,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			if (deltaX > 0) {
 				if (swiping && contentEl) {
 					contentEl.style.transform = '';
-					currentLi.removeAttribute('data-ln-swiping');
+					currentLi.removeAttribute('data-mixer-swiping');
 				}
 				return;
 			}
@@ -627,7 +626,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			// Start swiping once past threshold
 			if (!swiping && Math.abs(deltaX) > THRESHOLD_PX) {
 				swiping = true;
-				currentLi.setAttribute('data-ln-swiping', '');
+				currentLi.setAttribute('data-mixer-swiping', '');
 				currentLi.setPointerCapture(e.pointerId);
 			}
 
@@ -654,14 +653,14 @@ if (!window[DOM_ATTRIBUTE]) {
 
 			if (Math.abs(deltaX) >= commitThreshold) {
 				// Commit: animate out → collapse → remove
-				const trackIdx = parseInt(li.getAttribute('data-ln-track'), 10);
+				const trackIdx = parseInt(li.getAttribute('data-mixer-track'), 10);
 				const playlistId = self.currentId;
 
 				content.addEventListener('transitionend', function handler() {
 					content.removeEventListener('transitionend', handler);
 					li.style.maxHeight = li.offsetHeight + 'px';
 					li.offsetHeight; // force reflow
-					li.setAttribute('data-ln-swipe-committed', '');
+					li.setAttribute('data-mixer-swipe-committed', '');
 
 					li.addEventListener('transitionend', function collapseHandler() {
 						li.removeEventListener('transitionend', collapseHandler);
@@ -673,7 +672,7 @@ if (!window[DOM_ATTRIBUTE]) {
 				content.style.transform = 'translateX(-100%)';
 			} else {
 				// Snap back
-				li.removeAttribute('data-ln-swiping');
+				li.removeAttribute('data-mixer-swiping');
 				content.addEventListener('transitionend', function handler() {
 					content.removeEventListener('transitionend', handler);
 					content.style.transition = '';
@@ -691,7 +690,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			if (swiping && contentEl) {
 				contentEl.style.transform = '';
 				contentEl.style.transition = '';
-				currentLi.removeAttribute('data-ln-swiping');
+				currentLi.removeAttribute('data-mixer-swiping');
 			}
 			tracking = false;
 			swiping = false;
@@ -712,18 +711,18 @@ if (!window[DOM_ATTRIBUTE]) {
 
 	_component.prototype._getActiveTrackList = function () {
 		if (!this.currentId) return null;
-		return this.dom.querySelector('[data-ln-track-list="' + this.currentId + '"]');
+		return this.dom.querySelector('[data-mixer-track-list="' + this.currentId + '"]');
 	};
 
 	_component.prototype._updateHighlights = function () {
 		const list = this._getActiveTrackList();
 		if (!list) return;
 
-		list.querySelectorAll('[data-ln-track]').forEach(function (li) {
+		list.querySelectorAll('[data-mixer-track]').forEach(function (li) {
 			li.classList.remove('active-a', 'active-b');
 
-			const btnA = li.querySelector('[data-ln-load-to="a"]');
-			const btnB = li.querySelector('[data-ln-load-to="b"]');
+			const btnA = li.querySelector('[data-mixer-load-to="a"]');
+			const btnB = li.querySelector('[data-mixer-load-to="b"]');
 			if (btnA) btnA.classList.remove('load-btn--loaded');
 			if (btnB) btnB.classList.remove('load-btn--loaded');
 		});
@@ -731,10 +730,10 @@ if (!window[DOM_ATTRIBUTE]) {
 		const self = this;
 		['a', 'b'].forEach(function (deckId) {
 			if (self.deckHighlight[deckId] >= 0) {
-				const li = list.querySelector('[data-ln-track="' + self.deckHighlight[deckId] + '"]');
+				const li = list.querySelector('[data-mixer-track="' + self.deckHighlight[deckId] + '"]');
 				if (li) {
 					li.classList.add('active-' + deckId);
-					const btn = li.querySelector('[data-ln-load-to="' + deckId + '"]');
+					const btn = li.querySelector('[data-mixer-load-to="' + deckId + '"]');
 					if (btn) btn.classList.add('load-btn--loaded');
 				}
 			}
@@ -744,14 +743,14 @@ if (!window[DOM_ATTRIBUTE]) {
 	/* ─── Load to Deck ────────────────────────────────────────────── */
 
 	_component.prototype._handleLoadToDeck = function (e) {
-		const btn = e.target.closest('[data-ln-load-to]');
+		const btn = e.target.closest('[data-mixer-load-to]');
 		if (!btn) return;
 
-		const targetDeck = btn.getAttribute('data-ln-load-to');
-		const li = btn.closest('[data-ln-track]');
+		const targetDeck = btn.getAttribute('data-mixer-load-to');
+		const li = btn.closest('[data-mixer-track]');
 		if (!li || !targetDeck) return;
 
-		const trackIdx = parseInt(li.getAttribute('data-ln-track'), 10);
+		const trackIdx = parseInt(li.getAttribute('data-mixer-track'), 10);
 		const playlist = this.getPlaylist();
 		if (!playlist || trackIdx < 0 || trackIdx >= playlist.segments.length) return;
 
@@ -766,7 +765,7 @@ if (!window[DOM_ATTRIBUTE]) {
 	/* ─── Sync After Reorder (triggered by ln-sortable:reordered) ──── */
 
 	_component.prototype._syncAfterReorder = function (list) {
-		const items = Array.from(list.querySelectorAll('[data-ln-track]'));
+		const items = Array.from(list.querySelectorAll('[data-mixer-track]'));
 		const playlist = this.getPlaylist();
 		if (!playlist) return;
 
@@ -774,11 +773,11 @@ if (!window[DOM_ATTRIBUTE]) {
 		const oldIndexToNew = {};
 
 		items.forEach(function (li, newIdx) {
-			const oldIdx = parseInt(li.getAttribute('data-ln-track'), 10);
+			const oldIdx = parseInt(li.getAttribute('data-mixer-track'), 10);
 			oldIndexToNew[oldIdx] = newIdx;
 			newSegments.push(playlist.segments[oldIdx]);
 
-			li.setAttribute('data-ln-track', newIdx);
+			li.setAttribute('data-mixer-track', newIdx);
 			const numSpan = li.querySelector('.track-number');
 			if (numSpan) numSpan.textContent = newIdx + 1;
 		});

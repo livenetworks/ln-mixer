@@ -15,7 +15,7 @@
 
 // ─── Swipe-to-delete ─────────────────────────────────────────────────────────
 
-.track-list > li[data-ln-swiping] {
+.track-list > li[data-mixer-swiping] {
 	background: hsl(var(--color-cue));
 
 	.track-content {
@@ -31,7 +31,7 @@
 		bottom: 0;
 		display: flex;
 		align-items: center;
-		padding-right: var(--spacing-lg);
+		padding-right: var(--size-lg);
 		color: #fff;
 		font-size: 0.75rem;
 		font-weight: 700;
@@ -44,7 +44,7 @@
 	&::before {
 		content: '';
 		position: absolute;
-		right: calc(var(--spacing-lg) + 3rem);
+		right: calc(var(--size-lg) + 3rem);
 		top: 50%;
 		transform: translateY(-50%);
 		width: 1.25rem;
@@ -58,7 +58,7 @@
 
 // ─── Swipe committed — collapse animation ─────────────────────────────────────
 
-.track-list > li[data-ln-swipe-committed] {
+.track-list > li[data-mixer-swipe-committed] {
 	transition: max-height 0.25s ease-out, opacity 0.2s ease-out;
 	max-height: 0 !important;
 	opacity: 0;

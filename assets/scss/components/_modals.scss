@@ -1,44 +1,28 @@
 // ==========================================================================
 // _modals.scss — ln-acme modal overrides, form-field, edit-track, loop range
 // ==========================================================================
-// Base modal styles from ln-acme ln-modal.scss. Only delta overrides here.
+// Sizing overrides leveraging the official ln-ashlar SCSS mixins
 // ==========================================================================
 
-// ─── Modal backdrop: darker ───────────────────────────────────────────────────
+@use '../../../ln-ashlar/scss/config/mixins' as *;
 
-.ln-modal {
-	background-color: rgba(0, 0, 0, 0.75);
-}
+// ─── Modal sizes ─────────────────────────────────────────────────────────────
 
-// ─── Modal content: wider + height limits ─────────────────────────────────────
-
-.ln-modal__content {
-	max-width: 700px;
-	width: 90vw;
-	max-height: 85vh;
-	overflow: hidden;
-}
-
-// ─── Modal header: compact ────────────────────────────────────────────────────
-
-.ln-modal header {
-	min-height: auto;
-	padding: var(--spacing-sm) var(--spacing-md);
-
-	h2,
-	h3 {
-		font-size: var(--text-base);
-		font-weight: var(--font-semibold);
-		color: hsl(var(--color-text-primary));
-		margin: 0;
+#modal-name-loop,
+#modal-confirm-delete-playlist {
+	> form {
+		@include modal-sm;
 	}
 }
 
-// ─── Modal main: height constraint ───────────────────────────────────────────
-
-.ln-modal main {
-	max-height: 60vh;
+#modal-track-library,
+#modal-settings {
+	> form {
+		@include modal-lg;
+	}
 }
+
+// ─── Modal specific main content ─────────────────────────────────────────────
 
 // Library modal needs fixed height + flex column for scrollable list
 #modal-track-library main {
@@ -47,41 +31,26 @@
 	flex-direction: column;
 }
 
-// ─── Modal footer: space-between ─────────────────────────────────────────────
-
-.ln-modal footer {
-	padding: var(--spacing-sm) var(--spacing-md);
-	justify-content: space-between;
-	align-items: center;
-}
-
 // ─── Form field ───────────────────────────────────────────────────────────────
 
 .form-field {
 	display: flex;
 	flex-direction: column;
-	gap: var(--spacing-sm);
+	gap: var(--size-xs);
 
 	label {
+		@include form-label;
 		font-size: 0.85rem;
-		color: hsl(var(--color-text-secondary));
-		font-weight: 600;
+		margin-bottom: 0.25rem;
 	}
 
 	input[type="text"],
-	input[type="url"] {
-		background: hsl(var(--color-input-bg));
-		border: 1px solid hsl(var(--color-input-border));
+	input[type="url"],
+	input[type="search"] {
+		@include form-input;
+		--color-bg: hsl(var(--color-input-bg));
+		--color-border: hsl(var(--color-input-border));
 		border-radius: var(--radius-sm);
-		color: hsl(var(--color-text-primary));
-		padding: 0.5rem 0.75rem;
-		font-size: 0.9rem;
-		font-family: var(--font-sans);
-		width: 100%;
-	}
-
-	input::placeholder {
-		color: hsl(var(--color-text-muted));
 	}
 }
 
@@ -96,7 +65,7 @@
 .edit-track-artist {
 	font-size: 0.85rem;
 	color: hsl(var(--color-text-secondary));
-	margin-bottom: var(--spacing-md);
+	margin-bottom: var(--size-md);
 }
 
 // ─── Loop range display ───────────────────────────────────────────────────────
@@ -106,5 +75,5 @@
 	font-family: var(--font-mono);
 	font-size: 1.1rem;
 	color: hsl(var(--color-loop));
-	margin-bottom: var(--spacing-md);
+	margin-bottom: var(--size-md);
 }

@@ -92,23 +92,13 @@
 
 .waveform-zoom {
 	position: absolute;
-	top: var(--spacing-xs);
-	right: var(--spacing-xs);
+	top: var(--size-xs);
+	right: var(--size-xs);
 	z-index: 5;
 	display: flex;
 	gap: 2px;
 	opacity: 0.4;
 	transition: opacity var(--transition-fast);
-
-	button {
-		justify-content: center;
-		min-width: var(--touch-min);
-		min-height: var(--touch-min);
-		padding: 2px;
-		background: rgba(0, 0, 0, 0.6);
-		border-radius: var(--radius-md);
-		touch-action: manipulation;
-	}
 }
 
 .waveform-container:hover .waveform-zoom,

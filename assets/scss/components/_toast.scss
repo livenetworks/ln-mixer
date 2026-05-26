@@ -1,21 +1,21 @@
 // ==========================================================================
-// _toast.scss — ln-acme toast position + sizing overrides (dark theme)
+// _toast.scss — Position + sizing overrides (centered design)
 // ==========================================================================
-// Base toast styles from ln-acme ln-toast.scss. Only delta overrides here.
-// Dark theme colors set via --ln-toast-* tokens in _overrides.scss.
+// Base toast styles are imported globally from ln-ashlar's components.
+// Only delta overrides specific to this project are maintained here.
 // ==========================================================================
+
+@use '../../../ln-ashlar/scss/config/mixins' as *;
 
 // ─── Position: bottom-center instead of bottom-right ──────────────────────────
 
 [data-ln-toast] {
-	top: auto;
 	right: auto;
-	bottom: 1.5rem;
 	left: 50%;
 	transform: translateX(-50%);
 }
 
-// ─── Slide-up animation (override translateX slide-in from ln-acme) ───────────
+// ─── Slide-up animation ───────────────────────────────────────────────────────
 
 [data-ln-toast] > .ln-toast__item {
 	transform: translateY(20px);

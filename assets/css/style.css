@@ -292,7 +292,7 @@ fieldset {
 	align-items: center;
 }
 
-.autoplay-control .btn--led {
+.autoplay-control button[data-mixer-action="toggle-autoplay"] {
 	padding: 0.3rem 0.75rem 0.3rem 1.6rem;
 	border-radius: var(--radius);
 	background: var(--button-bg);
@@ -301,13 +301,13 @@ fieldset {
 	min-height: var(--touch-min);
 }
 
-.autoplay-control .btn--led.active {
+.autoplay-control button[data-mixer-action="toggle-autoplay"].active {
 	border-color: hsl(var(--accent));
 	color: hsl(var(--accent));
 	background: hsl(var(--accent) / 0.1);
 }
 
-.autoplay-control .btn--led.active::before {
+.autoplay-control button[data-mixer-action="toggle-autoplay"].active::before {
 	filter: brightness(0) saturate(100%) invert(51%) sepia(98%) saturate(880%) hue-rotate(3deg);
 }
 
@@ -655,7 +655,7 @@ fieldset {
 }
 
 /* Play and Pause share same min-width to prevent layout shift on swap */
-.controls [data-ln-transport="play"] {
+.controls [data-mixer-transport="play"] {
 	min-width: 5rem;
 }
 
@@ -1083,12 +1083,14 @@ button.btn--danger:hover {
 
 /* --- LED Button (Loop toggle) --- */
 
-.btn--led {
+button[data-mixer-action="toggle-autoplay"],
+button[data-mixer-cue="loop"] {
 	position: relative;
 	padding-left: 1.6rem;
 }
 
-.btn--led::after {
+button[data-mixer-action="toggle-autoplay"]::before,
+button[data-mixer-cue="loop"]::before {
 	content: '';
 	position: absolute;
 	left: 0.5rem;
@@ -1100,11 +1102,14 @@ button.btn--danger:hover {
 	background: var(--text-dim);
 	border: 1px solid rgba(255, 255, 255, 0.1);
 	transition: background var(--transition-fast), box-shadow var(--transition-fast);
+	background-image: none !important;
 }
 
-button.btn--led.active::after {
+button[data-mixer-action="toggle-autoplay"].active::before,
+button[data-mixer-cue="loop"].active::before {
 	background: hsl(var(--accent));
 	box-shadow: 0 0 8px hsl(var(--accent)), 0 0 16px hsl(var(--accent) / 0.3);
+	filter: none !important;
 }
 
 /* --- Loop Segment Buttons Strip --- */
@@ -1334,7 +1339,7 @@ button.btn--led.active::after {
 	grid-row: 1;
 }
 
-.library-list > li [data-ln-action="add-to-playlist"] {
+.library-list > li [data-mixer-action="add-to-playlist"] {
 	grid-column: 3;
 	grid-row: 1;
 }
@@ -1378,7 +1383,7 @@ button.btn--led.active::after {
 }
 
 /* Cached state: green bar at 100% */
-.library-list > li[data-ln-cached] .library-download-progress > [data-ln-progress] {
+.library-list > li[data-mixer-cached] .library-download-progress > [data-ln-progress] {
 	background: hsl(var(--loop));
 }
 
@@ -1405,12 +1410,12 @@ button.btn--led.active::after {
 	height: 0.85rem;
 }
 
-.library-list > li[data-ln-cached] .library-uncache-btn {
+.library-list > li[data-mixer-cached] .library-uncache-btn {
 	display: inline-flex;
 }
 
 /* Downloading state: hide Add button */
-.library-list > li[data-ln-downloading] [data-ln-action="add-to-playlist"] {
+.library-list > li[data-mixer-downloading] [data-mixer-action="add-to-playlist"] {
 	display: none;
 }
 
@@ -1534,7 +1539,7 @@ button.btn--led.active::after {
 	white-space: nowrap;
 }
 
-[data-ln-transfer-status] {
+[data-mixer-transfer-status] {
 	display: block;
 	font-size: 0.8rem;
 	color: hsl(var(--accent));
@@ -1542,7 +1547,7 @@ button.btn--led.active::after {
 	font-style: italic;
 }
 
-[data-ln-transfer-status][hidden] {
+[data-mixer-transfer-status][hidden] {
 	display: none;
 }
 
@@ -1622,15 +1627,15 @@ button.btn--led.active::after {
 
 /* --- Swipe-to-Delete --- */
 
-.track-list > li[data-ln-swiping] {
+.track-list > li[data-mixer-swiping] {
 	background: hsl(var(--cue));
 }
 
-.track-list > li[data-ln-swiping] .track-content {
+.track-list > li[data-mixer-swiping] .track-content {
 	will-change: transform;
 }
 
-.track-list > li[data-ln-swiping]::after {
+.track-list > li[data-mixer-swiping]::after {
 	content: 'Delete';
 	position: absolute;
 	top: 0;
@@ -1647,7 +1652,7 @@ button.btn--led.active::after {
 	z-index: 0;
 }
 
-.track-list > li[data-ln-swiping]::before {
+.track-list > li[data-mixer-swiping]::before {
 	content: '';
 	position: absolute;
 	right: calc(var(--gap-lg) + 3rem);
@@ -1661,7 +1666,7 @@ button.btn--led.active::after {
 	z-index: 0;
 }
 
-.track-list > li[data-ln-swipe-committed] {
+.track-list > li[data-mixer-swipe-committed] {
 	transition: max-height 0.25s ease-out, opacity 0.2s ease-out;
 	max-height: 0 !important;
 	opacity: 0;

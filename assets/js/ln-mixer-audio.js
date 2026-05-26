@@ -18,14 +18,14 @@ export function setupAudio(mixer) {
 		this._masterGain = this._audioCtx.createGain();
 		this._masterGain.connect(this._audioCtx.destination);
 
-		const slider = this.dom.querySelector('[data-ln-potentiometer="master"]');
+		const slider = this.dom.querySelector('[data-mixer-potentiometer="master"]');
 		this._masterGain.gain.value = slider ? slider.value / 100 : 0.8;
 	};
 
 	mixer._connectDeckAudio = function (deckId) {
 		const deckEl = this._getDeck(deckId);
 		if (!deckEl) return;
-		const audio = deckEl.querySelector('[data-ln-audio]');
+		const audio = deckEl.querySelector('[data-mixer-audio]');
 		if (!audio || !audio.src) return;
 
 		// Only route through Web Audio API for blob: URLs (same-origin).
@@ -93,7 +93,7 @@ export function setupAudio(mixer) {
 		});
 
 		// Volume slider
-		const volumeSlider = this.dom.querySelector('[data-ln-potentiometer="master"]');
+		const volumeSlider = this.dom.querySelector('[data-mixer-potentiometer="master"]');
 		if (volumeSlider) {
 			const _handleVolume = function () {
 				const val = volumeSlider.value;

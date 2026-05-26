@@ -6,7 +6,7 @@ export default defineConfig({
 	publicDir: 'public',
 	resolve: {
 		alias: {
-			'ln-acme': resolve(__dirname, 'ln-acme')
+			'ln-ashlar': resolve(__dirname, 'ln-ashlar')
 		}
 	},
 	server: {
