@@ -7,9 +7,12 @@
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
 
 .sidebar {
+	@include sidebar;
+
+	// Custom overrides for the mixer application
 	background: hsl(var(--color-surface-sunken));
+	border: none;
 	border-inline-start: 1px solid hsl(var(--color-border));
-	border-inline-end: none;
 	overflow-y: auto;
 
 	> * {

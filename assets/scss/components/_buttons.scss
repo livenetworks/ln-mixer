@@ -118,7 +118,39 @@ button[data-mixer-cue="loop"] {
 	}
 }
 
-// ─── Touch target — coarse pointer (tablet) ──────────────────────────────────
+// ─── Profile Buttons ─────────────────────────────────────────────────────────
+
+.profile-btn {
+	@include button-base;
+	@include btn-sm;
+	
+	--btn-bg:           transparent;
+	--btn-border:       var(--border-strong);
+	--btn-fg:           var(--fg-muted);
+	--btn-fg-hover:     var(--fg-default);
+	--btn-bg-hover:     color-mix(in srgb, var(--btn-fg-hover) 6%, transparent);
+	--btn-border-hover: var(--border-strong-hover);
+	
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	min-height: var(--touch-min);
+
+	&.active {
+		@include btn;
+		
+		--btn-bg:           hsl(var(--color-primary) / 0.5);
+		--btn-fg:           hsl(var(--color-text-primary));
+		--btn-border:       hsl(var(--color-primary));
+		--btn-bg-hover:     hsl(var(--color-primary) / 0.85);
+		--btn-fg-hover:     hsl(var(--color-text-primary));
+		--btn-border-hover: hsl(var(--color-primary));
+		
+		font-weight: 700;
+	}
+}
+
+// ─── Touch target ────────────────────────────────────────────────────────────
 // Moved here so it overrides the global `button` above.
 
 @media (pointer: coarse) {

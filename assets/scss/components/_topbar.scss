@@ -46,28 +46,8 @@
 }
 
 .profile-btn {
-	--btn-padding-y: 0.3rem;
-	--btn-padding-x: 0.75rem;
-	--btn-bg:           transparent;
-	--btn-border:       var(--border-strong);
-	--btn-fg:           var(--fg-muted);
-	--btn-fg-hover:     var(--fg-default);
-	--btn-bg-hover:     color-mix(in srgb, var(--btn-fg-hover) 6%, transparent);
-	--btn-border-hover: var(--border-strong-hover);
-	
 	border-radius: var(--radius-full);
 	font-size: 0.7rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	min-height: var(--touch-min);
-
-	&.active {
-		background: hsl(var(--color-primary));
-		color: #000;
-		border-color: hsl(var(--color-primary));
-		font-weight: 700;
-	}
 }
 
 .profile-add {
@@ -96,20 +76,65 @@
 
 	input[type="range"] {
 		-webkit-appearance: none;
+		appearance: none;
 		width: 120px;
-		height: 4px;
-		background: hsl(var(--color-button-bg));
-		border-radius: 2px;
+		height: 6px;
+		background: hsl(var(--color-input-bg));
+		border: 1px solid hsl(var(--color-input-border));
+		border-radius: 3px;
 		outline: none;
 		cursor: pointer;
+		margin: 0;
+		padding: 0;
+
+		&:hover {
+			border-color: hsl(var(--color-primary) / 0.5);
+		}
+
+		&::-webkit-slider-runnable-track {
+			background: transparent;
+			border: none;
+		}
 
 		&::-webkit-slider-thumb {
 			-webkit-appearance: none;
-			width: 16px;
-			height: 16px;
+			appearance: none;
+			width: 14px;
+			height: 14px;
 			border-radius: 50%;
 			background: hsl(var(--color-primary));
+			box-shadow: 0 0 0 3px hsl(var(--color-primary) / 0.2);
 			cursor: pointer;
+			margin-top: -5px; // Center the 14px thumb on the 6px track + 2px border
+			transition: background var(--transition-fast), transform 0.1s ease, box-shadow var(--transition-fast);
+
+			&:hover {
+				transform: scale(1.1);
+				box-shadow: 0 0 0 5px hsl(var(--color-primary) / 0.3);
+			}
+		}
+
+		&::-moz-range-track {
+			width: 100%;
+			height: 6px;
+			background: transparent;
+			border: none;
+		}
+
+		&::-moz-range-thumb {
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			background: hsl(var(--color-primary));
+			box-shadow: 0 0 0 3px hsl(var(--color-primary) / 0.2);
+			border: none;
+			cursor: pointer;
+			transition: background var(--transition-fast), transform 0.1s ease, box-shadow var(--transition-fast);
+
+			&:hover {
+				transform: scale(1.1);
+				box-shadow: 0 0 0 5px hsl(var(--color-primary) / 0.3);
+			}
 		}
 	}
 }
