@@ -3,35 +3,20 @@
    Strategy: pre-cache app shell on install, network-first at runtime
    ==================================================================== */
 
-const CACHE_NAME = 'ln-mixer-v19';
+const CACHE_NAME = 'ln-mixer-v20';
 
 const APP_SHELL = [
 	'./',
 	'./index.html',
 	'./assets/css/ln-ashlar-icons.css',
 	'./assets/css/app.css',
-	'./assets/js/main.js',
-	'./assets/js/ln-db.js',
-	'./assets/js/ln-profile.js',
-	'./assets/js/ln-playlist.js',
-	'./assets/js/ln-settings.js',
-	'./assets/js/ln-library.js',
-	'./assets/js/ln-waveform.js',
-	'./assets/js/ln-deck.js',
-	'./assets/js/ln-mixer.js',
-	'./assets/js/ln-mixer-audio.js',
-	'./assets/js/ln-mixer-cache.js',
-	'./assets/js/ln-mixer-deck.js',
-	'./assets/js/ln-mixer-settings.js',
-	'./assets/js/ln-mixer-transfer.js',
+	'./assets/js/main.build.js',
 	'./assets/js/vendor/wavesurfer.js',
 	'./assets/img/placeholder.svg',
 	'./assets/img/icon.svg'
 ];
 
-const LN_ASHLAR = [
-	'./ln-ashlar/demo/dist/ln-ashlar.js'
-];
+const LN_ASHLAR = [];
 
 /* ─── Install ─────────────────────────────────────────────────────── */
 
