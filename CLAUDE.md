@@ -25,20 +25,25 @@ npm run build:css      # assets/scss/app.scss          → assets/css/app.css
    `ln-ashlar/demo/dist/`, and we do **not** bundle ln-ashlar's master `index.js` (35+
    components). Instead `assets/js/ln-ashlar.entry.js` is an explicit allowlist of the
    8 components this app uses (modal, toast, accordion, toggle, sortable, search,
-   progress, data-store); ln-core is pulled in transitively. No SCSS in the entry → no
-   CSS sidecar. The matching SCSS subset is `assets/scss/_ln-ashlar.scss` (used by
-   `app.scss`), mirroring `ln-ashlar/scss/ln-ashlar.scss` order with unused partials
-   omitted. To use another ln-ashlar component, add it to BOTH allowlists.
-   Loaded as one `<script type="module">`.
+   progress, data-store); ln-core is pulled in transitively. The entry **also
+   re-exports** the three ln-core helpers project files use (`cloneTemplate`,
+   `fillTemplate`, `fill`) as named exports, so the bundle is the single runtime source
+   of ln-core — project files import them from the bundle, not from the submodule. No
+   SCSS in the entry → no CSS sidecar. The matching SCSS subset is
+   `assets/scss/_ln-ashlar.scss` (used by `app.scss`), mirroring
+   `ln-ashlar/scss/ln-ashlar.scss` order with unused partials omitted. To use another
+   ln-ashlar component, add it to BOTH allowlists. Loaded as one `<script type="module">`.
 2. **Project** — the 13 mixer files are **not** bundled or minified (this is a demo
    of how to work with ln-ashlar; files stay separate and readable). `main.js` is the
    native-ESM entry that side-effect-imports them. Bare specifiers inside them
-   (`ln-ashlar/js/ln-core/*`, `wavesurfer.js`) resolve at runtime via the `importmap`
-   in `index.html`. **No build step** for project JS — edit and refresh.
+   (`ln-ashlar` → the built vendor bundle, `wavesurfer.js`) resolve at runtime via the
+   `importmap` in `index.html`. **No build step** for project JS — edit and refresh.
 
-> Deployment note: because project files import `ln-ashlar/js/ln-core/*` live, that
-> folder of the ln-ashlar submodule must ship to the server (the rest of ln-ashlar is
-> baked into `ln-ashlar.build.js`). Audio (`music/`), `node_modules/`, `dist/` excluded.
+> Deployment note: the **ln-ashlar submodule is dev-only** — it is the source `npm run
+> build:vendor` compiles into `ln-ashlar.build.js` (which now also carries the ln-core
+> helpers). Production runs entirely off `assets/` and never fetches `ln-ashlar/` at
+> runtime, so the submodule folder does **not** need to ship to the server. Audio
+> (`music/`), `node_modules/`, `dist/`, and `ln-ashlar/` all excluded from deployment.
 
 ## Architecture
 
@@ -195,7 +200,7 @@ ln-dj-mixer/
     img/placeholder.svg
     img/icon.svg          — PWA app icon (SVG, 512x512 viewBox)
   manifest.webmanifest    — PWA manifest (app name, icon, display mode)
-  ln-ashlar/              — git submodule (built into ln-ashlar.build.js; js/ln-core/ loaded live)
+  ln-ashlar/              — git submodule, DEV-ONLY source (compiled into ln-ashlar.build.js, incl. ln-core helpers; not loaded at runtime, not deployed)
   sw.js                   — Service Worker (app shell caching, offline support)
 ```
 
@@ -237,6 +242,32 @@ data-URI CSS as a vendored asset; do **not** try to "rebuild it from ln-ashlar s
   - [x] App icon (`assets/img/icon.svg`)
 
 ## Changelog
+
+### ln-core baked into vendor bundle — submodule now dev-only (2026-05-30)
+
+- **Bug:** production 404'd on `https://…/ln-ashlar/js/ln-core/index.js`. Root cause: the
+  4 project files (`ln-deck`, `ln-library`, `ln-playlist`, `ln-profile`) imported ln-core
+  via the bare specifier `ln-ashlar/js/ln-core/index.js`, which the importmap mapped
+  `ln-ashlar/` → `./ln-ashlar/` (the **submodule**). A submodule is a gitlink, not files —
+  it was never checked out on the server, so the folder was empty → 404. ln-core was the
+  *only* runtime dependency on the submodule (everything else is baked into the build).
+- **Fix (the build is now the single runtime source of ln-core):**
+  - `ln-ashlar.entry.js` now **re-exports** `cloneTemplate, fillTemplate, fill` from
+    `ln-ashlar/js/ln-core/index.js` (build-time resolve via Vite alias). They become named
+    exports of `ln-ashlar.build.js` (verified at its tail). ln-core was already in the
+    bundle transitively; this just surfaces the public helpers.
+  - importmap: `"ln-ashlar/": "./ln-ashlar/"` → `"ln-ashlar": "./assets/js/ln-ashlar.build.js"`.
+  - 4 project files: `from 'ln-ashlar/js/ln-core/index.js'` → `from 'ln-ashlar'` (same URL
+    as the `<script type="module">` vendor load → one module instance, side effects once).
+  - `sw.js`: dropped the `LN_ASHLAR` submodule ln-core cache list (no longer fetched);
+    cache bumped v23 → v24.
+- **Result:** production runs entirely off `assets/`; the ln-ashlar submodule is now
+  **dev-only build source** and never needs to ship to the server. Verified: zero runtime
+  references to `ln-ashlar/` remain (the lone `ln-ashlar/js/ln-core/index.js` left is in
+  `ln-ashlar.entry.js`, which is build-input only). Vendor bundle unchanged at 46.57 kB.
+- Files changed: `assets/js/ln-ashlar.entry.js`, `assets/js/ln-ashlar.build.js` (rebuilt),
+  `index.html`, `assets/js/ln-deck.js`, `assets/js/ln-library.js`, `assets/js/ln-playlist.js`,
+  `assets/js/ln-profile.js`, `assets/js/main.js`, `sw.js`, `CLAUDE.md`.
 
 ### ln-ashlar Subset — drop unused components (2026-05-29)
 
@@ -410,6 +441,8 @@ To add one: add its import to `ln-ashlar.entry.js` AND its `@use` to `_ln-ashlar
 | ln-progress | `data-ln-progress` / `window.lnProgress` | Download progress bars |
 | ln-data-store | `data-ln-data-store` | Declarative IDB-backed stores (index.html bottom) |
 
-ln-core helpers (`cloneTemplate`, `fill`, …) are not a component — project files import
-them from `ln-ashlar/js/ln-core` (resolved via importmap); the vendor bundle carries its
-own copy transitively. Icons are separate (vendored `ln-ashlar-icons.css`, see above).
+ln-core helpers (`cloneTemplate`, `fillTemplate`, `fill`) are not a component — they are
+**re-exported from `ln-ashlar.entry.js`** so the built bundle carries them, and project
+files import them via `import { … } from 'ln-ashlar'` (importmap → `ln-ashlar.build.js`).
+The submodule's `js/ln-core/` is NOT fetched at runtime. Icons are separate (vendored
+`ln-ashlar-icons.css`, see above).

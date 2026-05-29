@@ -19,3 +19,11 @@ import 'ln-ashlar/js/ln-sortable/src/ln-sortable.js';
 import 'ln-ashlar/js/ln-search/src/ln-search.js';
 import 'ln-ashlar/js/ln-progress/src/ln-progress.js';
 import 'ln-ashlar/js/ln-data-store/src/ln-data-store.js';
+
+// Re-export the ln-core helpers the project files consume (cloneTemplate, fillTemplate,
+// fill). This bakes them into ln-ashlar.build.js so project files import them from the
+// built bundle (production) instead of the ln-ashlar/js/ln-core submodule folder live
+// at runtime. The submodule is now a DEV-ONLY build source — production never fetches it.
+// ln-core is already pulled into this bundle transitively by the components above; this
+// just surfaces the three public helpers as named exports.
+export { cloneTemplate, fillTemplate, fill } from 'ln-ashlar/js/ln-core/index.js';

@@ -3,7 +3,7 @@
    Strategy: pre-cache app shell on install, network-first at runtime
    ==================================================================== */
 
-const CACHE_NAME = 'ln-mixer-v23';
+const CACHE_NAME = 'ln-mixer-v24';
 
 const APP_SHELL = [
 	'./',
@@ -32,28 +32,14 @@ const APP_SHELL = [
 	'./assets/img/icon.svg'
 ];
 
-// ln-core helpers — imported live by project files via the importmap.
-// Sourced from the ln-ashlar submodule, so cache-add failures are tolerated.
-const LN_ASHLAR = [
-	'./ln-ashlar/js/ln-core/index.js',
-	'./ln-ashlar/js/ln-core/helpers.js',
-	'./ln-ashlar/js/ln-core/reactive.js',
-	'./ln-ashlar/js/ln-core/persist.js',
-	'./ln-ashlar/js/ln-core/positioning.js',
-	'./ln-ashlar/js/ln-core/crypto.js'
-];
-
 /* ─── Install ─────────────────────────────────────────────────────── */
+// ln-core helpers are baked into ln-ashlar.build.js (already in APP_SHELL), so the
+// ln-ashlar submodule folder is no longer fetched at runtime — nothing to cache from it.
 
 self.addEventListener('install', function (e) {
 	e.waitUntil(
 		caches.open(CACHE_NAME).then(function (cache) {
-			return cache.addAll(APP_SHELL).then(function () {
-				// ln-ashlar files — skip failures (submodule may differ)
-				return Promise.allSettled(
-					LN_ASHLAR.map(function (url) { return cache.add(url); })
-				);
-			});
+			return cache.addAll(APP_SHELL);
 		}).then(function () {
 			return self.skipWaiting();
 		})

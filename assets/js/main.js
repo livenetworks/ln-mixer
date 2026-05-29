@@ -3,8 +3,10 @@
 //
 // These project files are intentionally NOT bundled or minified: this is a demo
 // of how to work with ln-ashlar, so each component stays a separate, readable
-// file. Bare-specifier imports inside them (ln-ashlar/js/ln-core, wavesurfer.js)
-// resolve at runtime via the <script type="importmap"> in index.html.
+// file. Bare-specifier imports inside them ('ln-ashlar' → the built vendor bundle,
+// 'wavesurfer.js') resolve at runtime via the <script type="importmap"> in index.html.
+// 'ln-ashlar' maps to assets/js/ln-ashlar.build.js, which re-exports the ln-core
+// helpers — so production never fetches the ln-ashlar submodule (dev-only build source).
 
 // Mixer components (side-effect imports, order matters)
 import './ln-db.js';

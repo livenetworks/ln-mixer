@@ -1,4 +1,4 @@
-import { cloneTemplate, fillTemplate, fill } from 'ln-ashlar/js/ln-core/index.js';
+import { cloneTemplate, fillTemplate, fill } from 'ln-ashlar';
 
 const DOM_SELECTOR = 'data-mixer-profile';
 const DOM_ATTRIBUTE = 'lnProfile';
