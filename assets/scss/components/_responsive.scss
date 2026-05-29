@@ -45,8 +45,10 @@
 	}
 
 	.sidebar {
-		border-left: none;
-		border-top: 1px solid hsl(var(--color-border));
+		// Docks to the bottom on narrow screens: swap the start-side divider
+		// for a top one. Logical properties, matching the base .sidebar rule.
+		border-inline-start: none;
+		border-block-start: var(--border-width) solid hsl(var(--color-border));
 		max-height: 38vh;
 	}
 

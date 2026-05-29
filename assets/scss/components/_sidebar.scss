@@ -1,23 +1,60 @@
 // ==========================================================================
 // _sidebar.scss — Sidebar container, playlist accordion, footer
 // ==========================================================================
-
-@use '../../../ln-ashlar/scss/config/mixins' as *;
+// NOTE: this file no longer @include's any mixin. `.sidebar` already gets
+// `@include sidebar` from ln-ashlar's own components/_sidebar.scss (bundled
+// via app.scss); here we only re-bind tokens so the cascade stays clean.
 
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
 
 .sidebar {
-	@include sidebar;
+	// IMPORTANT: ln-ashlar's own components/_sidebar.scss already applies
+	// `@include sidebar` to `.sidebar`, and we bundle the full framework via
+	// app.scss. Re-including the mixin here would emit every declaration a
+	// second time — that double-emission is what struck out the cascade.
+	// So we ONLY re-bind tokens the mixin READS (never ones it SETS), plus a
+	// property the mixin never declares. Result: zero overridden values.
+	//   • surface     → mixer sunken bg   (mixin reads --color-bg)
+	//   • end border  → dropped           (mixin reads --border-inline-end;
+	//                                       the right edge needs no divider)
+	--color-bg: hsl(var(--color-surface-sunken));
+	--border-inline-end: none;
 
-	// Custom overrides for the mixer application
-	background: hsl(var(--color-surface-sunken));
-	border: none;
-	border-inline-start: 1px solid hsl(var(--color-border));
+	// Start-side divider — the mixin only declares border-inline-END, so this
+	// adds (never overrides). hsl() is required: this project maps
+	// --color-border to a bare HSL triplet for alpha support, which the
+	// mixin's `solid var(--color-border)` fallback cannot consume directly.
+	border-inline-start: var(--border-width) solid hsl(var(--color-border));
+}
+
+// Scroll region. The sidebar root keeps the mixin's `overflow: hidden`; this
+// inner section is the scroller. A plain <section> (not <main>) is used because
+// the sidebar is nested inside the page's <main>, where another <main> would be
+// invalid. The mixin targets `> main`/`> footer`, never `> section`, so flex +
+// scroll here are sole declarants — no struck values.
+//
+// --padding-x:0 makes the accordion run edge-to-edge: the mixin sets --padding-x
+// only on `.sidebar`, so zeroing it there would strike; on this child we are the
+// sole declarant, and `> * { padding-inline: var(--padding-x) }` collapses to 0.
+.playlist-scroll {
+	flex: 1;
 	overflow-y: auto;
+	--padding-x: 0;
+}
 
-	> * {
-		padding-inline: 0; // Let playlist accordion expand edge-to-edge
-	}
+// ─── Playlist accordion list ─────────────────────────────────────────────────
+// <nav data-ln-accordion> carries the framework accordion ONLY for its
+// one-at-a-time toggle JS. The card chrome (4 borders + radius) is dissolved
+// through the very tokens the accordion mixin reads — no declaration is
+// overridden. The mixin's hardcoded overflow:hidden is harmless here: the
+// scroll container is the sidebar's `> main`; this list only sizes to content.
+
+.playlist-list {
+	--border-block-start: none;
+	--border-block-end: none;
+	--border-inline-start: none;
+	--border-inline-end: none;
+	--radius-lg: 0;
 }
 
 // ─── Playlist accordion group ─────────────────────────────────────────────────
@@ -126,7 +163,12 @@
 // ─── Sidebar footer ───────────────────────────────────────────────────────────
 
 .sidebar-footer {
-	margin-top: auto;
-	padding: var(--size-sm) var(--size-md);
-	border-top: 1px solid hsl(var(--color-border));
+	// Chrome (top divider, surface, flex layout) comes from the sidebar
+	// mixin's `> footer { @include app-footer }`. We only feed it padding
+	// tokens instead of redeclaring padding/border — app-footer locally
+	// re-binds --color-border to a real colour, so its divider renders
+	// correctly without our help. The mixin's `> main { flex: 1 }` pins
+	// this footer to the bottom, so no margin trick is needed.
+	--padding-x: var(--size-md);
+	--padding-y: var(--size-sm);
 }

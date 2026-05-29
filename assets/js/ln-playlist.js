@@ -210,8 +210,8 @@ if (!window[DOM_ATTRIBUTE]) {
 		// Create accordion section in sidebar
 		const section = this._buildPlaylistGroup(id, name, false);
 
-		const footer = this.dom.querySelector('.sidebar-footer');
-		this.dom.insertBefore(section, footer);
+		const list = this.dom.querySelector('.playlist-list');
+		if (list) list.appendChild(section);
 
 		// Open the new toggle via request event
 		section.dispatchEvent(new CustomEvent('ln-toggle:request-open'));
@@ -469,10 +469,11 @@ if (!window[DOM_ATTRIBUTE]) {
 	};
 
 	_component.prototype._rebuild = function () {
-		const footer = this.dom.querySelector('.sidebar-footer');
+		const list = this.dom.querySelector('.playlist-list');
+		if (!list) return;
 
 		// Remove all existing playlist groups
-		this.dom.querySelectorAll('.playlist-group').forEach(function (group) {
+		list.querySelectorAll('.playlist-group').forEach(function (group) {
 			group.remove();
 		});
 
@@ -487,7 +488,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 			const section = this._buildPlaylistGroup(id, this.playlists[id].name, first);
 			this._populateTrackList(section.querySelector('.track-list'), id);
-			this.dom.insertBefore(section, footer);
+			list.appendChild(section);
 			first = false;
 		}
 

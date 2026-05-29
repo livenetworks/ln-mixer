@@ -19,6 +19,11 @@
 .main-area {
 	display: grid;
 	grid-template-columns: 1fr 30%;
+	// Fill the player's 1fr band instead of sizing to content. Without this the
+	// implicit row is `auto`, so both columns collapse to content height — the
+	// decks (flex: 1 1 50%) can't split the column and the sidebar footer can't
+	// reach the bottom. minmax(0, 1fr) lets the overflow:hidden children shrink.
+	grid-template-rows: minmax(0, 1fr);
 	overflow: hidden;
 }
 

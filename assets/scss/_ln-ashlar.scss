@@ -1,0 +1,40 @@
+// ln-ashlar SCSS subset — mirrors ln-ashlar/scss/ln-ashlar.scss but @use's ONLY the
+// parts ln-mixer uses. Order is preserved from the master so the cascade is identical
+// for kept rules. Foundations (config + base + utilities) are always included; project
+// component partials @use config/mixins directly, so those stay regardless.
+//
+// Dropped (unused by this app): button(.btn), layout(.flat-stack), table, tabs, card,
+// sections(.section), nav([data-ln-nav]), app-shell, breadcrumbs, avatar, status-badge,
+// alert, empty-state(project-styled), page-header, stepper, timeline, stat-card, prose,
+// tooltip, popover, chip, loader, link([data-ln-link]), confirm, circular-progress,
+// dropdown, upload, translations, data-table, ln-table, ajax — plus the co-located
+// styles for ln-dropdown/ln-tooltip/ln-upload/ln-filter/ln-table/ln-data-table.
+// To re-add one: copy its @use line from ln-ashlar/scss/ln-ashlar.scss here.
+
+// Foundations
+@use '../../ln-ashlar/scss/config/tokens';
+@use '../../ln-ashlar/scss/config/breakpoints';
+@use '../../ln-ashlar/scss/config/density';
+@use '../../ln-ashlar/scss/config/theme';
+@use '../../ln-ashlar/scss/config/icons';
+
+@use '../../ln-ashlar/scss/base/reset';
+@use '../../ln-ashlar/scss/base/global';
+@use '../../ln-ashlar/scss/base/typography';
+
+// Components actually used by ln-mixer
+@use '../../ln-ashlar/scss/components/form';        // bare select/textarea/input/label
+@use '../../ln-ashlar/scss/components/toggle';      // sidebar (data-ln-toggle)
+@use '../../ln-ashlar/scss/components/accordion';   // sidebar (data-ln-accordion)
+@use '../../ln-ashlar/scss/components/scrollbar';   // global scrollbar styling
+@use '../../ln-ashlar/scss/components/progress';    // progress bars (data-ln-progress)
+@use '../../ln-ashlar/scss/components/modal';       // .ln-modal
+@use '../../ln-ashlar/scss/components/sidebar';      // .sidebar container and footer
+@use '../../ln-ashlar/scss/components/toast';       // data-ln-toast
+
+@use '../../ln-ashlar/scss/utilities/utilities';    // .sr-only etc.
+@use '../../ln-ashlar/scss/utilities/animations';
+
+// JS component co-located styles
+@use '../../ln-ashlar/js/ln-modal/ln-modal';
+@use '../../ln-ashlar/js/ln-search/ln-search';

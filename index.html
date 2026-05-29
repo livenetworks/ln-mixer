@@ -205,9 +205,15 @@
 			</section>
 
 			<!-- ====== SIDEBAR (right) ====== -->
-			<aside class="sidebar" data-mixer-playlist data-ln-accordion hidden>
+			<aside class="sidebar" data-mixer-playlist hidden>
 
-				<!-- Playlists rendered by JS from IndexedDB -->
+				<section class="playlist-scroll">
+					<!-- data-ln-accordion drives one-at-a-time toggle behaviour only;
+					     its card chrome is dissolved via tokens in _sidebar.scss -->
+					<nav class="playlist-list" data-ln-accordion>
+						<!-- Playlists rendered by JS from IndexedDB -->
+					</nav>
+				</section>
 
 				<footer class="sidebar-footer">
 					<button type="button" class="ln-icon-add--white" data-ln-modal-for="modal-new-playlist">New Playlist</button>
@@ -537,7 +543,11 @@
 	<div data-ln-data-store="tracks"></div>
 	<div data-ln-data-store="playlists" data-ln-store-indexes="profileId"></div>
 
-	<script type="module" src="./assets/js/main.build.js"></script>
+	<!-- Vendor: ln-ashlar master bundle, rebuilt from source into our assets -->
+	<script type="module" src="./assets/js/ln-ashlar.build.js"></script>
+
+	<!-- Project: separate, unminified component files (native ES modules) -->
+	<script type="module" src="./assets/js/main.js"></script>
 
 </body>
 </html>

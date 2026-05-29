@@ -3,20 +3,45 @@
    Strategy: pre-cache app shell on install, network-first at runtime
    ==================================================================== */
 
-const CACHE_NAME = 'ln-mixer-v20';
+const CACHE_NAME = 'ln-mixer-v23';
 
 const APP_SHELL = [
 	'./',
 	'./index.html',
 	'./assets/css/ln-ashlar-icons.css',
 	'./assets/css/app.css',
-	'./assets/js/main.build.js',
+	// Vendor bundle (ln-ashlar, rebuilt from source)
+	'./assets/js/ln-ashlar.build.js',
 	'./assets/js/vendor/wavesurfer.js',
+	// Project entry + unminified component files (loaded as native ES modules)
+	'./assets/js/main.js',
+	'./assets/js/ln-db.js',
+	'./assets/js/ln-profile.js',
+	'./assets/js/ln-playlist.js',
+	'./assets/js/ln-settings.js',
+	'./assets/js/ln-library.js',
+	'./assets/js/ln-waveform.js',
+	'./assets/js/ln-deck.js',
+	'./assets/js/ln-mixer.js',
+	'./assets/js/ln-mixer-audio.js',
+	'./assets/js/ln-mixer-cache.js',
+	'./assets/js/ln-mixer-deck.js',
+	'./assets/js/ln-mixer-settings.js',
+	'./assets/js/ln-mixer-transfer.js',
 	'./assets/img/placeholder.svg',
 	'./assets/img/icon.svg'
 ];
 
-const LN_ASHLAR = [];
+// ln-core helpers — imported live by project files via the importmap.
+// Sourced from the ln-ashlar submodule, so cache-add failures are tolerated.
+const LN_ASHLAR = [
+	'./ln-ashlar/js/ln-core/index.js',
+	'./ln-ashlar/js/ln-core/helpers.js',
+	'./ln-ashlar/js/ln-core/reactive.js',
+	'./ln-ashlar/js/ln-core/persist.js',
+	'./ln-ashlar/js/ln-core/positioning.js',
+	'./ln-ashlar/js/ln-core/crypto.js'
+];
 
 /* ─── Install ─────────────────────────────────────────────────────── */
 
