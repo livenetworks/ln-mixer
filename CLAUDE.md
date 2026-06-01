@@ -243,6 +243,14 @@ data-URI CSS as a vendored asset; do **not** try to "rebuild it from ln-ashlar s
 
 ## Changelog
 
+### Coordinator Attribute and Import Cleanups (2026-06-02)
+
+- **Bug:** Mismatched data attribute prefixes in `ln-mixer-transfer.js` entirely broke data transfer actions (Export, Import, Fetch, Batch Download) because they queried framework-generic `[data-ln-action]`, `[data-ln-import-file]`, and `[data-ln-transfer-status]` whereas the DOM in `index.html` defined them using project-specific `data-mixer-*` prefixes.
+- **Fix:** Corrected all data transfer action targets and query selectors to use `data-mixer-*` prefix matching `index.html`.
+- **Optimization:** Removed redundant coordinator sub-module imports from `assets/js/main.js` (they are already transitively imported and configured inside `ln-mixer.js`).
+- **SW:** Cache version bumped v24 → v25.
+- Files changed: `assets/js/ln-mixer-transfer.js`, `assets/js/main.js`, `sw.js`, `CLAUDE.md`.
+
 ### ln-core baked into vendor bundle — submodule now dev-only (2026-05-30)
 
 - **Bug:** production 404'd on `https://…/ln-ashlar/js/ln-core/index.js`. Root cause: the

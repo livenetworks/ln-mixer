@@ -17,11 +17,6 @@ import './ln-library.js';
 import './ln-waveform.js';
 import './ln-deck.js';
 import './ln-mixer.js';
-import './ln-mixer-audio.js';
-import './ln-mixer-cache.js';
-import './ln-mixer-deck.js';
-import './ln-mixer-settings.js';
-import './ln-mixer-transfer.js';
 
 // Global form submit handler (moved from inline script)
 document.addEventListener('submit', function (e) {
