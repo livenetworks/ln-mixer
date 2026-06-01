@@ -74,6 +74,8 @@
 	// Mixer-specific companion tokens
 	--color-accent-b:        210 100% 63%;    // Deck B blue
 	--color-cue:             0 100% 63%;      // Cue red
+	--cue:                   var(--color-cue);
+	--accent:                var(--color-primary);
 	--color-loop:            153 55% 53%;     // Loop green
 	--color-highlight:       60 100% 83%;     // Deck A title highlight
 	--color-surface-sunken:  0 0% 9%;

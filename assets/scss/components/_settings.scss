@@ -79,21 +79,11 @@
 // ─── Import URL row ───────────────────────────────────────────────────────────
 
 .import-url-row {
-	display: flex;
-	gap: var(--size-sm);
-	align-items: center;
-
-	input[type="url"] {
-		flex: 1;
-		@include form-input;
-		--color-bg: hsl(var(--color-input-bg));
-		--color-border: hsl(var(--color-input-border));
-		border-radius: var(--radius-sm);
-	}
-}
-
-.import-url-row button {
-	white-space: nowrap;
+	@include form-field-group;
+	--color-bg: hsl(var(--color-input-bg));
+	--color-border: hsl(var(--color-input-border));
+	border-radius: var(--radius-sm);
+	width: 100%;
 }
 
 // ─── Transfer status ──────────────────────────────────────────────────────────
