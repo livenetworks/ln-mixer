@@ -1,152 +1,83 @@
 // ==========================================================================
-// _overrides.scss — ln-ashlar token overrides + mixer-specific tokens
+// _overrides.scss — ln-ashlar v2 token rebinds + project tokens + global resets
 // ==========================================================================
-// All tokens are bare HSL triplets to enable alpha transparency.
-// Vocabulary and primitives are aligned with the official ln-ashlar theme.
+// Polarity: <html data-mode="dark">. Colour FAMILIES are bare HSL triplets
+// (hsl(var(--x) / a)). VOCABULARY (--bg-*, --fg-*, --border-*) and PRIMITIVES
+// (--color-bg/fg/border/accent) are full colours (var(--x)). Never redeclare
+// --color-primary/--color-border/--color-bg here — ashlar derives them.
 // ==========================================================================
 
-:root,
-[data-theme="dark"] {
+:root {
+	// Brand → ashlar derives --color-primary / --color-secondary
+	--brand-primary:   39 100% 50%;    // Deck A orange
+	--brand-secondary: 210 100% 63%;   // Deck B blue
 
-	// -----------------------------------------------------------------------
-	// Colors — Brand & Accent Scales (bare HSL triplets)
-	// -----------------------------------------------------------------------
-	--color-primary:         39 100% 50%;  // Deck A brand orange accent
-	--color-primary-light:   39 100% 22%;  // Active/wash states (darkened orange)
-	--color-primary-lighter: 39 100% 15%;  // Deeper brand wash
-
-	--color-secondary:         210 100% 63%; // Deck B brand blue accent
-	--color-secondary-light:   210 60% 25%;
-	--color-secondary-lighter: 210 50% 17%;
-
-	// -----------------------------------------------------------------------
-	// Colors — Status Scales (bare HSL triplets)
-	// -----------------------------------------------------------------------
-	--color-success:         153 55% 53%;  // Loop green
+	// Status families (semantic-color() reads -light / -lighter)
+	--color-success:         153 55% 53%;
 	--color-success-light:   153 50% 18%;
 	--color-success-lighter: 153 45% 14%;
-
-	--color-error:           0 100% 63%;   // Cue / delete red
+	--color-error:           0 100% 63%;
 	--color-error-light:     0 50% 20%;
 	--color-error-lighter:   0 40% 14%;
 
-	// -----------------------------------------------------------------------
-	// Value Vocabulary — The Core Palette Layer ( composición logical )
-	// -----------------------------------------------------------------------
-	--bg-base:     hsl(0 0% 10%);   // Primary container/card/modal surface bg (#1a1a1a)
-	--bg-elevated: hsl(0 0% 13%);   // Raised dropdown/flyout background (#222)
-	--bg-sunken:   hsl(0 0% 7%);    // Main body background (#111)
-	--bg-recessed: hsl(0 0% 9%);    // Sunken sidebar/inputs background (#181818)
+	// Orange is too light to carry white text
+	--color-accent-fg: hsl(var(--color-ink));
 
-	--fg-default: hsl(0 0% 93%);    // Primary text (#eee)
-	--fg-muted:   hsl(0 0% 60%);    // Secondary/subdued text (#999)
-	--fg-subtle:  hsl(0 0% 40%);    // Disabled/muted text (#666)
+	// Value vocabulary — neutral greys (replace ashlar's blue-tinted dark ramp)
+	--bg-recessed: hsl(0 0% 9%);    // canvas, sidebar, track rows
+	--bg-base:     hsl(0 0% 10%);   // decks, topbar, modal panel
+	--bg-elevated: hsl(0 0% 13%);   // toast, empty-state badge
+	--bg-sunken:   hsl(0 0% 16%);   // input wells, modal footer, scrollbar track
+	--bg-hover:    hsl(0 0% 27%);   // neutral button hover
 
-	--border-subtle:       hsl(0 0% 16%);   // Standard component borders (#2a2a2a)
-	--border-strong:       hsl(0 0% 27%);   // Form borders (#444)
-	--border-strong-hover: hsl(0 0% 40%);
+	--fg-default: hsl(0 0% 93%);
+	--fg-muted:   hsl(0 0% 60%);
+	--fg-subtle:  hsl(0 0% 40%);
 
-	--color-scrim: hsl(0 0% 0% / 0.75);     // Darker viewport blocking modal overlay
+	--border-subtle: hsl(0 0% 16%);  // → --color-border
+	--border-strong: hsl(0 0% 27%);  // button borders
+	--border-ui:     hsl(0 0% 27%);  // input borders
 
-	// -----------------------------------------------------------------------
-	// Sizing & UI Layout Constants
-	// -----------------------------------------------------------------------
-	--topbar-height: 56px;
-	--waveform-height: 100px;
-	--touch-min: 44px;
-	--z-modal: 1000;
+	--color-scrim: hsl(0 0% 0% / 0.75);
 
-	--font-mono: 'Courier New', monospace;
+	// Button surface — only the delta from ashlar defaults
+	--btn-bg: hsl(0 0% 20%);
 
+	// Typography
+	--font-mono:       'Courier New', monospace;
+	--lh-body-md:      1.4;
+	--text-2xs:        0.6875rem;   // project extension below --text-xs
+	--tracking-widest: 0.1em;       // project extension above --tracking-wider
 
-	// -----------------------------------------------------------------------
-	// Legacy project variable mapping (aliases to ensure backward compatibility)
-	// -----------------------------------------------------------------------
-	--color-bg-body:        0 0% 7%;
-	--color-bg-primary:     0 0% 10%;
-	--color-bg-secondary:   0 0% 13%;
-	--color-border:         0 0% 16%;
-	--color-border-light:   0 0% 16%;
-	--color-text-primary:   0 0% 93%;
-	--color-text-secondary: 0 0% 60%;
-	--color-text-muted:     0 0% 40%;
+	// Shell
+	--app-header-height: 3.5rem;
 
-	// Mixer-specific companion tokens
-	--color-accent-b:        210 100% 63%;    // Deck B blue
-	--color-cue:             0 100% 63%;      // Cue red
-	--cue:                   var(--color-cue);
-	--accent:                var(--color-primary);
-	--color-loop:            153 55% 53%;     // Loop green
-	--color-highlight:       60 100% 83%;     // Deck A title highlight
-	--color-surface-sunken:  0 0% 9%;
-	--color-input-bg:        0 0% 16%;
-	--color-input-border:    0 0% 27%;
-	--color-button-bg:       0 0% 20%;
-	--color-button-hover:    0 0% 27%;
-	--color-button-border:   0 0% 27%;
+	// Project domain tokens
+	--bg-wash:             hsl(0 0% 100% / 0.06);  // hover wash on dark surfaces
+	--color-highlight:     60 100% 83%;            // Deck A title
+	--color-cue:           var(--color-error);     // cue markers (ln-waveform.js)
+	--color-loop:          var(--color-success);   // loop badges, cached state
+	--touch-min:           2.75rem;                // 44px touch target
+	--waveform-height:     100px;                  // MUST equal WaveSurfer `height` in ln-waveform.js
+	--border-width-accent: 3px;                    // active-row accent bar
 
-	// ln-ashlar button token overrides
-	--btn-bg:           hsl(var(--color-button-bg));
-	--btn-border:       hsl(var(--color-button-border));
-	--btn-bg-hover:     hsl(var(--color-button-hover));
-	--btn-border-hover: hsl(var(--color-button-border));
-
-	// Standalone toast token mapping
-	--ln-toast-bg:     hsl(var(--color-bg-primary));
-	--ln-toast-fg:     hsl(var(--color-text-primary));
-	--ln-toast-fg-muted: hsl(var(--color-text-secondary));
-	--ln-toast-border: hsl(var(--color-border));
-	--ln-toast-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-	--ln-toast-info:   hsl(var(--color-primary));
 }
 
-// -----------------------------------------------------------------------
-// Standard reset overrides and conflict handling
-// -----------------------------------------------------------------------
-
-ul,
-ol {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-}
+// ─── Global resets (deltas over ashlar reset/base) ─────────────────────────
 
 p {
 	margin: 0;
-	line-height: 1.4;
 }
 
-body {
-	font-size: 14px;
-	overflow: hidden;
-}
-
-h1, h2, h3, h4, h5, h6 {
+:is(h1, h2, h3, h4, h5, h6) {
 	margin: 0;
 }
 
-// Global button base overrides to ensure uniform touch-accessible height (44px)
-button {
-	min-height: var(--touch-min);
-}
-
-
-// Glassmorphism submit button rebinds (Clean ln-ashlar token philosophy)
-button[type="submit"] {
-	--btn-bg:           hsl(var(--color-primary) / 0.5);
-	--btn-fg:           hsl(var(--color-text-primary));
-	--btn-border:       hsl(var(--color-primary));
-	--btn-bg-hover:     hsl(var(--color-primary) / 0.85);
-	--btn-fg-hover:     hsl(var(--color-text-primary));
-	--btn-border-hover: hsl(var(--color-primary));
-}
-
-[hidden] {
-	display: none !important;
+body {
+	overflow: hidden;
 }
 
 fieldset {
 	border: none;
-	margin: 0;
-	padding: 0;
+	min-inline-size: 0;
 }

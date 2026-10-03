@@ -1,0 +1,66 @@
+// ==========================================================================
+// _mixins.scss — project mixins + shell breakpoints (emits no CSS)
+// ==========================================================================
+@use '../../node_modules/@livenetworks/ashlar/theme/config/mixins' as *;
+
+// Shell breakpoints — device classes, not content widths
+$mixer-bp-stack:   900px;   // ≤: sidebar docks below the decks
+$mixer-bp-short:   768px;   // max-height: landscape tablet with browser chrome
+$mixer-bp-shorter: 640px;
+
+@mixin mq-stacked { @media (max-width: $mixer-bp-stack)    { @content; } }
+@mixin mq-short   { @media (max-height: $mixer-bp-short)   { @content; } }
+@mixin mq-shorter { @media (max-height: $mixer-bp-shorter) { @content; } }
+
+// Translucent accent fill — feeds the companion tokens @mixin btn reads.
+@mixin glass-accent {
+	--color-accent-bg:       hsl(var(--color-primary) / 0.5);
+	--color-accent-bg-hover: hsl(var(--color-primary) / 0.85);
+	--color-accent-bg-fg:    var(--fg-default);
+}
+
+// LED indicator dot in ::before; the owner reserves inline-start space.
+@mixin led {
+	position: relative;
+
+	&::before {
+		content: '';
+		position: absolute;
+		inset-inline-start: var(--size-sm);
+		top: 50%;
+		transform: translateY(-50%);
+		width: var(--size-sm);
+		height: var(--size-sm);
+		border-radius: var(--radius-full);
+		background: var(--fg-subtle);
+		border: var(--border-width) solid var(--bg-wash);
+		@include motion-safe {
+			transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+		}
+	}
+
+	&.active::before {
+		background: hsl(var(--color-primary));
+		box-shadow:
+			0 0 var(--size-sm) hsl(var(--color-primary)),
+			0 0 var(--size-md) hsl(var(--color-primary) / 0.3);
+	}
+}
+
+// Range thumb — included in both vendor pseudo-elements
+@mixin range-thumb {
+	width: var(--range-thumb-size);
+	height: var(--range-thumb-size);
+	border: none;
+	border-radius: var(--radius-full);
+	background: hsl(var(--color-primary));
+	box-shadow: 0 0 0 var(--size-2xs) hsl(var(--color-primary) / 0.2);
+	cursor: pointer;
+}
+
+// Recolour a vendored white data-URI icon via mask
+@mixin icon-mask($icon, $color) {
+	background: $color;
+	-webkit-mask: $icon center / contain no-repeat;
+	mask: $icon center / contain no-repeat;
+}

@@ -3,6 +3,8 @@
    Deck transport, highlights, autoplay sequencing, loop segments
    ==================================================================== */
 
+import { dispatch } from 'ln-ashlar';
+
 function _formatTime(seconds) {
 	const m = Math.floor(seconds / 60);
 	const s = Math.floor(seconds % 60);
@@ -59,7 +61,7 @@ export function setupDeck(mixer) {
 		for (let i = 0; i < decks.length; i++) {
 			if (decks[i] !== endedEl && decks[i].lnDeck && decks[i].lnDeck.trackIndex >= 0) {
 				this._autoplayPreloaded = false;
-				decks[i].dispatchEvent(new CustomEvent('ln-deck:request-play'));
+				dispatch(decks[i], 'ln-deck:request-play');
 				return;
 			}
 		}
@@ -82,7 +84,7 @@ export function setupDeck(mixer) {
 					URL.revokeObjectURL(self._blobUrls[id]);
 					delete self._blobUrls[id];
 				}
-				deckEl.dispatchEvent(new CustomEvent('ln-deck:request-reset'));
+				dispatch(deckEl, 'ln-deck:request-reset');
 			});
 		});
 
@@ -99,7 +101,7 @@ export function setupDeck(mixer) {
 			const allDecks = self.dom.querySelectorAll('[data-mixer-deck]');
 			allDecks.forEach(function (deck) {
 				if (deck !== e.target) {
-					deck.dispatchEvent(new CustomEvent('ln-deck:request-stop'));
+					dispatch(deck, 'ln-deck:request-stop');
 				}
 			});
 
@@ -130,9 +132,7 @@ export function setupDeck(mixer) {
 		this.dom.addEventListener('ln-deck:loaded', function (e) {
 			const sidebar = self._getSidebar();
 			if (sidebar) {
-				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-highlight', {
-					detail: { deckId: e.detail.deckId, index: e.detail.trackIndex }
-				}));
+				dispatch(sidebar, 'ln-playlist:request-highlight', { deckId: e.detail.deckId, index: e.detail.trackIndex });
 			}
 			if (e.detail.track && e.detail.track.url) {
 				self._connectDeckAudio(e.detail.deckId);
@@ -155,15 +155,13 @@ export function setupDeck(mixer) {
 			// Update sidebar catalog + DOM
 			const sidebar = self._getSidebar();
 			if (sidebar) {
-				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-update-catalog', {
-					detail: {
-						url: url,
-						track: {
-							duration: e.detail.duration,
-							durationSec: e.detail.durationSec
-						}
+				dispatch(sidebar, 'ln-playlist:request-update-catalog', {
+					url: url,
+					track: {
+						duration: e.detail.duration,
+						durationSec: e.detail.durationSec
 					}
-				}));
+				});
 			}
 		});
 
@@ -189,9 +187,7 @@ export function setupDeck(mixer) {
 				const oldIdx = deckEl.lnDeck.trackIndex;
 
 				if (oldIdx >= 0 && oldToNew.hasOwnProperty(oldIdx)) {
-					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-adjust-index', {
-						detail: { newIndex: oldToNew[oldIdx] }
-					}));
+					dispatch(deckEl, 'ln-deck:request-adjust-index', { newIndex: oldToNew[oldIdx] });
 				}
 			});
 
@@ -214,9 +210,7 @@ export function setupDeck(mixer) {
 		this.dom.addEventListener('ln-deck:edit-requested', function (e) {
 			const sidebar = self._getSidebar();
 			if (sidebar) {
-				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-open-edit', {
-					detail: { index: e.detail.trackIndex }
-				}));
+				dispatch(sidebar, 'ln-playlist:request-open-edit', { index: e.detail.trackIndex });
 			}
 		});
 	};
@@ -259,17 +253,13 @@ export function setupDeck(mixer) {
 			const playlistId = sidebar.lnPlaylist.currentId;
 			if (!playlistId) return;
 
-			sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-remove-loop', {
-				detail: {
-					playlistId: playlistId,
-					trackIndex: e.detail.trackIndex,
-					loopIndex: e.detail.loopIndex
-				}
-			}));
+			dispatch(sidebar, 'ln-playlist:request-remove-loop', {
+				playlistId: playlistId,
+				trackIndex: e.detail.trackIndex,
+				loopIndex: e.detail.loopIndex
+			});
 
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'info', message: 'Loop removed' }
-			}));
+			dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Loop removed' });
 		});
 
 		// Loop added/removed → refresh deck segment buttons
@@ -277,9 +267,7 @@ export function setupDeck(mixer) {
 			const d = e.detail;
 			self.dom.querySelectorAll('[data-mixer-deck]').forEach(function (deckEl) {
 				if (deckEl.lnDeck && deckEl.lnDeck.trackIndex === d.trackIndex) {
-					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
-						detail: { loops: d.loops }
-					}));
+					dispatch(deckEl, 'ln-deck:request-set-loops', { loops: d.loops });
 				}
 			});
 		});
@@ -288,9 +276,7 @@ export function setupDeck(mixer) {
 			const d = e.detail;
 			self.dom.querySelectorAll('[data-mixer-deck]').forEach(function (deckEl) {
 				if (deckEl.lnDeck && deckEl.lnDeck.trackIndex === d.trackIndex) {
-					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-set-loops', {
-						detail: { loops: d.loops }
-					}));
+					dispatch(deckEl, 'ln-deck:request-set-loops', { loops: d.loops });
 				}
 			});
 		});
@@ -314,9 +300,7 @@ export function setupDeck(mixer) {
 				self._autoplayTimer = null;
 			}
 
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'info', message: self._autoplay ? 'Autoplay ON' : 'Autoplay OFF' }
-			}));
+			dispatch(window, 'ln-toast:enqueue', { type: 'info', message: self._autoplay ? 'Autoplay ON' : 'Autoplay OFF' });
 		});
 	};
 
@@ -353,31 +337,16 @@ export function setupDeck(mixer) {
 			const sidebar = self._getSidebar();
 			if (sidebar && sidebar.lnPlaylist) {
 				const playlistId = sidebar.lnPlaylist.currentId;
-				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-add-loop', {
-					detail: {
-						playlistId: playlistId,
-						trackIndex: trackIndex,
-						loop: loopData
-					}
-				}));
+				dispatch(sidebar, 'ln-playlist:request-add-loop', {
+					playlistId: playlistId,
+					trackIndex: trackIndex,
+					loop: loopData
+				});
 			}
 
 			const modalEl = document.getElementById('modal-name-loop');
 			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'success', message: 'Loop "' + name + '" saved' }
-			}));
-		});
-
-		// Open settings from library empty state
-		document.addEventListener('click', function (e) {
-			if (e.target.closest('[data-mixer-action="open-settings-from-library"]')) {
-				const libModal = document.getElementById('modal-track-library');
-				if (libModal) libModal.setAttribute('data-ln-modal', 'close');
-				self._populateSettingsForm();
-				const setModal = document.getElementById('modal-settings');
-				if (setModal) setModal.setAttribute('data-ln-modal', 'open');
-			}
+			dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Loop "' + name + '" saved' });
 		});
 	};
 

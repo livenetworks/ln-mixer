@@ -1,42 +1,37 @@
-import { cloneTemplate, fillTemplate, fill } from 'ln-ashlar';
+import { dispatch, registerDataMapper } from 'ln-ashlar';
 
 const DOM_SELECTOR = 'data-mixer-library';
 const DOM_ATTRIBUTE = 'lnLibrary';
 
 if (!window[DOM_ATTRIBUTE]) {
 
+	/* ─── Data mapper (ln-data-coordinator ingress / egress) ──────────
+	   The API (api/index.php) returns [{ artist, title, url }] with no id.
+	   The coordinator runs every record through ingress() before it reaches
+	   the libraryTracks store, so this is where the store key is defined:
+	   the audio URL is the track's identity. ──────────────────────────── */
 
-
-	/* ─── Helpers ──────────────────────────────────────────────────── */
-
-	function _dispatch(element, eventName, detail) {
-		element.dispatchEvent(new CustomEvent(eventName, {
-			bubbles: true,
-			detail: detail || {}
-		}));
+	function _str(value) {
+		return typeof value === 'string' ? value.trim() : '';
 	}
 
-	function _validateTrack(raw, index) {
-		if (!raw || typeof raw !== 'object') {
-			console.warn('ln-library: skipping track[' + index + '] — not an object');
-			return null;
+	registerDataMapper('libraryTracks', {
+		ingress: function (raw) {
+			const url = _str(raw && raw.url);
+			const record = {
+				id: url,
+				url: url,
+				title: _str(raw && raw.title) || url,
+				artist: _str(raw && raw.artist)
+			};
+			if (raw && typeof raw.duration === 'string') record.duration = raw.duration.trim();
+			if (raw && typeof raw.durationSec === 'number' && isFinite(raw.durationSec)) record.durationSec = raw.durationSec;
+			return record;
+		},
+		egress: function (record) {
+			return record;
 		}
-		var url = typeof raw.url === 'string' ? raw.url.trim() : '';
-		var title = typeof raw.title === 'string' ? raw.title.trim() : '';
-		if (!url) {
-			console.warn('ln-library: skipping track[' + index + '] — missing url');
-			return null;
-		}
-		if (!title) {
-			console.warn('ln-library: skipping track[' + index + '] — missing title');
-			return null;
-		}
-		var validated = { url: url, title: title };
-		validated.artist = typeof raw.artist === 'string' ? raw.artist.trim() : '';
-		if (typeof raw.duration === 'string') validated.duration = raw.duration.trim();
-		if (typeof raw.durationSec === 'number' && isFinite(raw.durationSec)) validated.durationSec = raw.durationSec;
-		return validated;
-	}
+	});
 
 	/* ─── Constructor ─────────────────────────────────────────────── */
 
@@ -56,19 +51,19 @@ if (!window[DOM_ATTRIBUTE]) {
 		});
 	}
 
-	/* ─── Component ───────────────────────────────────────────────── */
+	/* ─── Component ───────────────────────────────────────────────────
+	   Pure data layer for the per-track download UI state (cached /
+	   downloading / progress). ln-list owns the rows and re-renders them
+	   on every query, so state is kept here by URL and re-applied after
+	   each `ln-list:rendered`. ─────────────────────────────────────── */
 
 	function _component(dom) {
 		this.dom = dom;
 		dom[DOM_ATTRIBUTE] = this;
 
-		this._tracks = [];
-		this._loaded = false;
-		this._loading = false;
-
-		this._list = dom.querySelector('[data-mixer-library-list]');
-		this._noApi = dom.querySelector('[data-mixer-library-no-api]');
-		this._search = dom.querySelector('[data-ln-search]');
+		this._cached = {};
+		this._downloading = {};
+		this._progress = {};
 
 		this._bindEvents();
 
@@ -80,9 +75,8 @@ if (!window[DOM_ATTRIBUTE]) {
 	_component.prototype._bindEvents = function () {
 		const self = this;
 
-		// Request events (from coordinator / external code)
-		this.dom.addEventListener('ln-library:request-fetch', function (e) {
-			self.fetch(e.detail ? e.detail.apiUrl : '');
+		this.dom.addEventListener('ln-list:rendered', function () {
+			self._applyAll();
 		});
 
 		this.dom.addEventListener('ln-library:request-mark-cached', function (e) {
@@ -90,246 +84,95 @@ if (!window[DOM_ATTRIBUTE]) {
 		});
 
 		this.dom.addEventListener('ln-library:request-download-start', function (e) {
-			if (e.detail) self._setDownloading(e.detail.url, true);
+			if (!e.detail) return;
+			self._downloading[e.detail.url] = true;
+			self._progress[e.detail.url] = 0;
+			self._applyOne(e.detail.url);
 		});
 
 		this.dom.addEventListener('ln-library:request-download-progress', function (e) {
-			if (e.detail) self._updateProgress(e.detail.url, e.detail.percent);
+			if (!e.detail) return;
+			self._progress[e.detail.url] = Math.round(e.detail.percent);
+			self._applyOne(e.detail.url);
 		});
 
 		this.dom.addEventListener('ln-library:request-download-done', function (e) {
 			if (!e.detail) return;
-			self._setDownloading(e.detail.url, false);
+			const url = e.detail.url;
+			delete self._downloading[url];
 			if (e.detail.success) {
-				self._markSingleCached(e.detail.url);
+				self._cached[url] = true;
+				self._progress[url] = 100;
+			} else {
+				delete self._progress[url];
 			}
+			self._applyOne(url);
 		});
 
 		this.dom.addEventListener('ln-library:request-uncache', function (e) {
-			if (e.detail) self._markSingleUncached(e.detail.url);
+			if (!e.detail) return;
+			delete self._cached[e.detail.url];
+			delete self._progress[e.detail.url];
+			self._applyOne(e.detail.url);
 		});
 
 		this.dom.addEventListener('ln-library:request-clear-all-cached', function () {
-			self._clearAllCached();
+			self._cached = {};
+			self._progress = {};
+			self._applyAll();
 		});
-	};
-
-	/* ─── Public API (queries) ────────────────────────────────────── */
-
-	_component.prototype.getTracks = function () {
-		return this._tracks;
-	};
-
-	_component.prototype.isLoaded = function () {
-		return this._loaded;
 	};
 
 	/* ─── Public API (commands) ───────────────────────────────────── */
 
-	_component.prototype.fetch = function (apiUrl) {
-		if (this._loading) return;
-
-		if (!apiUrl) {
-			this._showNoApi();
-			return;
-		}
-
-		this._loading = true;
-		this._hideNoApi();
-		const self = this;
-
-		// Abort previous request if still in-flight
-		if (this._xhr) { this._xhr.abort(); this._xhr = null; }
-
-		// Show loading state
-		if (this._list) {
-			this._list.innerHTML = '';
-			const loadingLi = document.createElement('li');
-			loadingLi.className = 'library-loading';
-			loadingLi.textContent = 'Loading...';
-			this._list.appendChild(loadingLi);
-		}
-
-		const xhr = this._xhr = new XMLHttpRequest();
-		xhr.open('GET', apiUrl);
-		xhr.responseType = 'json';
-
-		xhr.onload = function () {
-			self._loading = false;
-			self._xhr = null;
-			if (xhr.status >= 200 && xhr.status < 300 && Array.isArray(xhr.response)) {
-				var valid = [];
-				var skipped = 0;
-				for (var i = 0; i < xhr.response.length; i++) {
-					var t = _validateTrack(xhr.response[i], i);
-					if (t) valid.push(t);
-					else skipped++;
-				}
-				if (skipped > 0) console.warn('ln-library: skipped ' + skipped + ' invalid track(s)');
-				self._tracks = valid;
-				self._loaded = true;
-				self._populate();
-				_dispatch(self.dom, 'ln-library:fetched', {
-					count: self._tracks.length
-				});
-			} else {
-				self._showError('Failed to load tracks');
-				_dispatch(self.dom, 'ln-library:error', {
-					message: 'HTTP ' + xhr.status
-				});
-			}
-		};
-
-		xhr.onerror = function () {
-			self._loading = false;
-			self._xhr = null;
-			self._showError('Network error');
-			_dispatch(self.dom, 'ln-library:error', {
-				message: 'Network error'
-			});
-		};
-
-		xhr.send();
-	};
-
 	_component.prototype.markCached = function (cachedUrls) {
-		if (!this._list) return;
-		const urlSet = {};
-		cachedUrls.forEach(function (u) { urlSet[u] = true; });
+		const cached = {};
+		(cachedUrls || []).forEach(function (u) { cached[u] = true; });
+		this._cached = cached;
+		this._applyAll();
+		dispatch(this.dom, 'ln-library:cache-marked', { count: Object.keys(cached).length });
+	};
 
-		const items = this._list.querySelectorAll('[data-mixer-library-track]');
-		items.forEach(function (li) {
-			const addBtn = li.querySelector('[data-mixer-action="add-to-playlist"]');
-			const url = addBtn ? addBtn.getAttribute('data-track-url') : '';
-			const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
-			if (url && urlSet[url]) {
-				li.setAttribute('data-mixer-cached', '');
-				if (bar) bar.setAttribute('data-ln-progress', '100');
-			} else {
-				li.removeAttribute('data-mixer-cached');
-				if (bar) bar.setAttribute('data-ln-progress', '0');
+	/* ─── Private: Apply state to rendered rows ───────────────────── */
+
+	_component.prototype._rows = function () {
+		return this.dom.querySelectorAll('[data-mixer-library-track]');
+	};
+
+	_component.prototype._urlOf = function (li) {
+		const btn = li.querySelector('[data-mixer-action="add-to-playlist"]');
+		return btn ? btn.getAttribute('data-track-url') : '';
+	};
+
+	_component.prototype._applyRow = function (li, url) {
+		const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
+		const cached = !!this._cached[url];
+		const downloading = !!this._downloading[url];
+
+		li.toggleAttribute('data-mixer-cached', cached);
+		li.toggleAttribute('data-mixer-downloading', downloading);
+
+		let percent = 0;
+		if (cached) percent = 100;
+		else if (this._progress[url]) percent = this._progress[url];
+		if (bar) bar.setAttribute('data-ln-progress', String(percent));
+	};
+
+	_component.prototype._applyOne = function (url) {
+		const rows = this._rows();
+		for (let i = 0; i < rows.length; i++) {
+			if (this._urlOf(rows[i]) === url) {
+				this._applyRow(rows[i], url);
+				return;
 			}
-		});
-	};
-
-	/* ─── Private: Download UI ───────────────────────────────────── */
-
-	_component.prototype._findItemByUrl = function (url) {
-		if (!this._list) return null;
-		const items = this._list.querySelectorAll('[data-mixer-library-track]');
-		for (let i = 0; i < items.length; i++) {
-			const btn = items[i].querySelector('[data-mixer-action="add-to-playlist"]');
-			if (btn && btn.getAttribute('data-track-url') === url) {
-				return items[i];
-			}
-		}
-		return null;
-	};
-
-	_component.prototype._setDownloading = function (url, active) {
-		const li = this._findItemByUrl(url);
-		if (!li) return;
-		if (active) {
-			li.setAttribute('data-mixer-downloading', '');
-			const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
-			if (bar) bar.setAttribute('data-ln-progress', '0');
-		} else {
-			li.removeAttribute('data-mixer-downloading');
 		}
 	};
 
-	_component.prototype._updateProgress = function (url, percent) {
-		const li = this._findItemByUrl(url);
-		if (!li) return;
-		const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
-		if (bar) bar.setAttribute('data-ln-progress', String(Math.round(percent)));
-	};
-
-	_component.prototype._markSingleCached = function (url) {
-		const li = this._findItemByUrl(url);
-		if (!li) return;
-		li.setAttribute('data-mixer-cached', '');
-		const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
-		if (bar) bar.setAttribute('data-ln-progress', '100');
-	};
-
-	_component.prototype._markSingleUncached = function (url) {
-		const li = this._findItemByUrl(url);
-		if (!li) return;
-		li.removeAttribute('data-mixer-cached');
-		const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
-		if (bar) bar.setAttribute('data-ln-progress', '0');
-	};
-
-	_component.prototype._clearAllCached = function () {
-		if (!this._list) return;
-		const items = this._list.querySelectorAll('[data-mixer-cached]');
-		items.forEach(function (li) {
-			li.removeAttribute('data-mixer-cached');
-			const bar = li.querySelector('.library-download-progress > [data-ln-progress]');
-			if (bar) bar.setAttribute('data-ln-progress', '0');
-		});
-	};
-
-	/* ─── Private: Populate ───────────────────────────────────────── */
-
-	_component.prototype._buildLibraryItem = function (track) {
-		const frag = cloneTemplate('library-item', 'ln-library');
-		fillTemplate(frag, track);
-		fill(frag, track);
-		return frag.firstElementChild;
-	};
-
-	_component.prototype._populate = function () {
-		if (!this._list) return;
-		this._list.innerHTML = '';
-		if (this._search) this._search.hidden = false;
-
-		if (this._tracks.length === 0) {
-			const emptyLi = document.createElement('li');
-			emptyLi.className = 'library-empty';
-			emptyLi.textContent = 'No tracks found';
-			this._list.appendChild(emptyLi);
-			return;
-		}
-
+	_component.prototype._applyAll = function () {
 		const self = this;
-		this._tracks.forEach(function (track) {
-			self._list.appendChild(self._buildLibraryItem(track));
+		this._rows().forEach(function (li) {
+			self._applyRow(li, self._urlOf(li));
 		});
-
-		// Ensure ln-progress instances are initialized on newly added bars
-		if (window.lnProgress) {
-			window.lnProgress(this._list);
-		}
-
-		// Clear ln-search on fresh populate
-		const searchEl = this.dom.querySelector('[data-ln-search]');
-		if (searchEl && searchEl.lnSearch) {
-			searchEl.lnSearch.clear();
-		}
-	};
-
-	/* ─── Private: Error State ────────────────────────────────────── */
-
-	_component.prototype._showError = function (message) {
-		if (!this._list) return;
-		this._list.innerHTML = '';
-		const errorLi = document.createElement('li');
-		errorLi.className = 'library-error';
-		errorLi.textContent = message;
-		this._list.appendChild(errorLi);
-	};
-
-	_component.prototype._showNoApi = function () {
-		if (this._noApi) this._noApi.hidden = false;
-		if (this._list) this._list.hidden = true;
-		if (this._search) this._search.hidden = true;
-	};
-
-	_component.prototype._hideNoApi = function () {
-		if (this._noApi) this._noApi.hidden = true;
-		if (this._list) this._list.hidden = false;
 	};
 
 	/* ─── DOM Observer ────────────────────────────────────────────── */

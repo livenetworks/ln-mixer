@@ -1,142 +1,173 @@
-// ==========================================================================
-// _deck.scss — Deck layout, header, badge, track-info, time display, controls
-// ==========================================================================
-
-// ─── Individual deck ─────────────────────────────────────────────────────────
+@use '../../../node_modules/@livenetworks/ashlar/theme/config/mixins' as *;
+@use '../mixins' as *;
 
 .deck {
-	--deck-color: hsl(var(--color-primary));
-	display: flex;
-	flex-direction: column;
+	--deck-color: hsl(var(--color-primary));   // read by ln-waveform.js (WaveSurfer progressColor)
+	--deck-title: hsl(var(--color-highlight));
+	@include flex-col;
 	gap: var(--size-xs);
 	padding: var(--size-sm) var(--size-md);
-	background: hsl(var(--color-bg-primary));
+	background: var(--bg-base);
 	flex: 1 1 50%;
-	min-height: 0;
+	min-block-size: 0;
 	overflow: hidden;
+
+	@include mq-short {
+		padding-block: var(--size-xs);
+		gap: var(--size-2xs);
+	}
+
+	@include mq-shorter {
+		padding-block: var(--size-2xs);
+	}
 }
 
-// Deck B overrides --color-primary locally → all color uses adapt automatically
-.deck--b {
-	--color-primary: var(--color-accent-b);
-	--deck-color: hsl(var(--color-primary));
+// Deck B re-tints the whole deck through the accent primitives
+[data-mixer-deck="b"] {
+	--color-primary: var(--color-secondary);
+	--color-accent:  hsl(var(--color-primary));
+	--deck-title:    var(--fg-default);
 }
-
-// ─── Deck header ─────────────────────────────────────────────────────────────
 
 .deck-header {
-	display: flex;
-	align-items: center;
+	@include flex;
+	@include items-center;
 	gap: var(--size-sm);
 	flex-shrink: 0;
 
 	h2 {
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		color: hsl(var(--color-text-secondary));
+		font-size: var(--text-xs);
+		@include uppercase;
+		letter-spacing: var(--tracking-widest);
+		color: var(--fg-muted);
+
+		@include mq-short {
+			font-size: var(--text-2xs);
+		}
 	}
 }
 
-// ─── Deck badge ──────────────────────────────────────────────────────────────
-
 .deck-badge {
-	font-size: 0.6rem;
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
-	padding: 0.15rem 0.5rem;
-	border-radius: 2px;
+	padding: var(--size-2xs) var(--size-sm);
+	border-radius: var(--radius-xs);
 	background: hsl(var(--color-primary) / 0.15);
 	color: hsl(var(--color-primary));
-	font-weight: 700;
+	font-size: var(--text-2xs);
+	@include font-bold;
+	@include uppercase;
+	letter-spacing: var(--tracking-widest);
 }
 
-// ─── Track info in deck (single line: title + artist) ────────────────────────
-
+// ─── Title + artist on one line ────────────────────────────────────────────
 .deck .track-info {
 	flex-shrink: 0;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	@include truncate;
 }
 
 .deck .track-title {
-	font-size: 1rem;
-	font-weight: 700;
-	color: var(--color-highlight);
-}
+	font-size: var(--text-base);
+	@include font-bold;
+	color: var(--deck-title);
 
-.deck--b .track-title {
-	color: hsl(var(--color-text-primary));
+	@include mq-short {
+		font-size: var(--text-sm);
+	}
 }
 
 .deck .track-artist {
-	font-size: 0.85rem;
-	color: hsl(var(--color-text-secondary));
-	margin-left: 0.5rem;
+	margin-inline-start: var(--size-sm);
+	font-size: var(--text-label-md);
+	color: var(--fg-muted);
 }
 
 .deck .track-notes:empty {
 	display: none;
 }
 
-// When notes present: notes become primary label, track info becomes secondary
-.deck:has(.track-notes:not(:empty)) .track-notes {
-	font-size: 1rem;
-	font-weight: 700;
-	color: var(--color-highlight);
+// Notes present → notes become the primary label
+.deck:has(.track-notes:not(:empty)) {
+	.track-notes {
+		font-size: var(--text-base);
+		@include font-bold;
+		color: var(--deck-title);
+
+		@include mq-shorter {
+			font-size: var(--text-label-md);
+		}
+	}
+
+	.track-title {
+		font-size: var(--text-label-md);
+		@include font-normal;
+		color: var(--fg-muted);
+
+		@include mq-shorter {
+			font-size: var(--text-xs);
+		}
+	}
+
+	.track-artist {
+		font-size: var(--text-xs);
+		color: var(--fg-subtle);
+	}
 }
 
-.deck--b:has(.track-notes:not(:empty)) .track-notes {
-	color: hsl(var(--color-text-primary));
-}
-
-.deck:has(.track-notes:not(:empty)) .track-title {
-	font-size: 0.85rem;
-	font-weight: 400;
-	color: hsl(var(--color-text-secondary));
-}
-
-.deck:has(.track-notes:not(:empty)) .track-artist {
-	font-size: 0.75rem;
-	color: hsl(var(--color-text-muted));
-}
-
-// ─── Time display ────────────────────────────────────────────────────────────
-
+// ─── Time readout (<output>: mono font comes from ashlar) ──────────────────
 .time-display {
-	display: flex;
-	align-items: center;
+	@include flex;
+	@include items-center;
 	gap: var(--size-xs);
-	font-family: var(--font-mono);
-	font-size: 1.25rem;
-	color: hsl(var(--color-text-primary));
-	font-variant-numeric: tabular-nums;
 	flex-shrink: 0;
+	font-size: var(--text-xl);
+	color: var(--fg-default);
+	@include font-tabular;
+
+	@include mq-short {
+		font-size: var(--text-lg);
+	}
 
 	.time-separator {
-		color: hsl(var(--color-text-muted));
-		font-size: 1rem;
+		font-size: var(--text-base);
+		color: var(--fg-subtle);
 	}
 
 	.time-total {
-		color: hsl(var(--color-text-secondary));
-		font-size: 1rem;
+		font-size: var(--text-base);
+		color: var(--fg-muted);
 	}
 }
 
-// ─── Transport controls ───────────────────────────────────────────────────────
-
+// ─── Transport ─────────────────────────────────────────────────────────────
 .controls {
-	display: flex;
+	@include flex;
+	@include flex-wrap;
 	gap: var(--size-sm);
-	flex-wrap: wrap;
 	flex-shrink: 0;
 
-	// Play and Pause share same min-width to prevent layout shift on swap
-	[data-mixer-transport="play"] {
-		min-width: 5rem;
+	// Play/Pause swap in place — equal min width prevents layout shift
+	:is([data-mixer-transport="play"], [data-mixer-transport="pause"]) {
+		min-inline-size: 5rem;
+	}
+
+	// Short screens compact padding/type only — height stays >= --touch-min
+	@include mq-short {
+		gap: var(--size-xs);
+
+		button {
+			--btn-padding-y: var(--size-xs);
+			--btn-padding-x: var(--size-sm);
+			font-size: var(--text-xs);
+		}
+
+		:is([data-mixer-transport="play"], [data-mixer-transport="pause"]) {
+			min-inline-size: 4rem;
+		}
+	}
+
+	@include mq-shorter {
+		button {
+			--btn-padding-y: var(--size-2xs);
+			--btn-padding-x: var(--size-xs-up);
+		}
 	}
 }
-
-

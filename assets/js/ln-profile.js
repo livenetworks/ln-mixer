@@ -1,4 +1,4 @@
-import { cloneTemplate, fillTemplate, fill } from 'ln-ashlar';
+import { cloneTemplate, fillTemplate, fill, dispatch } from 'ln-ashlar';
 
 const DOM_SELECTOR = 'data-mixer-profile';
 const DOM_ATTRIBUTE = 'lnProfile';
@@ -6,13 +6,6 @@ const DOM_ATTRIBUTE = 'lnProfile';
 if (!window[DOM_ATTRIBUTE]) {
 
 	/* ─── Helpers ──────────────────────────────────────────────────── */
-
-	function _dispatch(element, eventName, detail) {
-		element.dispatchEvent(new CustomEvent(eventName, {
-			bubbles: true,
-			detail: detail || {}
-		}));
-	}
 
 	function _generateId(name) {
 		let id = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -108,7 +101,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			this.switchTo(keys[0]);
 		}
 
-		_dispatch(this.dom, 'ln-profile:ready', {
+		dispatch(this.dom, 'ln-profile:ready', {
 			profiles: this.profiles,
 			currentId: this.currentId
 		});
@@ -151,7 +144,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		this.currentId = id;
 		this._updateActive();
 
-		_dispatch(this.dom, 'ln-profile:switched', {
+		dispatch(this.dom, 'ln-profile:switched', {
 			profileId: id,
 			profile: this.profiles[id]
 		});
@@ -166,7 +159,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		this._renderButtons();
 		this.switchTo(id);
 
-		_dispatch(this.dom, 'ln-profile:created', {
+		dispatch(this.dom, 'ln-profile:created', {
 			profileId: id,
 			profile: this.profiles[id]
 		});
@@ -186,13 +179,13 @@ if (!window[DOM_ATTRIBUTE]) {
 			this.switchTo(remaining[0]);
 		} else {
 			this.currentId = null;
-			_dispatch(this.dom, 'ln-profile:switched', {
+			dispatch(this.dom, 'ln-profile:switched', {
 				profileId: null,
 				profile: null
 			});
 		}
 
-		_dispatch(this.dom, 'ln-profile:deleted', { profileId: id });
+		dispatch(this.dom, 'ln-profile:deleted', { profileId: id });
 	};
 
 	_component.prototype.getProfile = function (id) {

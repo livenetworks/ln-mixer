@@ -1,105 +1,76 @@
-// ==========================================================================
-// _loop-segments.scss — Loop segment button strip below deck controls
-// ==========================================================================
-
-// ─── Loop segments container ──────────────────────────────────────────────────
+@use '../../../node_modules/@livenetworks/ashlar/theme/config/mixins' as *;
+@use '../mixins' as *;
 
 .loop-segments {
-	display: flex;
-	flex-wrap: wrap;
+	@include flex;
+	@include flex-wrap;
 	gap: var(--size-xs);
 	flex-shrink: 0;
 
 	&:empty {
-		min-height: 44px;
+		min-block-size: var(--touch-min);
 	}
 }
 
-// ─── Loop segment button ──────────────────────────────────────────────────────
-
 .loop-seg-btn {
-	display: inline-flex;
+	@include led;
+	--btn-bg:           transparent;
+	--btn-fg:           hsl(var(--color-primary));
+	--btn-border:       hsl(var(--color-primary));
+	--btn-bg-hover:     hsl(var(--color-primary) / 0.15);
+	--btn-fg-hover:     hsl(var(--color-primary));
+	--btn-border-hover: hsl(var(--color-primary));
+	--btn-padding-x:    0;
+	--btn-padding-y:    0;
+	--gap:              0;
 	align-items: stretch;
-	gap: 0;
-	padding: 0;
-	font-size: 0.75rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	border-radius: var(--radius-md);
-	background: transparent;
-	border: 1px solid hsl(var(--color-primary));
-	color: hsl(var(--color-primary));
-	cursor: pointer;
-	touch-action: manipulation;
-	position: relative;
 	overflow: hidden;
-	transition: background var(--transition-fast), color var(--transition-fast);
+	font-size: var(--text-xs);
+	@include font-semibold;
+	@include uppercase;
+	letter-spacing: var(--tracking-wider);
 
-	// LED dot (same pattern as LED buttons)
-
-	&::before {
-		content: '';
-		position: absolute;
-		left: 0.45rem;
-		top: 50%;
-		transform: translateY(-50%);
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		background: hsl(var(--color-text-muted));
-		border: 1px solid rgba(255, 255, 255, 0.1);
-		transition: background var(--transition-fast), box-shadow var(--transition-fast);
-	}
-
-	&:hover {
-		background: hsl(var(--color-primary) / 0.15);
+	@include mq-short {
+		font-size: var(--text-2xs);
 	}
 
 	&.active {
-		background: hsl(var(--color-primary) / 0.2);
-		border-color: hsl(var(--color-primary));
-		color: hsl(var(--color-primary));
-
-		&::before {
-			background: hsl(var(--color-primary));
-			box-shadow: 0 0 8px hsl(var(--color-primary)), 0 0 16px hsl(var(--color-primary) / 0.3);
-		}
+		--btn-bg:       hsl(var(--color-primary) / 0.2);
+		--btn-bg-hover: hsl(var(--color-primary) / 0.2);
 	}
 }
 
-// ─── Loop segment label ───────────────────────────────────────────────────────
-
 .loop-seg-label {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.4rem;
-	padding: 0.4rem 0.75rem;
-	padding-left: 1.4rem;
+	@include inline-flex;
+	@include items-center;
+	gap: var(--size-xs-up);
+	padding: var(--size-xs-up) var(--size-sm-up);
+	padding-inline-start: var(--size-md-up);   // room for the LED dot
+
+	@include mq-short {
+		padding: var(--size-2xs) var(--size-sm);
+		padding-inline-start: var(--size-md-up);
+	}
 }
 
-// ─── Loop segment remove button ───────────────────────────────────────────────
-
 .loop-seg-remove {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0;
-	background: hsl(var(--color-cue) / 0.15);
-	border: none;
-	border-left: 1px solid hsl(var(--color-cue) / 0.3);
-	min-width: 40px;
-	min-height: auto;
+	@include inline-flex;
+	@include items-center;
+	@include justify-center;
+	min-inline-size: var(--touch-min);
+	background: hsl(var(--color-error) / 0.15);
+	border-inline-start: var(--border-width) solid hsl(var(--color-error) / 0.3);
 	cursor: pointer;
-	transition: background var(--transition-fast);
+	@include motion-safe {
+		transition: background-color var(--transition-fast);
+	}
 
 	&::before {
-		width: 0.9rem;
-		height: 0.9rem;
-		filter: brightness(0) saturate(100%) invert(40%) sepia(80%) saturate(2000%) hue-rotate(335deg);
+		@include size(var(--size-md));
+		@include icon-mask(var(--icon-close-white), hsl(var(--color-error)));
 	}
 
 	&:hover {
-		background: hsl(var(--color-cue) / 0.35);
+		background: hsl(var(--color-error) / 0.35);
 	}
 }

@@ -99,7 +99,7 @@ export function setupAudio(mixer) {
 				const val = volumeSlider.value;
 				const pct = val + '%';
 				volumeSlider.style.background =
-					'linear-gradient(to right, hsl(var(--accent)) ' + pct + ', var(--button-bg) ' + pct + ')';
+					'linear-gradient(to right, hsl(var(--color-primary)) ' + pct + ', var(--bg-sunken) ' + pct + ')';
 				if (self._masterGain) {
 					self._masterGain.gain.value = val / 100;
 				}

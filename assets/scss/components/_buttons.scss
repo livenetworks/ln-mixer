@@ -1,161 +1,36 @@
-@use '../../../ln-ashlar/scss/config/mixins' as *;
+@use '../../../node_modules/@livenetworks/ashlar/theme/config/mixins' as *;
+@use '../mixins' as *;
 
-// ==========================================================================
-// _buttons.scss — Global button override + LED mixin + semantic variants
-// ==========================================================================
-// button[type="submit"] glass override is in _overrides.scss.
-// ==========================================================================
-
-// ─── Global button override ─────────────────────────────────────────────────
-// ln-ashlar handles standard button styling globally via button-base.
-// Project specific deltas (like the active state) are specified here.
+// Global button deltas. Structure + neutral colours come from ashlar
+// (button-base; submit = @include btn). Component buttons live in their
+// partials: profile → _topbar, zoom → _waveform, load → _track-list,
+// empty-state → _layout, loop segments → _loop-segments.
 
 button {
 	touch-action: manipulation;
+	min-block-size: var(--touch-min);
 
-	// Active state (e.g. transport play button pressed)
-	&.active {
-		background: hsl(var(--color-primary));
-		color: #000;
-		border-color: hsl(var(--color-primary-hover));
-
-		&::before {
-			filter: brightness(0);
-		}
+	@media (pointer: coarse) {
+		min-inline-size: var(--touch-min);
 	}
 }
 
-// ─── Ghost buttons (zoom buttons) ───────────────────────────────────────────
-// Modal close buttons are handled natively by ln-ashlar's panel-header.
-
-.waveform-zoom button {
-	justify-content: center;
-	min-width: var(--touch-min);
-	min-height: var(--touch-min);
-	padding: 2px;
-	background: hsl(0 0% 0% / 0.6);
-	border: 1px solid transparent;
-	border-radius: var(--radius-md);
-	touch-action: manipulation;
-
-	&:hover:not(:disabled) {
-		background: hsl(0 0% 100% / 0.08);
-	}
+// Submit = translucent "glass" accent (btn is applied by ashlar)
+button[type="submit"] {
+	@include glass-accent;
 }
 
-// ─── Danger / destructive actions ───────────────────────────────────────────
-
-[data-ln-form="edit-track"] footer [data-mixer-action="remove-track"],
-[data-ln-form="settings"] footer [data-mixer-action="delete-profile"],
-[data-ln-form="confirm-delete-playlist"] footer [type="submit"] {
-	&:hover {
-		background: hsl(var(--color-cue) / 0.2);
-		border-color: hsl(var(--color-cue));
-	}
-}
-
-// ─── LED Button mixin and semantic selectors ─────────────────────────────────
-
-@mixin led-button {
-	position: relative;
-	padding-left: 1.6rem; // To make space for the LED dot on the left
+// Cue A / Cue B — solid accent while armed (JS toggles .active)
+button[data-mixer-cue^="mark-"].active {
+	@include btn;
 
 	&::before {
-		content: '';
-		position: absolute;
-		left: 0.5rem;
-		top: 50%;
-		transform: translateY(-50%);
-
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		background: hsl(var(--color-text-muted));
-		border: 1px solid hsl(0 0% 100% / 0.1);
-		transition: background var(--transition-fast), box-shadow var(--transition-fast);
-		background-image: none !important; // override any background icon from class
-	}
-
-	&.active {
-		// Reset/override global button.active style to keep the button body neutral
-		background: hsl(var(--color-button-bg)) !important;
-		color: hsl(var(--color-text-secondary)) !important;
-		border-color: hsl(var(--color-button-border)) !important;
-
-		&::before {
-			background: hsl(var(--color-primary)) !important;
-			box-shadow: 0 0 8px hsl(var(--color-primary)), 0 0 16px hsl(var(--color-primary) / 0.3) !important;
-			background-image: none !important; // keep background-image overridden when active
-			filter: none !important; // override active icon filters
-		}
+		filter: brightness(0);
 	}
 }
 
-button[data-mixer-action="toggle-autoplay"],
-button[data-mixer-cue="loop"] {
-	@include led-button;
-}
-
-// ─── Empty state action button ───────────────────────────────────────────────
-
-[data-mixer-empty-state] button {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.4rem;
-	padding: 0.75rem 1.5rem;
-	border-radius: var(--radius-md);
-	font-size: 0.95rem;
-	cursor: pointer;
-	touch-action: manipulation;
-	min-height: 48px;
-	background: hsl(var(--color-primary) / 0.5);
-	border: 1px solid hsl(var(--color-primary));
-	color: hsl(var(--color-text-primary));
-	font-weight: 600;
-
-	&:hover:not(:disabled) {
-		background: hsl(var(--color-primary) / 0.85);
-	}
-}
-
-// ─── Profile Buttons ─────────────────────────────────────────────────────────
-
-.profile-btn {
-	@include button-base;
-	@include btn-sm;
-	
-	--btn-bg:           transparent;
-	--btn-border:       var(--border-strong);
-	--btn-fg:           var(--fg-muted);
-	--btn-fg-hover:     var(--fg-default);
-	--btn-bg-hover:     color-mix(in srgb, var(--btn-fg-hover) 6%, transparent);
-	--btn-border-hover: var(--border-strong-hover);
-	
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	min-height: var(--touch-min);
-
-	&.active {
-		@include btn;
-		
-		--btn-bg:           hsl(var(--color-primary) / 0.5);
-		--btn-fg:           hsl(var(--color-text-primary));
-		--btn-border:       hsl(var(--color-primary));
-		--btn-bg-hover:     hsl(var(--color-primary) / 0.85);
-		--btn-fg-hover:     hsl(var(--color-text-primary));
-		--btn-border-hover: hsl(var(--color-primary));
-		
-		font-weight: 700;
-	}
-}
-
-// ─── Touch target ────────────────────────────────────────────────────────────
-// Moved here so it overrides the global `button` above.
-
-@media (pointer: coarse) {
-	button {
-		min-height: var(--touch-min);
-		min-width: var(--touch-min);
-	}
+// LED toggles — neutral body, the dot shows state (JS toggles .active)
+:is(button[data-mixer-action="toggle-autoplay"], button[data-mixer-cue="loop"]) {
+	@include led;
+	padding-inline-start: var(--size-lg);
 }

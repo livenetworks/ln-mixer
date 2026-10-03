@@ -200,7 +200,7 @@ ln-dj-mixer/
     img/placeholder.svg
     img/icon.svg          — PWA app icon (SVG, 512x512 viewBox)
   manifest.webmanifest    — PWA manifest (app name, icon, display mode)
-  ln-ashlar/              — git submodule, DEV-ONLY source (compiled into ln-ashlar.build.js, incl. ln-core helpers; not loaded at runtime, not deployed)
+  node_modules/@livenetworks/ashlar — npm package, DEV-ONLY source (compiled into ln-ashlar.build.js, incl. ln-core helpers; not loaded at runtime, not deployed)
   sw.js                   — Service Worker (app shell caching, offline support)
 ```
 
@@ -242,6 +242,18 @@ data-URI CSS as a vendored asset; do **not** try to "rebuild it from ln-ashlar s
   - [x] App icon (`assets/img/icon.svg`)
 
 ## Changelog
+
+### ln-ashlar v2.0.4 compat + `dispatch` helper (2026-10-03)
+
+- **Bug:** `lnSearch.clear()` does not exist in v2 (TypeError in `ln-library.populate`). Now resets `[data-ln-search-input]` and fires `input`. Dead `window.lnProgress(...)` call removed (ln-progress self-observes).
+- **Refactor:** all `el.dispatchEvent(new CustomEvent(...))` (≈70) and the 5 local `_dispatch` helpers replaced by ln-core `dispatch(el, name, detail)`, re-exported from `ln-ashlar.entry.js`. Events now bubble; verified no ancestor listens to the same `request-*` name. Only `ln-deck`'s non-bubbling waveform dispatch is kept. SW cache v28. **Toast was broken in v2**: it needs `<template data-ln-template="ln-toast-item">` inside `[data-ln-toast]` (added to index.html); `_toast.scss` rewritten from dead `.ln-toast__*` selectors to v2 `[data-ln-toast] > li`.
+
+### ln-ashlar from npm instead of git submodule (2026-10-03)
+
+- ln-ashlar is now consumed from npm as **`@livenetworks/ashlar`** (v2.0.4; the old unscoped `ln-ashlar` name is unpublished). Added to `dependencies`; the `ln-ashlar/` git submodule and `.gitmodules` were removed. Everywhere below that says "submodule" now means `node_modules/@livenetworks/ashlar` (still dev-only build input, not deployed).
+- Package layout changed: `js/<name>/src/` -> `components/<name>/src/`, `scss/` -> `theme/`, ln-core -> `components/ln-core/index.js`. `ln-ashlar.entry.js`, `_ln-ashlar.scss` and the mixins `@use` lines in project partials now point into `node_modules/@livenetworks/ashlar/`. The Vite alias in `vite.vendor.config.js` is gone.
+- v2 splits behavior SCSS (`components/ln-*/ln-*.scss`) from theme skin (`theme/components/`); the subset `@use`s both for modal, search, toggle, accordion, toast.
+- Run `npm install` before `npm run build`. SW cache v25 -> v26. Not yet visually verified in a browser (v2 theme may differ).
 
 ### Coordinator Attribute and Import Cleanups (2026-06-02)
 

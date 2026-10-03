@@ -1,3 +1,4 @@
+import { dispatch } from 'ln-ashlar';
 import WaveSurfer from 'wavesurfer.js';
 
 const DOM_SELECTOR = 'data-mixer-waveform';
@@ -8,13 +9,6 @@ if (!window[DOM_ATTRIBUTE]) {
 	/* ====================================================================
 	   HELPERS
 	   ==================================================================== */
-
-	function _dispatch(element, eventName, detail) {
-		element.dispatchEvent(new CustomEvent(eventName, {
-			bubbles: true,
-			detail: detail || {}
-		}));
-	}
 
 	function _formatTime(seconds) {
 		const m = Math.floor(seconds / 60);
@@ -206,13 +200,13 @@ if (!window[DOM_ATTRIBUTE]) {
 			self.dom.classList.remove('waveform--decoding');
 			self.dom.classList.add('waveform--loaded');
 			self._renderTimeline();
-			_dispatch(self.dom, 'ln-waveform:ready', { duration: self._duration });
+			dispatch(self.dom, 'ln-waveform:ready', { duration: self._duration });
 
 			// Export peaks if WaveSurfer decoded audio (no cached peaks provided)
 			if (!self._hasCachedPeaks && self._surfer) {
 				var exported = self._surfer.exportPeaks();
 				if (exported) {
-					_dispatch(self.dom, 'ln-waveform:peaks-available', {
+					dispatch(self.dom, 'ln-waveform:peaks-available', {
 						peaks: exported,
 						duration: self._duration
 					});
@@ -233,15 +227,15 @@ if (!window[DOM_ATTRIBUTE]) {
 		});
 
 		this._surfer.on('timeupdate', function (currentTime) {
-			_dispatch(self.dom, 'ln-waveform:timeupdate', { currentTime: currentTime });
+			dispatch(self.dom, 'ln-waveform:timeupdate', { currentTime: currentTime });
 		});
 
 		this._surfer.on('finish', function () {
-			_dispatch(self.dom, 'ln-waveform:finish');
+			dispatch(self.dom, 'ln-waveform:finish');
 		});
 
 		this._surfer.on('seeking', function (currentTime) {
-			_dispatch(self.dom, 'ln-waveform:seeked', { currentTime: currentTime });
+			dispatch(self.dom, 'ln-waveform:seeked', { currentTime: currentTime });
 		});
 	};
 
@@ -265,15 +259,15 @@ if (!window[DOM_ATTRIBUTE]) {
 	const _OVERLAY_BASE = 'position:absolute;top:0;bottom:0;pointer-events:none;z-index:2;';
 
 	_component.prototype.setProgress = function (percent) {
-		if (this._els.progress) this._els.progress.style.cssText = _OVERLAY_BASE + 'left:0;width:' + percent + '%;background:hsl(var(--accent)/0.08);transition:width 0.1s linear;';
+		if (this._els.progress) this._els.progress.style.cssText = _OVERLAY_BASE + 'left:0;width:' + percent + '%;background:hsl(var(--color-primary) / 0.08);transition:width 0.1s linear;';
 		if (this._els.playhead) this._els.playhead.style.cssText = _OVERLAY_BASE + 'left:' + percent + '%;width:2px;background:#fff;box-shadow:0 0 6px rgba(255,255,255,0.5);transition:left 0.1s linear;';
 	};
 
 	_component.prototype.setRegion = function (startPct, endPct) {
 		const e = this._els;
-		if (e.cueStart) e.cueStart.style.cssText = _OVERLAY_BASE + 'left:' + startPct + '%;width:2px;background:hsl(var(--cue));';
-		if (e.cueEnd) e.cueEnd.style.cssText = _OVERLAY_BASE + 'left:' + endPct + '%;width:2px;background:hsl(var(--cue));opacity:0.6;';
-		if (e.cueRegion) e.cueRegion.style.cssText = _OVERLAY_BASE + 'left:' + startPct + '%;width:' + (endPct - startPct) + '%;background:hsl(var(--cue)/0.15);';
+		if (e.cueStart) e.cueStart.style.cssText = _OVERLAY_BASE + 'left:' + startPct + '%;width:2px;background:hsl(var(--color-cue));';
+		if (e.cueEnd) e.cueEnd.style.cssText = _OVERLAY_BASE + 'left:' + endPct + '%;width:2px;background:hsl(var(--color-cue));opacity:0.6;';
+		if (e.cueRegion) e.cueRegion.style.cssText = _OVERLAY_BASE + 'left:' + startPct + '%;width:' + (endPct - startPct) + '%;background:hsl(var(--color-cue) / 0.15);';
 	};
 
 	_component.prototype.clearRegion = function () {
@@ -291,7 +285,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 	_component.prototype.setPendingCue = function (pct) {
 		if (this._els.cuePending) {
-			this._els.cuePending.style.cssText = _OVERLAY_BASE + 'left:' + pct + '%;width:2px;background:hsl(var(--cue));opacity:0.8;';
+			this._els.cuePending.style.cssText = _OVERLAY_BASE + 'left:' + pct + '%;width:2px;background:hsl(var(--color-cue));opacity:0.8;';
 		}
 	};
 

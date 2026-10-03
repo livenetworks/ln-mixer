@@ -1,98 +1,72 @@
-// ==========================================================================
-// _settings.scss — Settings form, logo preview, cache info, transfer, import-url
-// ==========================================================================
-
-@use '../../../ln-ashlar/scss/config/mixins' as *;
-
-// ─── Settings form ────────────────────────────────────────────────────────────
+@use '../../../node_modules/@livenetworks/ashlar/theme/config/mixins' as *;
 
 .settings-form {
-	display: flex;
-	flex-direction: column;
+	@include flex-col;
 	gap: var(--size-lg);
-
-	.form-field .field-hint {
-		font-size: 0.7rem;
-		color: hsl(var(--color-text-muted));
-		font-style: italic;
-	}
 }
 
-// ─── Logo preview ─────────────────────────────────────────────────────────────
+.form-field .field-hint {
+	font-size: var(--text-2xs);
+	color: var(--fg-subtle);
+	font-style: italic;
+}
 
 .logo-preview {
-	display: flex;
-	align-items: center;
+	@include flex;
+	@include items-center;
 	gap: var(--size-md);
 
 	img {
-		max-width: 64px;
-		max-height: 64px;
+		max-inline-size: var(--size-3xl);
+		max-block-size: var(--size-3xl);
 		border-radius: var(--radius-sm);
-		background: hsl(var(--color-input-bg));
+		background: var(--bg-sunken);
 		object-fit: contain;
 	}
 
 	.logo-placeholder {
-		width: 64px;
-		height: 64px;
+		@include flex;
+		@include items-center;
+		@include justify-center;
+		@include size(var(--size-3xl));
 		border-radius: var(--radius-sm);
-		background: hsl(var(--color-input-bg));
-		border: 1px dashed hsl(var(--color-input-border));
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: hsl(var(--color-text-muted));
-		font-size: 0.7rem;
+		background: var(--bg-sunken);
+		border: var(--border-width) dashed var(--border-ui);
+		color: var(--fg-subtle);
+		font-size: var(--text-2xs);
 	}
 }
 
-// ─── Cache info ───────────────────────────────────────────────────────────────
-
 .cache-info {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+	@include flex;
+	@include items-center;
+	@include justify-between;
 	gap: var(--size-sm);
 
 	output {
-		font-size: 0.875rem;
-		color: hsl(var(--color-text-secondary));
+		font-size: var(--text-sm);
 	}
 }
 
-.cache-info button {
-	white-space: nowrap;
-}
-
-// ─── Transfer actions ─────────────────────────────────────────────────────────
-
 .transfer-actions {
-	display: flex;
+	@include flex;
 	gap: var(--size-sm);
-}
 
-.transfer-actions button {
-	flex: 1;
+	button {
+		@include flex-1;
+	}
 }
-
-// ─── Import URL row ───────────────────────────────────────────────────────────
 
 .import-url-row {
 	@include form-field-group;
-	--color-bg: hsl(var(--color-input-bg));
-	--color-border: hsl(var(--color-input-border));
-	border-radius: var(--radius-sm);
 	width: 100%;
 }
 
-// ─── Transfer status ──────────────────────────────────────────────────────────
-
 [data-mixer-transfer-status] {
 	display: block;
-	font-size: 0.8rem;
+	margin-block-start: var(--size-xs);
+	font-size: var(--text-label-md);
 	color: hsl(var(--color-primary));
-	margin-top: var(--size-xs);
 	font-style: italic;
 
 	&[hidden] {

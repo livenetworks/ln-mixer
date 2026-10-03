@@ -1,38 +1,58 @@
-// ==========================================================================
-// _library.scss — Library dialog: search, list, progress, uncache, no-api
-// ==========================================================================
+@use '../../../node_modules/@livenetworks/ashlar/theme/config/mixins' as *;
 
-@use '../../../ln-ashlar/scss/config/mixins' as *;
-
-// ─── Library search ───────────────────────────────────────────────────────────
-
-.library-search {
+// ashlar's `search:has(> input[type=search])` binding supplies compact sizing.
+// The icon-group shell is added here because the markup uses a vendored
+// .ln-icon-search--white span (ashlar's auto-bind needs .ln-icon). The id
+// selector out-ranks ashlar's (0,1,2) binding.
+#modal-track-library search {
 	@include form-input-icon-group;
-	margin-bottom: var(--size-md);
-	--color-bg: hsl(var(--color-input-bg));
-	--color-border: hsl(var(--color-input-border));
-	border-radius: var(--radius-sm);
+	margin-block-end: var(--size-md);
+
+	// Field size is token-driven: rebind these, nothing else.
+	--font-size: 1rem;
+	--icon-size: 1.5rem;
+	> input { --padding-y: var(--size-sm); }
+
+	// Vendored class-based icons ignore --icon-size (fixed 1.25rem ::before) and
+	// miss ashlar's `> .ln-icon` group styling; bridge both here.
+	> [class*="ln-icon-"] {
+		@include flex-shrink-0;
+		align-self: center;
+		box-sizing: content-box;
+		// Equal space on both sides (edge ↔ icon ↔ text), matching the vertical
+		// slack around the icon. --size-xs/--size-sm are pinned tiny by ashlar's
+		// compact `search` binding; --size-sm-up is not.
+		padding: 0 var(--size-sm-up);
+
+		&::before {
+			width: var(--icon-size);
+			height: var(--icon-size);
+		}
+	}
+
+	// Same for the right edge (clear button) — keep it off the border.
+	> button {
+		margin-inline-end: var(--size-sm);
+	}
 }
 
-// ln-search hide attribute
-[data-ln-search-hide] {
-	display: none !important;
-}
+// ln-list renders rows into #library-list > ul[data-ln-list-body]
+#library-list {
+	@include flex-1;
+	min-block-size: 0;
+	overflow-y: auto;
 
-// ─── Library list ─────────────────────────────────────────────────────────────
-
-.library-list {
-	> li {
+	> ul > li {
 		display: grid;
 		grid-template-columns: 1fr auto auto;
-		grid-template-rows: auto 4px;
-		align-items: center;
+		grid-template-rows: auto var(--size-xs);
+		@include items-center;
 		gap: 0 var(--size-md);
 		padding: var(--size-sm) var(--size-sm) 0;
-		border-bottom: 1px solid hsl(var(--color-border));
+		@include border-b;
 
 		&:last-child {
-			border-bottom: none;
+			--border-block-end: none;
 		}
 
 		.library-download-progress {
@@ -52,90 +72,48 @@
 	}
 }
 
-// ─── Library track info ───────────────────────────────────────────────────────
-
 .library-track-info {
-	flex: 1;
-
 	.track-name {
-		font-weight: 600;
-		font-size: 0.875rem;
+		font-size: var(--text-sm);
+		@include font-semibold;
 	}
 
 	.track-artist {
-		font-size: 0.75rem;
-		color: hsl(var(--color-text-secondary));
+		font-size: var(--text-xs);
+		color: var(--fg-muted);
 	}
 }
 
-// ─── Download progress bar (always visible) ───────────────────────────────────
-
+// Download progress — always visible; cached rows turn loop-green
 .library-download-progress {
-	height: 4px;
-	width: 100%;
-	border-radius: 0;
-	background: hsl(var(--color-button-bg));
-	overflow: hidden;
-	margin: 0;
+	@include progress;
+	--bg-recessed: var(--bg-sunken);   // progress mixin reads --bg-recessed for the track
 
 	> [data-ln-progress] {
-		display: block;
-		height: 100%;
-		width: 0;
 		background: hsl(var(--color-primary));
-		border-radius: 0;
-		transition: width 0.15s ease;
 	}
 }
 
-// Cached state: green bar at 100%
-.library-list > li[data-mixer-cached] .library-download-progress > [data-ln-progress] {
+#library-list > ul > li[data-mixer-cached] .library-download-progress > [data-ln-progress] {
 	background: hsl(var(--color-loop));
 }
 
-// ─── Uncache button ───────────────────────────────────────────────────────────
-
+// Uncache button — shown only for cached rows
 .library-uncache-btn {
 	display: none;
-	background: transparent;
-	border: none;
-	padding: 0.25rem;
-	border-radius: var(--radius-sm);
-	cursor: pointer;
-	touch-action: manipulation;
-	min-width: auto;
-	min-height: auto;
-
-	&:hover,
-	&:active {
-		background: hsl(var(--color-cue) / 0.2);
-	}
-
-	&::before {
-		width: 0.85rem;
-		height: 0.85rem;
-	}
+	--btn-bg:           transparent;
+	--btn-border:       transparent;
+	--btn-bg-hover:     hsl(var(--color-error) / 0.2);
+	--btn-border-hover: transparent;
+	--btn-padding-x:    var(--size-xs);
+	--btn-padding-y:    var(--size-xs);
+	min-inline-size: var(--touch-min);
 }
 
-.library-list > li[data-mixer-cached] .library-uncache-btn {
+#library-list > ul > li[data-mixer-cached] .library-uncache-btn {
 	display: inline-flex;
 }
 
-// Downloading: hide Add button
-.library-list > li[data-mixer-downloading] [data-mixer-action="add-to-playlist"] {
+#library-list > ul > li[data-mixer-downloading] [data-mixer-action="add-to-playlist"] {
 	display: none;
-}
-
-// ─── No API empty state ───────────────────────────────────────────────────────
-
-.library-no-api {
-	@include empty-state;
-	height: 100%;
-	max-width: none;
-	padding: var(--size-xl) var(--size-lg);
-
-	h3 {
-		font-size: 1.125rem;
-		color: hsl(var(--color-text-primary));
-	}
 }

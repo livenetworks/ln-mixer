@@ -1,4 +1,4 @@
-import { cloneTemplate, fillTemplate, fill } from 'ln-ashlar';
+import { cloneTemplate, fillTemplate, fill, dispatch } from 'ln-ashlar';
 
 const DOM_SELECTOR = 'data-mixer-playlist';
 const DOM_ATTRIBUTE = 'lnPlaylist';
@@ -6,13 +6,6 @@ const DOM_ATTRIBUTE = 'lnPlaylist';
 if (!window[DOM_ATTRIBUTE]) {
 
 	/* ─── Helpers ──────────────────────────────────────────────────── */
-
-	function _dispatch(element, eventName, detail) {
-		element.dispatchEvent(new CustomEvent(eventName, {
-			bubbles: true,
-			detail: detail || {}
-		}));
-	}
 
 	function _generateId(name) {
 		let id = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -205,7 +198,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		this.playlists[id] = { id: id, profileId: this.profileId, name: name, segments: [] };
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: id });
+		dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: id });
 
 		// Create accordion section in sidebar
 		const section = this._buildPlaylistGroup(id, name, false);
@@ -214,11 +207,11 @@ if (!window[DOM_ATTRIBUTE]) {
 		if (list) list.appendChild(section);
 
 		// Open the new toggle via request event
-		section.dispatchEvent(new CustomEvent('ln-toggle:request-open'));
+		dispatch(section, 'ln-toggle:request-open');
 
 		this._switchPlaylist(id);
 
-		_dispatch(this.dom, 'ln-playlist:created', {
+		dispatch(this.dom, 'ln-playlist:created', {
 			playlistId: id,
 			name: name
 		});
@@ -247,7 +240,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			};
 		}
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: this.currentId });
+		dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: this.currentId });
 
 		// Add to sidebar track list DOM
 		const list = this._getActiveTrackList();
@@ -262,7 +255,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		const addedIdx = playlist.segments.length - 1;
 
-		_dispatch(this.dom, 'ln-playlist:track-added', {
+		dispatch(this.dom, 'ln-playlist:track-added', {
 			trackIndex: addedIdx,
 			track: this.getTrack(addedIdx),
 			playlistId: this.currentId
@@ -278,7 +271,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		if (data.notes !== undefined) playlist.segments[index].notes = data.notes;
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
+		dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
 
 		// Update DOM
 		const list = this.dom.querySelector('[data-mixer-track-list="' + playlistId + '"]');
@@ -290,7 +283,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			}
 		}
 
-		_dispatch(this.dom, 'ln-playlist:track-edited', {
+		dispatch(this.dom, 'ln-playlist:track-edited', {
 			trackIndex: index,
 			playlistId: playlistId
 		});
@@ -334,7 +327,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		playlist.segments.splice(index, 1);
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
+		dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
 
 		// Remove from DOM + renumber
 		const list = this.dom.querySelector('[data-mixer-track-list="' + playlistId + '"]');
@@ -350,7 +343,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			});
 		}
 
-		_dispatch(this.dom, 'ln-playlist:track-removed', {
+		dispatch(this.dom, 'ln-playlist:track-removed', {
 			trackIndex: index,
 			playlistId: playlistId
 		});
@@ -366,10 +359,10 @@ if (!window[DOM_ATTRIBUTE]) {
 		if (!segment.loops) segment.loops = [];
 		segment.loops.push(loopData);
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
+		dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
 		this._updateTrackLoopIndicator(playlistId, trackIndex, segment);
 
-		_dispatch(this.dom, 'ln-playlist:loop-added', {
+		dispatch(this.dom, 'ln-playlist:loop-added', {
 			playlistId: playlistId,
 			trackIndex: trackIndex,
 			loopIndex: segment.loops.length - 1,
@@ -387,10 +380,10 @@ if (!window[DOM_ATTRIBUTE]) {
 		segment.loops.splice(loopIndex, 1);
 		if (segment.loops.length === 0) delete segment.loops;
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
+		dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: playlistId });
 		this._updateTrackLoopIndicator(playlistId, trackIndex, segment);
 
-		_dispatch(this.dom, 'ln-playlist:loop-removed', {
+		dispatch(this.dom, 'ln-playlist:loop-removed', {
 			playlistId: playlistId,
 			trackIndex: trackIndex,
 			loopIndex: loopIndex,
@@ -426,12 +419,12 @@ if (!window[DOM_ATTRIBUTE]) {
 			if (firstId) {
 				const nextSection = this.dom.querySelector('[data-mixer-playlist-id="' + firstId + '"]');
 				if (nextSection) {
-					nextSection.dispatchEvent(new CustomEvent('ln-toggle:request-open'));
+					dispatch(nextSection, 'ln-toggle:request-open');
 				}
 			}
 		}
 
-		_dispatch(this.dom, 'ln-playlist:playlist-removed', {
+		dispatch(this.dom, 'ln-playlist:playlist-removed', {
 			playlistId: playlistId,
 			name: name,
 			trackCount: segmentCount
@@ -446,7 +439,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		const track = this.getTrack(idx);
 
-		_dispatch(this.dom, 'ln-playlist:open-edit', {
+		dispatch(this.dom, 'ln-playlist:open-edit', {
 			index: idx,
 			track: track,
 			playlistId: this.currentId
@@ -676,7 +669,7 @@ if (!window[DOM_ATTRIBUTE]) {
 	_component.prototype._switchPlaylist = function (id) {
 		this.currentId = id;
 		this._updateHighlights();
-		_dispatch(this.dom, 'ln-playlist:switched', { playlistId: id });
+		dispatch(this.dom, 'ln-playlist:switched', { playlistId: id });
 	};
 
 	/* ─── Track Highlight ─────────────────────────────────────────── */
@@ -726,7 +719,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		const playlist = this.getPlaylist();
 		if (!playlist || trackIdx < 0 || trackIdx >= playlist.segments.length) return;
 
-		_dispatch(this.dom, 'ln-playlist:load-to-deck', {
+		dispatch(this.dom, 'ln-playlist:load-to-deck', {
 			deckId: targetDeck,
 			trackIndex: trackIdx,
 			track: this.getTrack(trackIdx),
@@ -756,9 +749,9 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		playlist.segments = newSegments;
 
-		_dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: this.currentId });
+		dispatch(this.dom, 'ln-playlist:changed', { profileId: this.profileId, playlistId: this.currentId });
 
-		_dispatch(this.dom, 'ln-playlist:reordered', {
+		dispatch(this.dom, 'ln-playlist:reordered', {
 			oldToNew: oldIndexToNew,
 			playlistId: this.currentId
 		});

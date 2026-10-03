@@ -1,4 +1,4 @@
-import { cloneTemplate, fillTemplate, fill } from 'ln-ashlar';
+import { cloneTemplate, fillTemplate, fill, dispatch } from 'ln-ashlar';
 
 const DOM_SELECTOR = 'data-mixer-deck';
 const DOM_ATTRIBUTE = 'lnDeck';
@@ -10,13 +10,6 @@ if (!window[DOM_ATTRIBUTE]) {
 	   ==================================================================== */
 
 
-
-	function _dispatch(element, eventName, detail) {
-		element.dispatchEvent(new CustomEvent(eventName, {
-			bubbles: true,
-			detail: detail || {}
-		}));
-	}
 
 	function _formatTime(seconds) {
 		const m = Math.floor(seconds / 60);
@@ -117,7 +110,7 @@ if (!window[DOM_ATTRIBUTE]) {
 
 		this.dom.addEventListener('ln-waveform:peaks-available', function (e) {
 			if (!self.track) return;
-			_dispatch(self.dom, 'ln-deck:peaks-ready', {
+			dispatch(self.dom, 'ln-deck:peaks-ready', {
 				deckId: self.deckId,
 				trackIndex: self.trackIndex,
 				trackUrl: self.track._originalUrl || self.track.url,
@@ -164,7 +157,7 @@ if (!window[DOM_ATTRIBUTE]) {
 					const segBtn = removeBtn.closest('[data-mixer-loop-index]');
 					if (segBtn) {
 						const idx = parseInt(segBtn.getAttribute('data-mixer-loop-index'), 10);
-						_dispatch(self.dom, 'ln-deck:loop-delete-requested', {
+						dispatch(self.dom, 'ln-deck:loop-delete-requested', {
 							deckId: self.deckId,
 							trackIndex: self.trackIndex,
 							loopIndex: idx
@@ -272,7 +265,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			btn.classList.add('active');
 			setTimeout(function () { btn.classList.remove('active'); }, 300);
 
-			_dispatch(this.dom, 'ln-deck:loop-captured', {
+			dispatch(this.dom, 'ln-deck:loop-captured', {
 				deckId: this.deckId,
 				trackIndex: this.trackIndex,
 				startSec: startSec,
@@ -286,7 +279,7 @@ if (!window[DOM_ATTRIBUTE]) {
 	_component.prototype._handleEditRequest = function () {
 		if (this.trackIndex < 0) return;
 
-		_dispatch(this.dom, 'ln-deck:edit-requested', {
+		dispatch(this.dom, 'ln-deck:edit-requested', {
 			deckId: this.deckId,
 			trackIndex: this.trackIndex
 		});
@@ -308,7 +301,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		this.track.duration = _formatTime(duration);
 		if (this._els.timeTotal) this._els.timeTotal.textContent = this.track.duration;
 
-		_dispatch(this.dom, 'ln-deck:duration-detected', {
+		dispatch(this.dom, 'ln-deck:duration-detected', {
 			deckId: this.deckId,
 			trackIndex: this.trackIndex,
 			trackUrl: this.track._originalUrl || this.track.url,
@@ -346,7 +339,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		this.isPlaying = false;
 		this._updatePlayButton(false);
 
-		_dispatch(this.dom, 'ln-deck:ended', {
+		dispatch(this.dom, 'ln-deck:ended', {
 			deckId: this.deckId,
 			trackIndex: this.trackIndex
 		});
@@ -389,7 +382,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			});
 		}
 
-		_dispatch(this.dom, 'ln-deck:loaded', {
+		dispatch(this.dom, 'ln-deck:loaded', {
 			deckId: this.deckId,
 			trackIndex: index,
 			track: this.track
@@ -405,7 +398,7 @@ if (!window[DOM_ATTRIBUTE]) {
 			self.isPlaying = true;
 			self._updatePlayButton(true);
 
-			_dispatch(self.dom, 'ln-deck:played', {
+			dispatch(self.dom, 'ln-deck:played', {
 				deckId: self.deckId,
 				trackIndex: self.trackIndex
 			});
@@ -423,7 +416,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		this.isPlaying = false;
 		this._updatePlayButton(false);
 
-		_dispatch(this.dom, 'ln-deck:paused', {
+		dispatch(this.dom, 'ln-deck:paused', {
 			deckId: this.deckId,
 			trackIndex: this.trackIndex
 		});
@@ -439,7 +432,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		this._updatePlayButton(false);
 		this._render();
 
-		_dispatch(this.dom, 'ln-deck:stopped', {
+		dispatch(this.dom, 'ln-deck:stopped', {
 			deckId: this.deckId,
 			trackIndex: this.trackIndex
 		});
@@ -470,7 +463,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		this._renderLoopSegments();
 		this._updatePlayButton(false);
 
-		_dispatch(this.dom, 'ln-deck:reset', {
+		dispatch(this.dom, 'ln-deck:reset', {
 			deckId: this.deckId
 		});
 	};
@@ -496,7 +489,7 @@ if (!window[DOM_ATTRIBUTE]) {
 		this._updateActiveRegionOnWaveform();
 		this._updateSegmentHighlight();
 
-		_dispatch(this.dom, 'ln-deck:loop-activated', {
+		dispatch(this.dom, 'ln-deck:loop-activated', {
 			deckId: this.deckId,
 			loopIndex: this._activeLoopIndex
 		});

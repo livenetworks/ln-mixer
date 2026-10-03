@@ -3,6 +3,8 @@
    Audio blob downloads, IDB cache, library actions, playlist actions
    ==================================================================== */
 
+import { dispatch } from 'ln-ashlar';
+
 function _isFileProtocol() {
 	return location.protocol === 'file:';
 }
@@ -59,9 +61,7 @@ export function setupCache(mixer) {
 
 		const libraryEl = this._getLibraryEl();
 		if (libraryEl) {
-			libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-start', {
-				detail: { url: url }
-			}));
+			dispatch(libraryEl, 'ln-library:request-download-start', { url: url });
 		}
 
 		const xhr = new XMLHttpRequest();
@@ -75,9 +75,7 @@ export function setupCache(mixer) {
 			self._updateGlobalProgress();
 
 			if (libraryEl) {
-				libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
-					detail: { url: url, success: false }
-				}));
+				dispatch(libraryEl, 'ln-library:request-download-done', { url: url, success: false });
 			}
 			if (callback) callback(false);
 		};
@@ -89,9 +87,7 @@ export function setupCache(mixer) {
 
 				if (libraryEl) {
 					const pct = (e.loaded / e.total) * 100;
-					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-progress', {
-						detail: { url: url, percent: pct }
-					}));
+					dispatch(libraryEl, 'ln-library:request-download-progress', { url: url, percent: pct });
 				}
 			}
 		};
@@ -111,26 +107,20 @@ export function setupCache(mixer) {
 				}).then(function () {
 					self._updateGlobalProgress();
 					if (libraryEl) {
-						libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
-							detail: { url: url, success: true }
-						}));
+						dispatch(libraryEl, 'ln-library:request-download-done', { url: url, success: true });
 					}
 					if (callback) callback(true);
 				}).catch(function () {
 					self._updateGlobalProgress();
 					if (libraryEl) {
-						libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
-							detail: { url: url, success: false }
-						}));
+						dispatch(libraryEl, 'ln-library:request-download-done', { url: url, success: false });
 					}
 					if (callback) callback(false);
 				});
 			} else {
 				self._updateGlobalProgress();
 				if (libraryEl) {
-					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
-						detail: { url: url, success: false }
-					}));
+					dispatch(libraryEl, 'ln-library:request-download-done', { url: url, success: false });
 				}
 				if (callback) callback(false);
 			}
@@ -142,9 +132,7 @@ export function setupCache(mixer) {
 			self._updateGlobalProgress();
 
 			if (libraryEl) {
-				libraryEl.dispatchEvent(new CustomEvent('ln-library:request-download-done', {
-					detail: { url: url, success: false }
-				}));
+				dispatch(libraryEl, 'ln-library:request-download-done', { url: url, success: false });
 			}
 			if (callback) callback(false);
 		};
@@ -181,15 +169,13 @@ export function setupCache(mixer) {
 			});
 		}
 
-		sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-add-track', {
-			detail: {
-				title: title,
-				artist: artist,
-				duration: duration,
-				durationSec: durationSec,
-				url: url
-			}
-		}));
+		dispatch(sidebar, 'ln-playlist:request-add-track', {
+			title: title,
+			artist: artist,
+			duration: duration,
+			durationSec: durationSec,
+			url: url
+		});
 	};
 
 	mixer._showAddFeedback = function (btn) {
@@ -208,11 +194,9 @@ export function setupCache(mixer) {
 			self._addTrackToPlaylist(sidebar, title, artist, url);
 			self._showAddFeedback(btn);
 
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: success
-					? { type: 'success', message: 'Track downloaded' }
-					: { type: 'warn', message: 'Download failed — using remote URL' }
-			}));
+			dispatch(window, 'ln-toast:enqueue', success
+				? { type: 'success', message: 'Track downloaded' }
+				: { type: 'warn', message: 'Download failed — using remote URL' });
 		});
 	};
 
@@ -226,9 +210,7 @@ export function setupCache(mixer) {
 		const trackUrl = track ? track.url : '';
 
 		if (!trackUrl) {
-			deckEl.dispatchEvent(new CustomEvent('ln-deck:request-load', {
-				detail: { trackIndex: trackIndex, track: track }
-			}));
+			dispatch(deckEl, 'ln-deck:request-load', { trackIndex: trackIndex, track: track });
 			return;
 		}
 
@@ -242,9 +224,7 @@ export function setupCache(mixer) {
 
 		function _dispatchLoad(loadTrack, peaks, peaksDuration) {
 			if (waveformEl) waveformEl.classList.remove('waveform--decoding');
-			deckEl.dispatchEvent(new CustomEvent('ln-deck:request-load', {
-				detail: { trackIndex: trackIndex, track: loadTrack, peaks: peaks, peaksDuration: peaksDuration }
-			}));
+			dispatch(deckEl, 'ln-deck:request-load', { trackIndex: trackIndex, track: loadTrack, peaks: peaks, peaksDuration: peaksDuration });
 		}
 
 		// Resolve from cache: blob from audioFiles, peaks from tracks store
@@ -301,17 +281,13 @@ export function setupCache(mixer) {
 			if (!hasCachedBlob && trackUrl && !_isFileProtocol() && !self._downloading[trackUrl]) {
 				self._downloadBlob(trackUrl, function (success) {
 					if (success) {
-						window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-							detail: { type: 'info', message: 'Track re-cached' }
-						}));
+						dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Track re-cached' });
 					}
 				});
 			}
 		}).catch(function () {
 			// IDB error — fall back to remote URL, no peaks
-			deckEl.dispatchEvent(new CustomEvent('ln-deck:request-load', {
-				detail: { trackIndex: trackIndex, track: track }
-			}));
+			dispatch(deckEl, 'ln-deck:request-load', { trackIndex: trackIndex, track: track });
 		});
 	};
 
@@ -354,23 +330,17 @@ export function setupCache(mixer) {
 				const sidebar = self._getSidebar();
 				if (!sidebar || !sidebar.lnPlaylist || !sidebar.lnPlaylist.playlists) {
 					e.preventDefault();
-					window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-						detail: { type: 'warn', message: 'Create a profile first' }
-					}));
+					dispatch(window, 'ln-toast:enqueue', { type: 'warn', message: 'Create a profile first' });
 				}
 			});
 		}
 
-		// Fetch tracks on library opening
+		// Library opening → tell the library which tracks are cached offline.
+		// The list itself is fed by the libraryTracks store (IDB cache), not fetched here.
 		const libraryModal = document.getElementById('modal-track-library');
 		if (libraryModal) {
 			libraryModal.addEventListener('ln-modal:before-open', function () {
-				const libraryEl = self._getLibraryEl();
-				if (libraryEl) {
-					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-fetch', {
-						detail: { apiUrl: lnSettings.getApiUrl() }
-					}));
-				}
+				self._markLibraryCached();
 			});
 		}
 
@@ -385,9 +355,7 @@ export function setupCache(mixer) {
 
 				const sidebar = self._getSidebar();
 				if (sidebar) {
-					sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-remove-track', {
-						detail: { index: idx, playlistId: playlistId }
-					}));
+					dispatch(sidebar, 'ln-playlist:request-remove-track', { index: idx, playlistId: playlistId });
 				}
 			}
 		});
@@ -432,9 +400,7 @@ export function setupCache(mixer) {
 
 			const sidebar = self._getSidebar();
 			if (sidebar) {
-				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-remove-playlist', {
-					detail: { playlistId: playlistId }
-				}));
+				dispatch(sidebar, 'ln-playlist:request-remove-playlist', { playlistId: playlistId });
 			}
 
 			const modalEl = document.getElementById('modal-confirm-delete-playlist');
@@ -453,9 +419,7 @@ export function setupCache(mixer) {
 
 			const sidebar = self._getSidebar();
 			if (!sidebar || !sidebar.lnPlaylist || !sidebar.lnPlaylist.getPlaylist()) {
-				window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-					detail: { type: 'warn', message: 'Select a playlist first' }
-				}));
+				dispatch(window, 'ln-toast:enqueue', { type: 'warn', message: 'Select a playlist first' });
 				return;
 			}
 
@@ -473,9 +437,7 @@ export function setupCache(mixer) {
 			if (_isFileProtocol()) {
 				if (!self._fileProtocolWarned) {
 					self._fileProtocolWarned = true;
-					window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-						detail: { type: 'info', message: 'Offline caching unavailable (file:// mode)' }
-					}));
+					dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Offline caching unavailable (file:// mode)' });
 				}
 				self._addTrackToPlaylist(sidebar, title, artist, url);
 				self._showAddFeedback(btn);
@@ -512,9 +474,7 @@ export function setupCache(mixer) {
 
 			const sidebar = self._getSidebar();
 			if (sidebar) {
-				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-create', {
-					detail: { name: name }
-				}));
+				dispatch(sidebar, 'ln-playlist:request-create', { name: name });
 			}
 
 			input.value = '';
@@ -536,9 +496,7 @@ export function setupCache(mixer) {
 
 			const sidebar = self._getSidebar();
 			if (sidebar) {
-				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-edit-track', {
-					detail: { index: idx, playlistId: playlistId, notes: notes }
-				}));
+				dispatch(sidebar, 'ln-playlist:request-edit-track', { index: idx, playlistId: playlistId, notes: notes });
 			}
 		});
 	};
@@ -546,22 +504,40 @@ export function setupCache(mixer) {
 	mixer._bindLibraryReactions = function () {
 		const self = this;
 
-		document.addEventListener('ln-library:error', function (e) {
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'warn', message: e.detail.message || 'Library error' }
-			}));
+		const connectorEl = document.querySelector('#library-module [data-ln-api-connector]');
+		const storeEl = document.getElementById('libraryTracks');
+		let refreshing = false;
+
+		// Refresh button → ask the connector for a fresh track list.
+		// The coordinator ingests the response into the libraryTracks store; ln-list re-renders.
+		document.addEventListener('click', function (e) {
+			if (!e.target.closest('[data-mixer-action="refresh-library"]')) return;
+			if (!connectorEl || refreshing) return;
+			refreshing = true;
+			dispatch(connectorEl, 'ln-api-connector:request-sync', { since: null });
 		});
 
-		// Library fetched → mark cached tracks
-		document.addEventListener('ln-library:fetched', function () {
-			lnDb.getAllKeys('audioFiles').then(function (cachedUrls) {
-				const libraryEl = self._getLibraryEl();
-				if (libraryEl) {
-					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-mark-cached', {
-						detail: { cachedUrls: cachedUrls }
-					}));
-				}
+		if (storeEl) {
+			storeEl.addEventListener('ln-data-store:synced', function () {
+				if (!refreshing) return;
+				refreshing = false;
+				dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Library refreshed' });
 			});
+		}
+
+		if (connectorEl) {
+			connectorEl.addEventListener('ln-api-connector:error', function () {
+				refreshing = false;
+				dispatch(window, 'ln-toast:enqueue', { type: 'warn', message: 'Failed to load tracks' });
+			});
+		}
+	};
+
+	mixer._markLibraryCached = function () {
+		const libraryEl = this._getLibraryEl();
+		if (!libraryEl) return;
+		lnDb.getAllKeys('audioFiles').then(function (cachedUrls) {
+			dispatch(libraryEl, 'ln-library:request-mark-cached', { cachedUrls: cachedUrls });
 		});
 	};
 
@@ -583,13 +559,9 @@ export function setupCache(mixer) {
 			lnDb.delete('audioFiles', url).then(function () {
 				const libraryEl = self._getLibraryEl();
 				if (libraryEl) {
-					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-uncache', {
-						detail: { url: url }
-					}));
+					dispatch(libraryEl, 'ln-library:request-uncache', { url: url });
 				}
-				window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-					detail: { type: 'info', message: 'Track removed from cache' }
-				}));
+				dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Track removed from cache' });
 			});
 		});
 
@@ -610,14 +582,12 @@ export function setupCache(mixer) {
 
 				const libraryEl = self._getLibraryEl();
 				if (libraryEl) {
-					libraryEl.dispatchEvent(new CustomEvent('ln-library:request-clear-all-cached'));
+					dispatch(libraryEl, 'ln-library:request-clear-all-cached');
 				}
 
 				self._updateCacheInfo();
 
-				window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-					detail: { type: 'info', message: 'Audio cache cleared' }
-				}));
+				dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Audio cache cleared' });
 			});
 		});
 	};

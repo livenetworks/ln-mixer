@@ -3,7 +3,7 @@
    Strategy: pre-cache app shell on install, network-first at runtime
    ==================================================================== */
 
-const CACHE_NAME = 'ln-mixer-v25';
+const CACHE_NAME = 'ln-mixer-v39';
 
 const APP_SHELL = [
 	'./',

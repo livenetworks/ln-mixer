@@ -1,66 +1,64 @@
-// ==========================================================================
-// _swipe.scss — Swipe-to-delete states and track added flash
-// ==========================================================================
+@use '../../../node_modules/@livenetworks/ashlar/theme/config/mixins' as *;
+@use '../mixins' as *;
 
-// ─── Track added flash ────────────────────────────────────────────────────────
-
+// Track added flash (JS adds .just-added for 700ms)
 .track-list > li.just-added > .track-content {
-	animation: flash-added 0.6s ease;
+	@include motion-safe {
+		animation: flash-added var(--transition-slow);
+	}
 }
 
+// No `to` frame → animates back to the row's own computed background
 @keyframes flash-added {
-	0%   { background: hsl(var(--color-primary) / 0.3); }
-	100% { background: hsl(var(--color-surface-sunken)); }
+	from { background: hsl(var(--color-primary) / 0.3); }
 }
 
-// ─── Swipe-to-delete ─────────────────────────────────────────────────────────
-
+// Swipe-to-delete (JS: [data-mixer-swiping])
 .track-list > li[data-mixer-swiping] {
-	background: hsl(var(--color-cue));
+	background: hsl(var(--color-error));
 
 	.track-content {
 		will-change: transform;
 	}
 
-	// "Delete" label revealed behind sliding content
+	// "Delete" label revealed behind the sliding row
 	&::after {
 		content: 'Delete';
 		position: absolute;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		display: flex;
-		align-items: center;
-		padding-right: var(--size-lg);
-		color: #fff;
-		font-size: 0.75rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		inset-block: 0;
+		inset-inline-end: 0;
+		@include flex;
+		@include items-center;
+		padding-inline-end: var(--size-lg);
+		color: hsl(var(--color-white));
+		font-size: var(--text-xs);
+		@include font-bold;
+		@include uppercase;
+		letter-spacing: var(--tracking-wider);
 		z-index: 0;
 	}
 
-	// Trash icon SVG revealed behind sliding content
+	// Trash icon revealed behind the sliding row
 	&::before {
 		content: '';
 		position: absolute;
-		right: calc(var(--size-lg) + 3rem);
+		inset-inline-end: calc(var(--size-lg) + var(--size-2xl));
 		top: 50%;
 		transform: translateY(-50%);
-		width: 1.25rem;
-		height: 1.25rem;
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 6 5 6 21 6'/%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/%3E%3C/svg%3E");
-		background-size: contain;
-		background-repeat: no-repeat;
+		@include size(var(--size-md-up));
+		@include icon-mask(var(--icon-remove-white), hsl(var(--color-white)));
 		z-index: 0;
 	}
 }
 
-// ─── Swipe committed — collapse animation ─────────────────────────────────────
-
+// Swipe committed — collapse.
+// !important is required: ln-playlist.js pins an inline max-height first, and
+// only !important beats an inline style. The transition is FUNCTIONAL — the JS
+// waits for its `transitionend` to remove the row — so it must NOT be wrapped
+// in motion-safe.
 .track-list > li[data-mixer-swipe-committed] {
-	transition: max-height 0.25s ease-out, opacity 0.2s ease-out;
 	max-height: 0 !important;
 	opacity: 0;
 	overflow: hidden;
+	transition: max-height var(--transition-slow), opacity var(--transition-base);
 }

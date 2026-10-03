@@ -1,4 +1,4 @@
-// ln-ashlar SCSS subset — mirrors ln-ashlar/scss/ln-ashlar.scss but @use's ONLY the
+// ln-ashlar SCSS subset — mirrors @livenetworks/ashlar/theme/ln-ashlar-theme.scss but @use's ONLY the
 // parts ln-mixer uses. Order is preserved from the master so the cascade is identical
 // for kept rules. Foundations (config + base + utilities) are always included; project
 // component partials @use config/mixins directly, so those stay regardless.
@@ -7,34 +7,37 @@
 // sections(.section), nav([data-ln-nav]), app-shell, breadcrumbs, avatar, status-badge,
 // alert, empty-state(project-styled), page-header, stepper, timeline, stat-card, prose,
 // tooltip, popover, chip, loader, link([data-ln-link]), confirm, circular-progress,
-// dropdown, upload, translations, data-table, ln-table, ajax — plus the co-located
+// dropdown, upload, translations, data-table, ln-table, ajax, progress (.progress class; project uses the mixin) — plus the co-located
 // styles for ln-dropdown/ln-tooltip/ln-upload/ln-filter/ln-table/ln-data-table.
-// To re-add one: copy its @use line from ln-ashlar/scss/ln-ashlar.scss here.
+// To re-add one: copy its @use line from @livenetworks/ashlar/theme/ln-ashlar-theme.scss here.
 
 // Foundations
-@use '../../ln-ashlar/scss/config/tokens';
-@use '../../ln-ashlar/scss/config/breakpoints';
-@use '../../ln-ashlar/scss/config/density';
-@use '../../ln-ashlar/scss/config/theme';
-@use '../../ln-ashlar/scss/config/icons';
+@use '../../node_modules/@livenetworks/ashlar/theme/config/tokens';
+@use '../../node_modules/@livenetworks/ashlar/theme/config/breakpoints';
+@use '../../node_modules/@livenetworks/ashlar/theme/config/density';
+@use '../../node_modules/@livenetworks/ashlar/theme/config/theme';
+@use '../../node_modules/@livenetworks/ashlar/theme/config/icons';
 
-@use '../../ln-ashlar/scss/base/reset';
-@use '../../ln-ashlar/scss/base/global';
-@use '../../ln-ashlar/scss/base/typography';
+@use '../../node_modules/@livenetworks/ashlar/theme/base/reset';
+@use '../../node_modules/@livenetworks/ashlar/theme/base/global';
+@use '../../node_modules/@livenetworks/ashlar/theme/base/typography';
 
 // Components actually used by ln-mixer
-@use '../../ln-ashlar/scss/components/form';        // bare select/textarea/input/label
-@use '../../ln-ashlar/scss/components/toggle';      // sidebar (data-ln-toggle)
-@use '../../ln-ashlar/scss/components/accordion';   // sidebar (data-ln-accordion)
-@use '../../ln-ashlar/scss/components/scrollbar';   // global scrollbar styling
-@use '../../ln-ashlar/scss/components/progress';    // progress bars (data-ln-progress)
-@use '../../ln-ashlar/scss/components/modal';       // .ln-modal
-@use '../../ln-ashlar/scss/components/sidebar';      // .sidebar container and footer
-@use '../../ln-ashlar/scss/components/toast';       // data-ln-toast
+@use '../../node_modules/@livenetworks/ashlar/theme/components/form';        // bare select/textarea/input/label
+@use '../../node_modules/@livenetworks/ashlar/theme/components/toggle';      // sidebar (data-ln-toggle)
+@use '../../node_modules/@livenetworks/ashlar/theme/components/accordion';   // sidebar (data-ln-accordion)
+@use '../../node_modules/@livenetworks/ashlar/theme/components/sidebar';// .sidebar container and footer
+@use '../../node_modules/@livenetworks/ashlar/theme/components/scrollbar';   // global scrollbar styling
+@use '../../node_modules/@livenetworks/ashlar/theme/components/modal';       // .ln-modal
+@use '../../node_modules/@livenetworks/ashlar/theme/components/toast';       // data-ln-toast
 
-@use '../../ln-ashlar/scss/utilities/utilities';    // .sr-only etc.
-@use '../../ln-ashlar/scss/utilities/animations';
+@use '../../node_modules/@livenetworks/ashlar/theme/utilities/utilities';    // .sr-only etc.
+@use '../../node_modules/@livenetworks/ashlar/theme/utilities/animations';
 
 // JS component co-located styles
-@use '../../ln-ashlar/js/ln-modal/ln-modal';
-@use '../../ln-ashlar/js/ln-search/ln-search';
+@use '../../node_modules/@livenetworks/ashlar/components/ln-modal/ln-modal';
+@use '../../node_modules/@livenetworks/ashlar/components/ln-search/ln-search';
+@use '../../node_modules/@livenetworks/ashlar/components/ln-toggle/ln-toggle';
+@use '../../node_modules/@livenetworks/ashlar/components/ln-accordion/ln-accordion';
+@use '../../node_modules/@livenetworks/ashlar/components/ln-toast/ln-toast';
+@use '../../node_modules/@livenetworks/ashlar/components/ln-list/ln-list';

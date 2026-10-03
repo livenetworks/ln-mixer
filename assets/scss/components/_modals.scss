@@ -1,79 +1,74 @@
-// ==========================================================================
-// _modals.scss — ln-ashlar modal overrides, form-field, edit-track, loop range
-// ==========================================================================
-// Sizing overrides leveraging the official ln-ashlar SCSS mixins
-// ==========================================================================
+@use '../../../node_modules/@livenetworks/ashlar/theme/config/mixins' as *;
 
-@use '../../../ln-ashlar/scss/config/mixins' as *;
+// Shared modal chrome — roomier header, touch-sized fields, footer on the
+// panel surface (ashlar default paints it --bg-sunken, which clashes with
+// the input wells that use the same shade).
+.ln-modal > form {
+	--padding-x: var(--size-lg);
+	--padding-y: var(--size-md);
 
-// ─── Modal sizes ─────────────────────────────────────────────────────────────
+	> header {
+		min-height: var(--app-header-height);
+
+		:is(h1, h2, h3) {
+			font-size: var(--text-lg);
+		}
+	}
+
+	> footer {
+		--color-bg: var(--bg-base);
+	}
+
+	input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
+	select {
+		min-height: var(--touch-min);
+	}
+}
+
+#modal-new-profile > form { @include modal-sm; }
 
 #modal-name-loop,
 #modal-confirm-delete-playlist {
-	> form {
-		@include modal-sm;
-	}
+	> form { @include modal-sm; }
 }
 
 #modal-track-library,
 #modal-settings {
-	> form {
-		@include modal-lg;
-	}
+	> form { @include modal-lg; }
 }
 
-// ─── Modal specific main content ─────────────────────────────────────────────
-
-// Library modal needs fixed height + flex column for scrollable list
-#modal-track-library main {
+// Library: fixed-height body so the list scrolls inside it
+#modal-track-library > form > main {
+	@include flex-col;
 	height: 60vh;
-	display: flex;
-	flex-direction: column;
 }
 
-// ─── Form field ───────────────────────────────────────────────────────────────
+// Destructive confirm: the submit glass re-tints to error
+#modal-confirm-delete-playlist button[type="submit"] {
+	--color-primary: var(--color-error);
+}
 
+// Label + input stack. Label/input chrome = ashlar globals (do not re-include).
 .form-field {
-	display: flex;
-	flex-direction: column;
+	@include flex-col;
 	gap: var(--size-xs);
-
-	label {
-		@include form-label;
-		font-size: 0.85rem;
-		margin-bottom: 0.25rem;
-	}
-
-	input[type="text"],
-	input[type="url"],
-	input[type="search"] {
-		@include form-input;
-		--color-bg: hsl(var(--color-input-bg));
-		--color-border: hsl(var(--color-input-border));
-		border-radius: var(--radius-sm);
-	}
 }
-
-// ─── Edit track dialog ────────────────────────────────────────────────────────
 
 .edit-track-title {
-	font-size: 1rem;
-	font-weight: 600;
-	color: hsl(var(--color-text-primary));
+	font-size: var(--text-base);
+	@include font-semibold;
 }
 
 .edit-track-artist {
-	font-size: 0.85rem;
-	color: hsl(var(--color-text-secondary));
-	margin-bottom: var(--size-md);
+	margin-block-end: var(--size-md);
+	font-size: var(--text-label-md);
+	color: var(--fg-muted);
 }
-
-// ─── Loop range display ───────────────────────────────────────────────────────
 
 .loop-range-display {
 	display: block;
-	font-family: var(--font-mono);
-	font-size: 1.1rem;
+	margin-block-end: var(--size-md);
+	@include font-mono;
+	font-size: var(--text-lg);
 	color: hsl(var(--color-loop));
-	margin-bottom: var(--size-md);
 }

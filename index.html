@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-theme="dark" lang="en">
+<html data-mode="dark" lang="en">
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -47,7 +47,7 @@
 			</fieldset>
 
 			<nav class="autoplay-control">
-				<button type="button" class="ln-icon-next--white" data-mixer-action="toggle-autoplay" aria-pressed="false">Auto</button>
+				<button type="button" data-mixer-action="toggle-autoplay" aria-pressed="false">Auto</button>
 			</nav>
 
 			<nav class="topbar-actions">
@@ -77,7 +77,7 @@
 			<section class="decks-panel" hidden>
 
 				<!-- DECK A — Now Playing -->
-				<article class="deck deck--a" data-mixer-deck="a">
+				<article class="deck" data-mixer-deck="a">
 					<header class="deck-header">
 						<h2>Deck A <mark class="deck-badge">Now Playing</mark></h2>
 					</header>
@@ -129,7 +129,7 @@
 							<button type="button" class="ln-icon-cue--white" data-mixer-cue="mark-end" data-mixer-deck-target="a">Cue B</button>
 						</li>
 						<li>
-							<button type="button" class="ln-icon-loop--white" data-mixer-cue="loop" data-mixer-deck-target="a" aria-pressed="false">Loop</button>
+							<button type="button" data-mixer-cue="loop" data-mixer-deck-target="a" aria-pressed="false">Loop</button>
 						</li>
 						<li>
 							<button type="button" class="ln-icon-edit--white" data-mixer-action="edit-track" data-mixer-deck-target="a">Opis</button>
@@ -140,7 +140,7 @@
 				</article>
 
 				<!-- DECK B — Next / Cue -->
-				<article class="deck deck--b" data-mixer-deck="b">
+				<article class="deck" data-mixer-deck="b">
 					<header class="deck-header">
 						<h2>Deck B <mark class="deck-badge">Next / Cue</mark></h2>
 					</header>
@@ -192,7 +192,7 @@
 							<button type="button" class="ln-icon-cue--white" data-mixer-cue="mark-end" data-mixer-deck-target="b">Cue B</button>
 						</li>
 						<li>
-							<button type="button" class="ln-icon-loop--white" data-mixer-cue="loop" data-mixer-deck-target="b" aria-pressed="false">Loop</button>
+							<button type="button" data-mixer-cue="loop" data-mixer-deck-target="b" aria-pressed="false">Loop</button>
 						</li>
 						<li>
 							<button type="button" class="ln-icon-edit--white" data-mixer-action="edit-track" data-mixer-deck-target="b">Opis</button>
@@ -232,7 +232,7 @@
 	<!-- ============================================================
 	     NEW PLAYLIST MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-new-playlist" data-ln-modal>
+	<dialog class="ln-modal" id="modal-new-playlist" data-ln-modal>
 		<form method="dialog" data-ln-form="new-playlist">
 			<header>
 				<h2>New Playlist</h2>
@@ -245,51 +245,64 @@
 				</fieldset>
 			</main>
 			<footer>
-				<span></span>
 				<button type="submit" class="ln-icon-add--white" data-mixer-action="create-playlist">Create</button>
 			</footer>
 		</form>
-	</section>
+	</dialog>
 
 	<!-- ============================================================
 	     TRACK LIBRARY MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-track-library" data-ln-modal>
+	<dialog class="ln-modal" id="modal-track-library" data-ln-modal>
 		<form method="dialog" data-ln-form="track-library" data-mixer-library>
 			<header>
 				<h2>Track Library</h2>
 				<button type="button" class="ln-icon-close--white" data-ln-modal-close></button>
 			</header>
 			<main>
-				<section class="library-no-api" data-mixer-library-no-api hidden>
-					<h3 class="ln-icon-settings--white">No API configured</h3>
-					<p>Set the Library API URL in Settings to load tracks.</p>
-					<button type="button" class="ln-icon-settings--white ln-icon--sm" data-mixer-action="open-settings-from-library">Open Settings</button>
+				<search class="library-search" aria-label="Search tracks">
+					<span class="ln-icon-search--white"></span>
+					<input type="search" placeholder="Search tracks..." data-ln-search-for="libraryTracks" />
+					<button type="button" class="ln-icon-close--white" data-ln-search-clear aria-label="Clear search"></button>
+				</search>
+
+				<!-- Populated from the libraryTracks store (see coordinator at the bottom of the page) -->
+				<section id="library-list" data-ln-list="libraryTracks" data-ln-list-source="libraryTracks">
+					<ul data-ln-list-body></ul>
+
+					<template data-ln-template="libraryTracks-row">
+						<li data-ln-item data-mixer-library-track>
+							<article class="library-track-info">
+								<p class="track-name" data-ln-field="title">{{ title }}</p>
+								<p class="track-artist" data-ln-field="artist">{{ artist }}</p>
+							</article>
+							<button type="button" class="ln-icon-add--white ln-icon--sm" data-mixer-action="add-to-playlist" data-ln-attr="data-track-title:title, data-track-artist:artist, data-track-url:url">Add</button>
+							<button type="button" class="library-uncache-btn ln-icon-remove--white ln-icon--sm" data-mixer-action="remove-cached"></button>
+							<figure class="library-download-progress"
+								role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+								<mark data-ln-progress="0"></mark>
+							</figure>
+						</li>
+					</template>
+
+					<template data-ln-template="libraryTracks-empty">
+						<p class="library-empty">No tracks found</p>
+					</template>
 				</section>
-
-				<fieldset class="library-search" data-ln-search="library-list">
-					<legend class="sr-only">Search tracks</legend>
-					<span class="ln-icon-search--white ln-icon--sm"></span>
-					<input type="search" placeholder="Search tracks..." data-ln-search-input />
-				</fieldset>
-
-				<ul class="library-list" id="library-list" data-mixer-library-list>
-					<!-- Populated by JS from API -->
-				</ul>
 			</main>
 			<footer>
-				<span></span>
+				<button type="button" class="ln-icon-refresh--white ln-icon--sm" data-mixer-action="refresh-library">Refresh</button>
 				<button type="button" data-ln-modal-close>
 					Close
 				</button>
 			</footer>
 		</form>
-	</section>
+	</dialog>
 
 	<!-- ============================================================
 	     EDIT TRACK MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-edit-track" data-ln-modal>
+	<dialog class="ln-modal" id="modal-edit-track" data-ln-modal>
 		<form method="dialog" data-ln-form="edit-track" data-mixer-track-index="-1" data-mixer-playlist-id="">
 			<header>
 				<h2>Edit Track</h2>
@@ -305,18 +318,18 @@
 				</fieldset>
 			</main>
 			<footer>
-				<button type="button" class="ln-icon-remove--white ln-icon--sm" data-mixer-action="remove-track">Remove</button>
+				<button type="button" class="delete-action ln-icon-remove--white ln-icon--sm" data-mixer-action="remove-track">Remove</button>
 				<button type="submit" data-mixer-action="save-track-edit">
 					Save
 				</button>
 			</footer>
 		</form>
-	</section>
+	</dialog>
 
 	<!-- ============================================================
 	     NAME LOOP MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-name-loop" data-ln-modal>
+	<dialog class="ln-modal" id="modal-name-loop" data-ln-modal>
 		<form method="dialog" data-ln-form="name-loop" data-mixer-deck-id="" data-mixer-track-index="-1"
 			data-mixer-loop-start="" data-mixer-loop-end=""
 			data-mixer-loop-start-pct="" data-mixer-loop-end-pct="">
@@ -332,16 +345,15 @@
 				</fieldset>
 			</main>
 			<footer>
-				<span></span>
 				<button type="submit" class="ln-icon-add--white ln-icon--sm">Save Loop</button>
 			</footer>
 		</form>
-	</section>
+	</dialog>
 
 	<!-- ============================================================
 	     CONFIRM DELETE PLAYLIST MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-confirm-delete-playlist" data-ln-modal>
+	<dialog class="ln-modal" id="modal-confirm-delete-playlist" data-ln-modal>
 		<form method="dialog" data-ln-form="confirm-delete-playlist" data-mixer-playlist-id="">
 			<header>
 				<h2>Delete Playlist</h2>
@@ -355,12 +367,12 @@
 				<button type="submit" class="ln-icon-remove--white ln-icon--sm">Delete</button>
 			</footer>
 		</form>
-	</section>
+	</dialog>
 
 	<!-- ============================================================
 	     SETTINGS MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-settings" data-ln-modal>
+	<dialog class="ln-modal" id="modal-settings" data-ln-modal>
 		<form method="dialog" data-ln-form="settings">
 			<header>
 				<h2>Settings</h2>
@@ -368,13 +380,6 @@
 			</header>
 			<main>
 				<section class="settings-form">
-					<fieldset class="form-field">
-						<label for="settings-api-url">Library API URL</label>
-						<input type="url" id="settings-api-url" name="api-url" data-mixer-setting="api-url"
-							placeholder="https://yourserver.com/api/tracks.php" />
-						<p class="field-hint">Base URL for the remote track library API</p>
-					</fieldset>
-
 					<fieldset class="form-field">
 						<label>Logo</label>
 						<section class="logo-preview">
@@ -438,18 +443,18 @@
 				</section>
 			</main>
 			<footer>
-				<button type="button" class="ln-icon-remove--white ln-icon--sm" data-mixer-action="delete-profile">Delete Profile</button>
+				<button type="button" class="delete-action ln-icon-remove--white ln-icon--sm" data-mixer-action="delete-profile">Delete Profile</button>
 				<button type="submit" data-mixer-action="save-settings">
 					Save
 				</button>
 			</footer>
 		</form>
-	</section>
+	</dialog>
 
 	<!-- ============================================================
 	     NEW PROFILE MODAL
 	     ============================================================ -->
-	<section class="ln-modal" id="modal-new-profile" data-ln-modal>
+	<dialog class="ln-modal" id="modal-new-profile" data-ln-modal>
 		<form method="dialog" data-ln-form="new-profile">
 			<header>
 				<h2>New Profile</h2>
@@ -462,14 +467,29 @@
 				</fieldset>
 			</main>
 			<footer>
-				<span></span>
 				<button type="submit" class="ln-icon-add--white" data-mixer-action="create-profile">Create</button>
 			</footer>
 		</form>
-	</section>
+	</dialog>
 
 	<!-- Toast notification -->
-	<ul data-ln-toast data-ln-toast-timeout="2000" data-ln-toast-max="3"></ul>
+	<ul data-ln-toast data-ln-toast-timeout="2000" data-ln-toast-max="3" aria-live="polite">
+		<template data-ln-template="ln-toast-item">
+			<li data-ln-toast-item data-ln-attr="class:type">
+				<section class="icon">
+					<ul>
+						<li data-ln-toast-when="success"><span class="ln-icon-check--white"></span></li>
+						<li data-ln-toast-when="error"><span class="ln-icon-close--white"></span></li>
+						<li data-ln-toast-when="warn"><span class="ln-icon-warning"></span></li>
+						<li data-ln-toast-when="info"><span class="ln-icon-info--white"></span></li>
+					</ul>
+				</section>
+				<section class="content">
+					<main class="body" data-ln-field="message"></main>
+				</section>
+			</li>
+		</template>
+	</ul>
 
 	<!-- ============================================================
 	     TEMPLATES (inert, cloned by JS components)
@@ -490,8 +510,8 @@
 					</nav>
 				</section>
 				<nav class="track-load-actions">
-					<button type="button" class="load-btn load-btn--a" data-mixer-load-to="a">A</button>
-					<button type="button" class="load-btn load-btn--b" data-mixer-load-to="b">B</button>
+					<button type="button" class="load-btn" data-mixer-load-to="a">A</button>
+					<button type="button" class="load-btn" data-mixer-load-to="b">B</button>
 				</nav>
 			</section>
 		</li>
@@ -514,21 +534,6 @@
 		<button type="button" class="profile-btn" data-mixer-profile-id data-ln-attr="data-mixer-profile-id:id">{{ name }}</button>
 	</template>
 
-	<template data-ln-template="library-item">
-		<li data-mixer-library-track>
-			<article class="library-track-info">
-				<p class="track-name" data-ln-field="title">{{ title }}</p>
-				<p class="track-artist" data-ln-field="artist">{{ artist }}</p>
-			</article>
-			<button type="button" class="ln-icon-add--white ln-icon--sm" data-mixer-action="add-to-playlist" data-ln-attr="data-track-title:title, data-track-artist:artist, data-track-url:url">Add</button>
-			<button type="button" class="library-uncache-btn ln-icon-remove--white ln-icon--sm" data-mixer-action="remove-cached"></button>
-			<figure class="library-download-progress"
-				role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-				<mark data-ln-progress="0"></mark>
-			</figure>
-		</li>
-	</template>
-
 	<template data-ln-template="loop-seg-btn">
 		<button type="button" class="loop-seg-btn" data-mixer-loop-index data-ln-attr="data-mixer-loop-index:index" data-ln-class="active:isActive">
 			<span class="loop-seg-label" data-ln-field="name">{{ name }}</span>
@@ -537,11 +542,24 @@
 	</template>
 
 	<!-- Declarative Data Stores for ln-data-store component -->
-	<div data-ln-data-store="profiles"></div>
-	<div data-ln-data-store="settings"></div>
-	<div data-ln-data-store="audioFiles"></div>
-	<div data-ln-data-store="tracks"></div>
-	<div data-ln-data-store="playlists" data-ln-store-indexes="profileId"></div>
+	<ul hidden>
+		<li id="profiles" data-ln-data-store="profiles"></li>
+		<li id="settings" data-ln-data-store="settings"></li>
+		<li id="audioFiles" data-ln-data-store="audioFiles"></li>
+		<li id="tracks" data-ln-data-store="tracks"></li>
+		<li id="playlists" data-ln-data-store="playlists" data-ln-data-store-indexes="profileId"></li>
+	</ul>
+
+	<!-- Track library: api-connector -> coordinator -> libraryTracks store -> ln-list (#library-list).
+	     Cached in IDB (stale=never); refreshed only by [data-mixer-action="refresh-library"].
+	     Records are mapped by the 'libraryTracks' ingress mapper (ln-library.js). -->
+	<ul id="library-module" data-ln-data-coordinator="libraryTracks" data-ln-data-coordinator-mapper="libraryTracks" hidden>
+		<li id="libraryTracks" data-ln-data-store="libraryTracks"
+			data-ln-data-store-stale="never"
+			data-ln-data-store-search-fields="title,artist"
+			data-ln-search=""></li>
+		<li data-ln-api-connector data-ln-api-base-url="api" data-ln-api-path="index.php"></li>
+	</ul>
 
 	<!-- Vendor: ln-ashlar master bundle, rebuilt from source into our assets -->
 	<script type="module" src="./assets/js/ln-ashlar.build.js"></script>

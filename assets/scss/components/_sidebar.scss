@@ -1,54 +1,30 @@
-// ==========================================================================
-// _sidebar.scss — Sidebar container, playlist accordion, footer
-// ==========================================================================
-// NOTE: this file no longer @include's any mixin. `.sidebar` already gets
-// `@include sidebar` from ln-ashlar's own components/_sidebar.scss (bundled
-// via app.scss); here we only re-bind tokens so the cascade stays clean.
+@use '../../../node_modules/@livenetworks/ashlar/theme/config/mixins' as *;
+@use '../mixins' as *;
 
-// ─── Sidebar ─────────────────────────────────────────────────────────────────
-
+// .sidebar already gets @include sidebar from ashlar (theme/components/_sidebar).
+// Re-bind only tokens the mixin READS, plus properties it never sets.
 .sidebar {
-	// IMPORTANT: ln-ashlar's own components/_sidebar.scss already applies
-	// `@include sidebar` to `.sidebar`, and we bundle the full framework via
-	// app.scss. Re-including the mixin here would emit every declaration a
-	// second time — that double-emission is what struck out the cascade.
-	// So we ONLY re-bind tokens the mixin READS (never ones it SETS), plus a
-	// property the mixin never declares. Result: zero overridden values.
-	//   • surface     → mixer sunken bg   (mixin reads --color-bg)
-	//   • end border  → dropped           (mixin reads --border-inline-end;
-	//                                       the right edge needs no divider)
-	--color-bg: hsl(var(--color-surface-sunken));
+	--color-bg: var(--bg-recessed);
 	--border-inline-end: none;
+	@include border-l;
 
-	// Start-side divider — the mixin only declares border-inline-END, so this
-	// adds (never overrides). hsl() is required: this project maps
-	// --color-border to a bare HSL triplet for alpha support, which the
-	// mixin's `solid var(--color-border)` fallback cannot consume directly.
-	border-inline-start: var(--border-width) solid hsl(var(--color-border));
+	// Stacked: docks below the decks → divider moves to the top
+	@include mq-stacked {
+		--border-inline-start: none;
+		@include border-t;
+		max-block-size: 38vh;
+	}
 }
 
-// Scroll region. The sidebar root keeps the mixin's `overflow: hidden`; this
-// inner section is the scroller. A plain <section> (not <main>) is used because
-// the sidebar is nested inside the page's <main>, where another <main> would be
-// invalid. The mixin targets `> main`/`> footer`, never `> section`, so flex +
-// scroll here are sole declarants — no struck values.
-//
-// --padding-x:0 makes the accordion run edge-to-edge: the mixin sets --padding-x
-// only on `.sidebar`, so zeroing it there would strike; on this child we are the
-// sole declarant, and `> * { padding-inline: var(--padding-x) }` collapses to 0.
+// Scroll region (a <section>: a <main> here would be invalid HTML)
 .playlist-scroll {
-	flex: 1;
+	@include flex-1;
 	overflow-y: auto;
 	--padding-x: 0;
 }
 
-// ─── Playlist accordion list ─────────────────────────────────────────────────
-// <nav data-ln-accordion> carries the framework accordion ONLY for its
-// one-at-a-time toggle JS. The card chrome (4 borders + radius) is dissolved
-// through the very tokens the accordion mixin reads — no declaration is
-// overridden. The mixin's hardcoded overflow:hidden is harmless here: the
-// scroll container is the sidebar's `> main`; this list only sizes to content.
-
+// The accordion is used only for its one-at-a-time JS; its card chrome is
+// dissolved via the soft tokens the accordion mixin reads.
 .playlist-list {
 	--border-block-start: none;
 	--border-block-end: none;
@@ -57,51 +33,58 @@
 	--radius-lg: 0;
 }
 
-// ─── Playlist accordion group ─────────────────────────────────────────────────
+// Soft border tokens INHERIT — restore the mixin fallbacks below the list
+// so @include border-b works on groups and rows.
+.playlist-list > * {
+	--border-block-start: initial;
+	--border-block-end: initial;
+	--border-inline-start: initial;
+	--border-inline-end: initial;
+}
 
 .playlist-group {
-	border-bottom: 1px solid hsl(var(--color-border));
+	@include border-b;
 
 	> header {
-		display: flex;
-		align-items: center;
-		padding: var(--size-sm) var(--size-md);
-		font-size: 0.8rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		color: hsl(var(--color-text-secondary));
+		@include flex;
+		@include items-center;
+		min-block-size: var(--touch-min);
+		padding-inline: var(--size-md);
+		font-size: var(--text-label-md);
+		@include font-bold;
+		@include uppercase;
+		letter-spacing: var(--tracking-wider);
+		color: var(--fg-muted);
 		cursor: pointer;
 		user-select: none;
 		touch-action: manipulation;
-		min-height: var(--touch-min);
-		transition: background var(--transition-fast), color var(--transition-fast);
-
-		&:hover {
-			background: rgba(255, 255, 255, 0.04);
+		@include motion-safe {
+			transition: background-color var(--transition-fast), color var(--transition-fast);
 		}
 
-		// Chevron icon
+		&:hover {
+			background: var(--bg-wash);
+		}
+
+		// Chevron
 		&::before {
 			content: '';
-			display: inline-block;
-			width: 0.75rem;
-			height: 0.75rem;
-			margin-right: var(--size-sm);
-			background-image: var(--icon-chevron-down-white);
-			background-size: contain;
-			background-repeat: no-repeat;
-			background-position: center;
-			transition: transform var(--transition-fast);
 			flex-shrink: 0;
+			@include size(var(--size-sm-up));
+			margin-inline-end: var(--size-sm);
+			background: var(--icon-chevron-down-white) center / contain no-repeat;
+			@include motion-safe {
+				transition: transform var(--transition-fast);
+			}
 		}
 	}
 
-	&:not(.open) > header::before {
+	&:not([data-ln-toggle="open"]) > header::before {
 		transform: rotate(-90deg);
 	}
 
-	&.open > header {
+	&[data-ln-toggle="open"] > header {
+		--delete-opacity: 0.5;
 		color: hsl(var(--color-primary));
 		background: hsl(var(--color-primary) / 0.15);
 	}
@@ -110,65 +93,47 @@
 		display: none;
 	}
 
-	&.open > .track-list {
+	&[data-ln-toggle="open"] > .track-list {
 		display: block;
 	}
 }
 
-// ─── Playlist name + delete button ───────────────────────────────────────────
-
 .playlist-name {
-	flex: 1;
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	@include flex-1;
+	min-inline-size: 0;
+	@include truncate;
 }
 
 .playlist-delete-btn {
+	--btn-bg:           transparent;
+	--btn-border:       transparent;
+	--btn-bg-hover:     transparent;
+	--btn-border-hover: transparent;
+	--btn-padding-x:    0;
+	--btn-padding-y:    0;
 	flex-shrink: 0;
-	width: 2rem;
-	height: 2rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: transparent;
-	border: none;
-	opacity: 0.3;
-	transition: opacity var(--transition-fast);
-	touch-action: manipulation;
-	margin-left: auto;
-	padding: 0;
-	cursor: pointer;
+	min-inline-size: var(--touch-min);
+	margin-inline-start: auto;
+	opacity: var(--delete-opacity, 0.3);
+	@include motion-safe {
+		transition: opacity var(--transition-fast);
+	}
 
 	&::before {
-		width: 0.85rem;
-		height: 0.85rem;
+		@include size(var(--size-sm-up));
 	}
 
 	&:hover {
-		background: transparent;
-		opacity: 1 !important;
+		--delete-opacity: 1;
 
 		&::before {
-			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff4444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 6 5 6 21 6'/%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/%3E%3C/svg%3E");
+			@include icon-mask(var(--icon-remove-white), hsl(var(--color-error)));
 		}
 	}
 }
 
-.playlist-group.open > header .playlist-delete-btn {
-	opacity: 0.5;
-}
-
-// ─── Sidebar footer ───────────────────────────────────────────────────────────
-
+// Footer chrome comes from the sidebar mixin's "> footer { @include app-footer }"
 .sidebar-footer {
-	// Chrome (top divider, surface, flex layout) comes from the sidebar
-	// mixin's `> footer { @include app-footer }`. We only feed it padding
-	// tokens instead of redeclaring padding/border — app-footer locally
-	// re-binds --color-border to a real colour, so its divider renders
-	// correctly without our help. The mixin's `> main { flex: 1 }` pins
-	// this footer to the bottom, so no margin trick is needed.
 	--padding-x: var(--size-md);
 	--padding-y: var(--size-sm);
 }

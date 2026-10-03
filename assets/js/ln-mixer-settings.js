@@ -3,6 +3,8 @@
    Profile events, playlist persistence, settings form, branding
    ==================================================================== */
 
+import { dispatch } from 'ln-ashlar';
+
 /* ─── PWA Install ───────────────────────────────────────────── */
 
 let _deferredInstallPrompt = null;
@@ -25,8 +27,6 @@ export function setupSettings(mixer) {
 	/* ─── Settings Form Helpers ──────────────────────────────────── */
 
 	mixer._populateSettingsForm = function () {
-		const apiInput = document.querySelector('[data-mixer-setting="api-url"]');
-		if (apiInput) apiInput.value = lnSettings.getApiUrl();
 		this._pendingLogo = lnSettings.getBrandLogo();
 		this._updateLogoPreview();
 		this._updateCacheInfo();
@@ -62,9 +62,7 @@ export function setupSettings(mixer) {
 			sidebar.setAttribute('data-mixer-playlist-profile', profileId || '');
 
 			if (!profileId) {
-				sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-load-profile', {
-					detail: { profileId: null, playlists: null, trackCatalog: null }
-				}));
+				dispatch(sidebar, 'ln-playlist:request-load-profile', { profileId: null, playlists: null, trackCatalog: null });
 				return;
 			}
 
@@ -94,9 +92,7 @@ export function setupSettings(mixer) {
 						if (tr) trackCatalog[tr.url] = tr;
 					});
 
-					sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-load-profile', {
-						detail: { profileId: profileId, playlists: playlists, trackCatalog: trackCatalog }
-					}));
+					dispatch(sidebar, 'ln-playlist:request-load-profile', { profileId: profileId, playlists: playlists, trackCatalog: trackCatalog });
 				});
 			});
 		});
@@ -120,9 +116,7 @@ export function setupSettings(mixer) {
 		this.dom.addEventListener('ln-profile:created', function (e) {
 			self._updateEmptyState();
 			lnDb.put('profiles', e.detail.profile);
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'success', message: 'Profile created' }
-			}));
+			dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Profile created' });
 		});
 
 		this.dom.addEventListener('ln-profile:deleted', function (e) {
@@ -131,9 +125,7 @@ export function setupSettings(mixer) {
 			lnDb.deleteByIndex('playlists', 'profileId', e.detail.profileId);
 			const modalEl = document.getElementById('modal-settings');
 			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'info', message: 'Profile deleted' }
-			}));
+			dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Profile deleted' });
 		});
 
 		// Profile ready — update empty state
@@ -149,25 +141,19 @@ export function setupSettings(mixer) {
 		// Playlist event reactions (toasts, modals)
 
 		this.dom.addEventListener('ln-playlist:created', function () {
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'success', message: 'Playlist created' }
-			}));
+			dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Playlist created' });
 		});
 
 		this.dom.addEventListener('ln-playlist:track-edited', function () {
 			const modalEl = document.getElementById('modal-edit-track');
 			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'success', message: 'Track updated' }
-			}));
+			dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Track updated' });
 		});
 
 		this.dom.addEventListener('ln-playlist:track-removed', function (e) {
 			const modalEl = document.getElementById('modal-edit-track');
 			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'warn', message: 'Track removed' }
-			}));
+			dispatch(window, 'ln-toast:enqueue', { type: 'warn', message: 'Track removed' });
 
 			// Adjust deck indices
 			const removedIdx = e.detail.trackIndex;
@@ -176,11 +162,9 @@ export function setupSettings(mixer) {
 				const currentIdx = deckEl.lnDeck.trackIndex;
 
 				if (currentIdx === removedIdx) {
-					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-reset'));
+					dispatch(deckEl, 'ln-deck:request-reset');
 				} else if (currentIdx > removedIdx) {
-					deckEl.dispatchEvent(new CustomEvent('ln-deck:request-adjust-index', {
-						detail: { newIndex: currentIdx - 1 }
-					}));
+					dispatch(deckEl, 'ln-deck:request-adjust-index', { newIndex: currentIdx - 1 });
 				}
 			});
 
@@ -190,16 +174,14 @@ export function setupSettings(mixer) {
 
 		this.dom.addEventListener('ln-playlist:playlist-removed', function (e) {
 			lnDb.delete('playlists', e.detail.playlistId);
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'warn', message: 'Playlist "' + e.detail.name + '" deleted' }
-			}));
+			dispatch(window, 'ln-toast:enqueue', { type: 'warn', message: 'Playlist "' + e.detail.name + '" deleted' });
 
 			// Reset decks if no playlists remain
 			const sidebar = self._getSidebar();
 			if (!sidebar || !sidebar.lnPlaylist || !sidebar.lnPlaylist.currentId) {
 				self.dom.querySelectorAll('[data-mixer-deck]').forEach(function (deckEl) {
 					if (deckEl.lnDeck) {
-						deckEl.dispatchEvent(new CustomEvent('ln-deck:request-reset'));
+						dispatch(deckEl, 'ln-deck:request-reset');
 					}
 				});
 			}
@@ -244,9 +226,7 @@ export function setupSettings(mixer) {
 			if (e.target.closest('[data-mixer-action="delete-profile"]')) {
 				const nav = self._getNav();
 				if (nav && nav.lnProfile) {
-					nav.dispatchEvent(new CustomEvent('ln-profile:request-remove', {
-						detail: { id: nav.lnProfile.currentId }
-					}));
+					dispatch(nav, 'ln-profile:request-remove', { id: nav.lnProfile.currentId });
 				}
 			}
 		});
@@ -264,9 +244,7 @@ export function setupSettings(mixer) {
 
 			const nav = self._getNav();
 			if (nav) {
-				nav.dispatchEvent(new CustomEvent('ln-profile:request-create', {
-					detail: { name: name }
-				}));
+				dispatch(nav, 'ln-profile:request-create', { name: name });
 			}
 
 			input.value = '';
@@ -329,27 +307,21 @@ export function setupSettings(mixer) {
 		document.addEventListener('ln-form:submit', function (e) {
 			if (e.target.getAttribute('data-ln-form') !== 'settings') return;
 
-			const apiInput = document.querySelector('[data-mixer-setting="api-url"]');
-			const apiUrl = apiInput ? apiInput.value.trim() : '';
 			const brandLogo = self._pendingLogo !== null ? self._pendingLogo : lnSettings.getBrandLogo();
 
 			lnSettings.apply({
-				apiUrl: apiUrl,
 				brandLogo: brandLogo
 			});
 
 			lnDb.put('settings', {
 				key: 'app',
-				apiUrl: apiUrl,
 				brandLogo: brandLogo
 			});
 
 			self._pendingLogo = null;
 			const modalEl = document.getElementById('modal-settings');
 			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
-			window.dispatchEvent(new CustomEvent('ln-toast:enqueue', {
-				detail: { type: 'success', message: 'Settings saved' }
-			}));
+			dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Settings saved' });
 		});
 	};
 

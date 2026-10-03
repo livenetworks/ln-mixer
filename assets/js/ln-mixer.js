@@ -1,3 +1,4 @@
+import { dispatch } from 'ln-ashlar';
 import { setupAudio } from './ln-mixer-audio.js';
 import { setupCache } from './ln-mixer-cache.js';
 import { setupDeck } from './ln-mixer-deck.js';
@@ -73,9 +74,7 @@ if (window[DOM_ATTRIBUTE] === undefined) {
 		}).then(function (profiles) {
 			const nav = self._getNav();
 			if (nav) {
-				nav.dispatchEvent(new CustomEvent('ln-profile:request-hydrate', {
-					detail: { profiles: profiles }
-				}));
+				dispatch(nav, 'ln-profile:request-hydrate', { profiles: profiles });
 			}
 		});
 	};
@@ -130,9 +129,7 @@ if (window[DOM_ATTRIBUTE] === undefined) {
 		this.dom.querySelectorAll('[data-mixer-deck]').forEach(function (deckEl) {
 			const deckId = deckEl.getAttribute('data-mixer-deck');
 			const idx = (deckEl.lnDeck) ? deckEl.lnDeck.trackIndex : -1;
-			sidebar.dispatchEvent(new CustomEvent('ln-playlist:request-highlight', {
-				detail: { deckId: deckId, index: idx }
-			}));
+			dispatch(sidebar, 'ln-playlist:request-highlight', { deckId: deckId, index: idx });
 		});
 	};
 

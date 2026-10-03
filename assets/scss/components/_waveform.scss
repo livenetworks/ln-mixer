@@ -1,32 +1,27 @@
-// ==========================================================================
-// _waveform.scss — Waveform bg, container, zoom, timeline ruler, spin keyframe
-// ==========================================================================
-// Note: overlay styles (.waveform-progress, .waveform-playhead, .cue-marker-*,
-// .cue-region) are inline in ln-waveform.js — WaveSurfer Shadow DOM blocks
-// document CSS classes. CSS custom properties DO penetrate Shadow DOM.
-// ==========================================================================
+@use '../../../node_modules/@livenetworks/ashlar/theme/config/mixins' as *;
 
-// ─── Waveform ────────────────────────────────────────────────────────────────
+// Overlays (.waveform-progress, .waveform-playhead, .cue-*, .waveform-timeline
+// and its ticks) are relocated into WaveSurfer's shadow DOM and styled inline
+// by ln-waveform.js — document CSS cannot reach them. Do not add rules for them.
+
+.waveform-container {
+	position: relative;
+	isolation: isolate;
+	overflow: visible;
+	flex: 1 1 auto;
+	min-block-size: 0;
+}
 
 .waveform {
 	position: relative;
 	height: 100%;
+	margin: 0;
+	// Idle placeholder (no track loaded): striped well
 	background:
-		repeating-linear-gradient(
-			90deg,
-			transparent, transparent 2px,
-			rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px
-		),
-		linear-gradient(
-			90deg,
-			#2a2a3a 0%, #3a3a5a 8%, #4a4a6a 15%, #3a3a5a 22%,
-			#5a5a7a 30%, #4a4a6a 38%, #3a3a5a 45%, #5a5a7a 52%,
-			#6a6a8a 58%, #4a4a6a 65%, #3a3a5a 72%, #5a5a7a 80%,
-			#4a4a6a 88%, #3a3a5a 95%, #2a2a3a 100%
-		);
+		repeating-linear-gradient(90deg, transparent 0 var(--size-2xs), var(--bg-wash) var(--size-2xs) var(--size-xs)),
+		var(--bg-sunken);
 	border-radius: var(--radius-md);
 	overflow: hidden;
-	margin: 0;
 	cursor: pointer;
 
 	&--loaded {
@@ -38,15 +33,17 @@
 		position: absolute;
 		top: 50%;
 		left: 50%;
-		width: 32px;
-		height: 32px;
-		margin: -16px 0 0 -16px;
-		border: 3px solid rgba(255, 255, 255, 0.15);
+		translate: -50% -50%;
+		@include size(var(--size-xl));
+		border: var(--border-width-strong) solid var(--border-strong);
 		border-top-color: hsl(var(--color-primary));
-		border-radius: 50%;
-		animation: waveform-spin 0.8s linear infinite;
-		z-index: 10;
+		border-radius: var(--radius-full);
+		z-index: 10;   // local layer above JS overlays (z 2-3); container is isolated
 		pointer-events: none;
+
+		@include motion-safe {
+			animation: waveform-spin 0.8s linear infinite;
+		}
 	}
 }
 
@@ -54,93 +51,36 @@
 	to { transform: rotate(360deg); }
 }
 
-// ─── Waveform container + fieldset wrapper ────────────────────────────────────
-
-.waveform-container {
-	position: relative;
-	border: 0;
-	padding: 0;
-	margin: 0;
-	overflow: visible;
-	min-width: 0;
-	flex: 1 1 auto;
-	min-height: 0;
-}
-
-// ─── Zoomed scrollable state ─────────────────────────────────────────────────
-
 .waveform--zoomed {
 	overflow-x: auto;
 	overflow-y: hidden;
-	-webkit-overflow-scrolling: touch;
-
-	&::-webkit-scrollbar {
-		height: 4px;
-	}
-
-	&::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	&::-webkit-scrollbar-thumb {
-		background: rgba(255, 255, 255, 0.2);
-		border-radius: 2px;
-	}
+	scrollbar-color: var(--border-strong) transparent;
 }
-
-// ─── Zoom buttons ────────────────────────────────────────────────────────────
 
 .waveform-zoom {
 	position: absolute;
-	top: var(--size-xs);
-	right: var(--size-xs);
-	z-index: 5;
-	display: flex;
-	gap: 2px;
+	inset-block-start: var(--size-xs);
+	inset-inline-end: var(--size-xs);
+	z-index: 5;   // local layer (container is isolated)
+	@include flex;
+	gap: var(--size-2xs);
 	opacity: 0.4;
-	transition: opacity var(--transition-fast);
+	@include motion-safe {
+		transition: opacity var(--transition-fast);
+	}
+
+	button {
+		--btn-bg:           var(--color-scrim);
+		--btn-border:       transparent;
+		--btn-bg-hover:     var(--bg-wash);
+		--btn-border-hover: transparent;
+		--btn-padding-x:    var(--size-2xs);
+		--btn-padding-y:    var(--size-2xs);
+		min-inline-size: var(--touch-min);
+	}
 }
 
 .waveform-container:hover .waveform-zoom,
 .waveform-zoom:focus-within {
 	opacity: 1;
-}
-
-// ─── Waveform timeline ruler ─────────────────────────────────────────────────
-
-.waveform-timeline {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	width: 100%;
-	height: 20px;
-	pointer-events: none;
-	z-index: 3;
-}
-
-.waveform-tick {
-	position: absolute;
-	bottom: 0;
-	width: 1px;
-	background: rgba(255, 255, 255, 0.15);
-
-	&--minor {
-		height: 5px;
-	}
-
-	&--major {
-		height: 10px;
-		background: rgba(255, 255, 255, 0.3);
-
-		&::after {
-			content: attr(data-time);
-			position: absolute;
-			top: 0;
-			left: 2px;
-			font-size: 0.65rem;
-			font-family: var(--font-mono);
-			color: hsl(var(--color-text-muted));
-			white-space: nowrap;
-		}
-	}
 }

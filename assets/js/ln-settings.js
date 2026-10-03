@@ -1,3 +1,5 @@
+import { dispatch } from 'ln-ashlar';
+
 const DOM_ATTRIBUTE = 'lnSettings';
 
 if (!window[DOM_ATTRIBUTE]) {
@@ -7,7 +9,6 @@ if (!window[DOM_ATTRIBUTE]) {
 	   ==================================================================== */
 
 	const _settings = {
-		apiUrl: 'https://mixer.live.net.mk/api',
 		brandLogo: ''
 	};
 
@@ -45,32 +46,22 @@ if (!window[DOM_ATTRIBUTE]) {
 
 	function hydrate(record) {
 		if (record) {
-			if (record.apiUrl !== undefined) _settings.apiUrl = record.apiUrl;
 			if (record.brandLogo !== undefined) _settings.brandLogo = record.brandLogo;
 		}
 		_applyBranding();
-		window.dispatchEvent(new CustomEvent('ln-settings:loaded', {
-			detail: { apiUrl: _settings.apiUrl, brandLogo: _settings.brandLogo }
-		}));
+		dispatch(window, 'ln-settings:loaded', { brandLogo: _settings.brandLogo });
 	}
 
 	function apply(data) {
-		if (data.apiUrl !== undefined) _settings.apiUrl = data.apiUrl;
 		if (data.brandLogo !== undefined) _settings.brandLogo = data.brandLogo;
 
 		_applyBranding();
-		window.dispatchEvent(new CustomEvent('ln-settings:saved', {
-			detail: { apiUrl: _settings.apiUrl, brandLogo: _settings.brandLogo }
-		}));
+		dispatch(window, 'ln-settings:saved', { brandLogo: _settings.brandLogo });
 	}
 
 	/* ====================================================================
 	   GETTERS
 	   ==================================================================== */
-
-	function getApiUrl() {
-		return _settings.apiUrl;
-	}
 
 	function getBrandLogo() {
 		return _settings.brandLogo;
@@ -97,7 +88,6 @@ if (!window[DOM_ATTRIBUTE]) {
 	window[DOM_ATTRIBUTE] = {
 		hydrate: hydrate,
 		apply: apply,
-		getApiUrl: getApiUrl,
 		getBrandLogo: getBrandLogo
 	};
 

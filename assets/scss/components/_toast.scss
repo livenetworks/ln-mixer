@@ -1,64 +1,17 @@
-// ==========================================================================
-// _toast.scss — Position + sizing overrides (centered design)
-// ==========================================================================
-// Base toast styles are imported globally from ln-ashlar's components.
-// Only delta overrides specific to this project are maintained here.
-// ==========================================================================
-
-@use '../../../ln-ashlar/scss/config/mixins' as *;
-
-// ─── Position: bottom-center instead of bottom-right ──────────────────────────
-
+// ln-toast delta: bottom-centre placement, slide-up entry, narrower card.
+// Physical left/right are intentional — they mirror ashlar's physical declarations.
 [data-ln-toast] {
 	right: auto;
 	left: 50%;
-	transform: translateX(-50%);
+	translate: -50% 0;
 }
 
-// ─── Slide-up animation ───────────────────────────────────────────────────────
-
-[data-ln-toast] > .ln-toast__item {
-	transform: translateY(20px);
+// Unconditional on purpose: ln-toast.scss applies its translateX(30px) unconditionally too
+[data-ln-toast] > li.ln-enter {
+	transform: translateY(var(--size-md-up));
 }
 
-[data-ln-toast] > .ln-toast__item--in {
-	transform: translateY(0);
-}
-
-// ─── Card sizing ──────────────────────────────────────────────────────────────
-
-.ln-toast__card {
-	min-width: 280px;
-	max-width: 380px;
-}
-
-// ─── Compact side icon column ─────────────────────────────────────────────────
-
-.ln-toast__side {
-	flex: 0 0 48px;
-	padding-top: 0.75rem;
-
-	svg {
-		width: 24px;
-		height: 24px;
-		color: #000;
-	}
-}
-
-// ─── Content padding ──────────────────────────────────────────────────────────
-
-.ln-toast__content {
-	padding: 0.75rem 0.75rem 0.75rem 0.6rem;
-}
-
-// ─── Typography ───────────────────────────────────────────────────────────────
-
-.ln-toast__title {
-	font-size: 0.875rem;
-}
-
-.ln-toast__body {
-	margin-top: 0.25rem;
-	font-size: 0.8rem;
-	line-height: 1.4;
+[data-ln-toast] > li {
+	min-width: 17.5rem;
+	max-width: 23.75rem;
 }
