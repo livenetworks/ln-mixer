@@ -1,4 +1,4 @@
-import { dispatch } from 'ln-ashlar';
+import { dispatch, registerComponent } from 'ln-ashlar';
 import { setupAudio } from './ln-mixer-audio.js';
 import { setupCache } from './ln-mixer-cache.js';
 import { setupDeck } from './ln-mixer-deck.js';
@@ -9,24 +9,6 @@ const DOM_SELECTOR = 'data-mixer';
 const DOM_ATTRIBUTE = 'lnMixer';
 
 if (window[DOM_ATTRIBUTE] === undefined) {
-
-	/* ─── Constructor ─────────────────────────────────────────────── */
-
-	function constructor(domRoot) {
-		_findElements(domRoot);
-	}
-
-	function _findElements(root) {
-		const items = Array.from(root.querySelectorAll('[' + DOM_SELECTOR + ']'));
-		if (root.hasAttribute && root.hasAttribute(DOM_SELECTOR)) {
-			items.push(root);
-		}
-		items.forEach(function (el) {
-			if (!el[DOM_ATTRIBUTE]) {
-				el[DOM_ATTRIBUTE] = new _component(el);
-			}
-		});
-	}
 
 	/* ─── Component ───────────────────────────────────────────────── */
 
@@ -153,38 +135,8 @@ if (window[DOM_ATTRIBUTE] === undefined) {
 		this._bindTransferActions();
 	};
 
-	/* ─── DOM Observer ────────────────────────────────────────────── */
-
-	function _domObserver() {
-		const observer = new MutationObserver(function (mutations) {
-			mutations.forEach(function (mutation) {
-				if (mutation.type === 'childList') {
-					mutation.addedNodes.forEach(function (node) {
-						if (node.nodeType === 1) {
-							_findElements(node);
-						}
-					});
-				}
-			});
-		});
-
-		observer.observe(document.body, {
-			childList: true,
-			subtree: true
-		});
-	}
-
 	/* ─── Init ────────────────────────────────────────────────────── */
 
-	window[DOM_ATTRIBUTE] = constructor;
-	_domObserver();
-
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', function () {
-			constructor(document.body);
-		});
-	} else {
-		constructor(document.body);
-	}
+	registerComponent(DOM_SELECTOR, DOM_ATTRIBUTE, _component, 'ln-mixer');
 
 }

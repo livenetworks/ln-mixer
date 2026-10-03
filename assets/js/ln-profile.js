@@ -1,4 +1,4 @@
-import { cloneTemplate, fillTemplate, fill, dispatch } from 'ln-ashlar';
+import { cloneTemplate, fillTemplate, fill, dispatch, registerComponent } from 'ln-ashlar';
 
 const DOM_SELECTOR = 'data-mixer-profile';
 const DOM_ATTRIBUTE = 'lnProfile';
@@ -21,24 +21,6 @@ if (!window[DOM_ATTRIBUTE]) {
 	}
 
 
-
-	/* ─── Constructor ─────────────────────────────────────────────── */
-
-	function constructor(domRoot) {
-		_findElements(domRoot);
-	}
-
-	function _findElements(root) {
-		const items = Array.from(root.querySelectorAll('[' + DOM_SELECTOR + ']'));
-		if (root.hasAttribute && root.hasAttribute(DOM_SELECTOR)) {
-			items.push(root);
-		}
-		items.forEach(function (el) {
-			if (!el[DOM_ATTRIBUTE]) {
-				el[DOM_ATTRIBUTE] = new _component(el);
-			}
-		});
-	}
 
 	/* ─── Component ───────────────────────────────────────────────── */
 
@@ -197,38 +179,8 @@ if (!window[DOM_ATTRIBUTE]) {
 		return this.profiles[this.currentId] || null;
 	};
 
-	/* ─── DOM Observer ────────────────────────────────────────────── */
-
-	function _domObserver() {
-		const observer = new MutationObserver(function (mutations) {
-			mutations.forEach(function (mutation) {
-				if (mutation.type === 'childList') {
-					mutation.addedNodes.forEach(function (node) {
-						if (node.nodeType === 1) {
-							_findElements(node);
-						}
-					});
-				}
-			});
-		});
-
-		observer.observe(document.body, {
-			childList: true,
-			subtree: true
-		});
-	}
-
 	/* ─── Init ────────────────────────────────────────────────────── */
 
-	window[DOM_ATTRIBUTE] = constructor;
-	_domObserver();
-
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', function () {
-			constructor(document.body);
-		});
-	} else {
-		constructor(document.body);
-	}
+	registerComponent(DOM_SELECTOR, DOM_ATTRIBUTE, _component, 'ln-profile');
 
 }

@@ -98,7 +98,7 @@ This project follows [ln-ashlar](https://github.com/livenetworks/ln-ashlar) conv
 - IIFE with `DOM_SELECTOR` / `DOM_ATTRIBUTE` constants
 - Double-load protection: `if (window[DOM_ATTRIBUTE]) return;`
 - `_Component` constructor with prototype methods
-- `MutationObserver` for dynamic DOM
+- `registerComponent(DOM_SELECTOR, DOM_ATTRIBUTE, _component, 'ln-x')` from `ln-ashlar` (ln-core lifecycle) for init, shared `MutationObserver`, DOM-ready boot and `destroy()` on removal — no hand-rolled `_findElements` / `_domObserver`
 - Communication via `CustomEvent` with `bubbles: true`
 
 ### Component = Data Layer, Coordinator = UI Wiring
@@ -242,6 +242,13 @@ data-URI CSS as a vendored asset; do **not** try to "rebuild it from ln-ashlar s
   - [x] App icon (`assets/img/icon.svg`)
 
 ## Changelog
+
+### Components boot via ln-core `registerComponent` (2026-10-03)
+
+- `ln-deck`, `ln-library`, `ln-mixer`, `ln-playlist`, `ln-profile`, `ln-waveform` dropped their hand-written `constructor`/`_findElements`/`_domObserver`/DOMContentLoaded block (~45 lines each) in favour of one `registerComponent(...)` call (ln-ashlar 2.0 doctrine). `window[DOM_ATTRIBUTE]` is still set by `registerComponent`, so the double-load guard and external callers are unchanged. Components with a `destroy()` (ln-waveform) now get it called on DOM removal.
+- `ln-ashlar.entry.js` re-exports `registerComponent`; vendor bundle rebuilt. `ln-db`/`ln-settings` are singletons, not DOM components — untouched. SW cache v40.
+- Fix: library list empty — coordinator `data-ln-data-coordinator` must equal the list's `data-ln-list-source` (`libraryTracks`).
+- ⚠️ Not yet verified in a browser.
 
 ### ln-ashlar v2.0.4 compat + `dispatch` helper (2026-10-03)
 

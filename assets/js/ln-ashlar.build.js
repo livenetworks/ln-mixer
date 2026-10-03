@@ -3906,5 +3906,6 @@ export {
   q as dispatch,
   _e as fill,
   Ie as fillTemplate,
+  Z as registerComponent,
   qt as registerDataMapper
 };

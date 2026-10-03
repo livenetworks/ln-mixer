@@ -1,4 +1,4 @@
-import { dispatch } from 'ln-ashlar';
+import { dispatch, registerComponent } from 'ln-ashlar';
 import WaveSurfer from 'wavesurfer.js';
 
 const DOM_SELECTOR = 'data-mixer-waveform';
@@ -28,26 +28,6 @@ if (!window[DOM_ATTRIBUTE]) {
 		const dx = touches[0].clientX - touches[1].clientX;
 		const dy = touches[0].clientY - touches[1].clientY;
 		return Math.sqrt(dx * dx + dy * dy);
-	}
-
-	/* ====================================================================
-	   CONSTRUCTOR / DISCOVERY
-	   ==================================================================== */
-
-	function constructor(domRoot) {
-		_findElements(domRoot);
-	}
-
-	function _findElements(root) {
-		const items = Array.from(root.querySelectorAll('[' + DOM_SELECTOR + ']'));
-		if (root.hasAttribute && root.hasAttribute(DOM_SELECTOR)) {
-			items.push(root);
-		}
-		items.forEach(function (el) {
-			if (!el[DOM_ATTRIBUTE]) {
-				el[DOM_ATTRIBUTE] = new _component(el);
-			}
-		});
 	}
 
 	/* ====================================================================
@@ -437,37 +417,9 @@ if (!window[DOM_ATTRIBUTE]) {
 	};
 
 	/* ====================================================================
-	   DOM OBSERVER + INIT
+	   INIT
 	   ==================================================================== */
 
-	function _domObserver() {
-		const observer = new MutationObserver(function (mutations) {
-			mutations.forEach(function (mutation) {
-				if (mutation.type === 'childList') {
-					mutation.addedNodes.forEach(function (node) {
-						if (node.nodeType === 1) {
-							_findElements(node);
-						}
-					});
-				}
-			});
-		});
-
-		observer.observe(document.body, {
-			childList: true,
-			subtree: true
-		});
-	}
-
-	window[DOM_ATTRIBUTE] = constructor;
-	_domObserver();
-
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', function () {
-			constructor(document.body);
-		});
-	} else {
-		constructor(document.body);
-	}
+	registerComponent(DOM_SELECTOR, DOM_ATTRIBUTE, _component, 'ln-waveform');
 
 }

@@ -29,6 +29,6 @@ import '@livenetworks/ashlar/components/ln-list/src/ln-list.js';
 // built bundle (production) instead of the ln-ashlar/js/ln-core submodule folder live
 // at runtime. The submodule is now a DEV-ONLY build source — production never fetches it.
 // ln-core is already pulled into this bundle transitively by the components above; this
-// just surfaces the public helpers as named exports (registerDataMapper feeds the
+// just surfaces the public helpers as named exports (registerComponent boots the project components; registerDataMapper feeds the
 // coordinator's ingress/egress mapper for the track library).
-export { cloneTemplate, fillTemplate, fill, dispatch, registerDataMapper } from '@livenetworks/ashlar/components/ln-core/index.js';
+export { cloneTemplate, fillTemplate, fill, dispatch, registerDataMapper, registerComponent } from '@livenetworks/ashlar/components/ln-core/index.js';
