@@ -243,6 +243,14 @@ data-URI CSS as a vendored asset; do **not** try to "rebuild it from ln-ashlar s
 
 ## Changelog
 
+### Coordinator doctrine alignment with ln-ashlar (2026-10-10)
+
+- **Zero Display Text**: Extracted UI strings to `<ul hidden data-mixer-dict-list>` in `index.html`. Read via ln-ashlar core's `buildDict(this.dom, 'data-mixer-dict')` without synthetic wrapper functions, accessed directly via canonical `(this.dict && this.dict[key]) || fallback`.
+- **CSS Presentation**: Eliminated inline style manipulation (`volumeSlider.style.background`) in `ln-mixer-audio.js`; styled via CSS custom property `--volume-pct` and stylesheet rule in `_topbar.scss`.
+- **Open Boundary Normalization**: Replaced manual DOM field mutations in edit track modal with `fill(form, ...)` on `ln-modal:before-open`; eliminated `innerHTML` in logo preview in favor of predefined markup with `hidden` state toggles.
+- **Pure DOM-First Code**: Eradicated all synthetic wrapper abstractions (`_t`, `_on`, `_listeners`, `_getModal`, `_getForm`) across all coordinator modules in favor of native DOM APIs (`addEventListener`, `document.getElementById`, `querySelector`).
+- SW cache v40 → v41.
+
 ### Components boot via ln-core `registerComponent` (2026-10-03)
 
 - `ln-deck`, `ln-library`, `ln-mixer`, `ln-playlist`, `ln-profile`, `ln-waveform` dropped their hand-written `constructor`/`_findElements`/`_domObserver`/DOMContentLoaded block (~45 lines each) in favour of one `registerComponent(...)` call (ln-ashlar 2.0 doctrine). `window[DOM_ATTRIBUTE]` is still set by `registerComponent`, so the double-load guard and external callers are unchanged. Components with a `destroy()` (ln-waveform) now get it called on DOM removal.

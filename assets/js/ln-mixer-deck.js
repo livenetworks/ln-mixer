@@ -3,7 +3,7 @@
    Deck transport, highlights, autoplay sequencing, loop segments
    ==================================================================== */
 
-import { dispatch } from 'ln-ashlar';
+import { dispatch, fill } from 'ln-ashlar';
 
 function _formatTime(seconds) {
 	const m = Math.floor(seconds / 60);
@@ -232,12 +232,10 @@ export function setupDeck(mixer) {
 			form.setAttribute('data-mixer-loop-start-pct', e.detail.startPct);
 			form.setAttribute('data-mixer-loop-end-pct', e.detail.endPct);
 
-			const rangeEl = document.querySelector('[data-ln-field="loop-range"]');
-			if (rangeEl) {
-				rangeEl.textContent = _formatTime(e.detail.startSec) + ' \u2013 ' + _formatTime(e.detail.endSec);
-			}
+			const rangeStr = _formatTime(e.detail.startSec) + ' \u2013 ' + _formatTime(e.detail.endSec);
+			fill(form, { 'loop-range': rangeStr });
 
-			const nameInput = document.querySelector('[data-ln-field="loop-name"]');
+			const nameInput = form.querySelector('[data-ln-field="loop-name"]');
 			if (nameInput) nameInput.value = '';
 
 			const modalEl = document.getElementById('modal-name-loop');
@@ -259,7 +257,10 @@ export function setupDeck(mixer) {
 				loopIndex: e.detail.loopIndex
 			});
 
-			dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Loop removed' });
+			dispatch(window, 'ln-toast:enqueue', {
+				type: 'info',
+				message: (self.dict && self.dict['loop-removed']) || 'Loop removed'
+			});
 		});
 
 		// Loop added/removed → refresh deck segment buttons
@@ -300,7 +301,10 @@ export function setupDeck(mixer) {
 				self._autoplayTimer = null;
 			}
 
-			dispatch(window, 'ln-toast:enqueue', { type: 'info', message: self._autoplay ? 'Autoplay ON' : 'Autoplay OFF' });
+			const msg = self._autoplay
+				? ((self.dict && self.dict['autoplay-on']) || 'Autoplay ON')
+				: ((self.dict && self.dict['autoplay-off']) || 'Autoplay OFF');
+			dispatch(window, 'ln-toast:enqueue', { type: 'info', message: msg });
 		});
 	};
 
@@ -312,7 +316,7 @@ export function setupDeck(mixer) {
 			if (e.target.getAttribute('data-ln-form') !== 'name-loop') return;
 
 			const form = e.target;
-			const nameInput = document.querySelector('[data-ln-field="loop-name"]');
+			const nameInput = form.querySelector('[data-ln-field="loop-name"]');
 			const name = nameInput ? nameInput.value.trim() : '';
 			if (!name) {
 				if (nameInput) nameInput.focus();
@@ -346,7 +350,13 @@ export function setupDeck(mixer) {
 
 			const modalEl = document.getElementById('modal-name-loop');
 			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
-			dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Loop "' + name + '" saved' });
+			const loopSavedMsg = (self.dict && self.dict['loop-saved'])
+				? self.dict['loop-saved'].replace('{name}', name)
+				: 'Loop "' + name + '" saved';
+			dispatch(window, 'ln-toast:enqueue', {
+				type: 'success',
+				message: loopSavedMsg
+			});
 		});
 	};
 

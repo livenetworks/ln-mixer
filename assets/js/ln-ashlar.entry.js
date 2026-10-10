@@ -31,4 +31,4 @@ import '@livenetworks/ashlar/components/ln-list/src/ln-list.js';
 // ln-core is already pulled into this bundle transitively by the components above; this
 // just surfaces the public helpers as named exports (registerComponent boots the project components; registerDataMapper feeds the
 // coordinator's ingress/egress mapper for the track library).
-export { cloneTemplate, fillTemplate, fill, dispatch, registerDataMapper, registerComponent } from '@livenetworks/ashlar/components/ln-core/index.js';
+export { cloneTemplate, fillTemplate, fill, dispatch, registerDataMapper, registerComponent, buildDict } from '@livenetworks/ashlar/components/ln-core/index.js';

@@ -3,26 +3,25 @@
    Profile events, playlist persistence, settings form, branding
    ==================================================================== */
 
-import { dispatch } from 'ln-ashlar';
-
-/* ─── PWA Install ───────────────────────────────────────────── */
+import { dispatch, fill } from 'ln-ashlar';
 
 let _deferredInstallPrompt = null;
 
-window.addEventListener('beforeinstallprompt', function (e) {
-	e.preventDefault();
-	_deferredInstallPrompt = e;
-	const field = document.querySelector('[data-mixer-install-field]');
-	if (field) field.hidden = false;
-});
-
-window.addEventListener('appinstalled', function () {
-	_deferredInstallPrompt = null;
-	const field = document.querySelector('[data-mixer-install-field]');
-	if (field) field.hidden = true;
-});
-
 export function setupSettings(mixer) {
+
+	// PWA Install listeners
+	window.addEventListener('beforeinstallprompt', function (e) {
+		e.preventDefault();
+		_deferredInstallPrompt = e;
+		const field = document.querySelector('[data-mixer-install-field]');
+		if (field) field.hidden = false;
+	});
+
+	window.addEventListener('appinstalled', function () {
+		_deferredInstallPrompt = null;
+		const field = document.querySelector('[data-mixer-install-field]');
+		if (field) field.hidden = true;
+	});
 
 	/* ─── Settings Form Helpers ──────────────────────────────────── */
 
@@ -37,14 +36,13 @@ export function setupSettings(mixer) {
 		if (!preview) return;
 
 		const logo = this._pendingLogo !== null ? this._pendingLogo : lnSettings.getBrandLogo();
-		if (logo) {
-			preview.innerHTML = '';
-			const img = document.createElement('img');
-			img.src = logo;
-			img.alt = 'Logo preview';
-			preview.appendChild(img);
-		} else {
-			preview.innerHTML = '<span>No logo</span>';
+		const img = preview.querySelector('img');
+		const emptySpan = preview.querySelector('[data-empty]');
+
+		if (img && emptySpan) {
+			img.hidden = !logo;
+			emptySpan.hidden = !!logo;
+			if (logo) img.src = logo;
 		}
 	};
 
@@ -116,7 +114,10 @@ export function setupSettings(mixer) {
 		this.dom.addEventListener('ln-profile:created', function (e) {
 			self._updateEmptyState();
 			lnDb.put('profiles', e.detail.profile);
-			dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Profile created' });
+			dispatch(window, 'ln-toast:enqueue', {
+				type: 'success',
+				message: (self.dict && self.dict['profile-created']) || 'Profile created'
+			});
 		});
 
 		this.dom.addEventListener('ln-profile:deleted', function (e) {
@@ -125,7 +126,10 @@ export function setupSettings(mixer) {
 			lnDb.deleteByIndex('playlists', 'profileId', e.detail.profileId);
 			const modalEl = document.getElementById('modal-settings');
 			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
-			dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Profile deleted' });
+			dispatch(window, 'ln-toast:enqueue', {
+				type: 'info',
+				message: (self.dict && self.dict['profile-deleted']) || 'Profile deleted'
+			});
 		});
 
 		// Profile ready — update empty state
@@ -141,19 +145,28 @@ export function setupSettings(mixer) {
 		// Playlist event reactions (toasts, modals)
 
 		this.dom.addEventListener('ln-playlist:created', function () {
-			dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Playlist created' });
+			dispatch(window, 'ln-toast:enqueue', {
+				type: 'success',
+				message: (self.dict && self.dict['playlist-created']) || 'Playlist created'
+			});
 		});
 
 		this.dom.addEventListener('ln-playlist:track-edited', function () {
 			const modalEl = document.getElementById('modal-edit-track');
 			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
-			dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Track updated' });
+			dispatch(window, 'ln-toast:enqueue', {
+				type: 'success',
+				message: (self.dict && self.dict['track-updated']) || 'Track updated'
+			});
 		});
 
 		this.dom.addEventListener('ln-playlist:track-removed', function (e) {
 			const modalEl = document.getElementById('modal-edit-track');
 			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
-			dispatch(window, 'ln-toast:enqueue', { type: 'warn', message: 'Track removed' });
+			dispatch(window, 'ln-toast:enqueue', {
+				type: 'warn',
+				message: (self.dict && self.dict['track-removed']) || 'Track removed'
+			});
 
 			// Adjust deck indices
 			const removedIdx = e.detail.trackIndex;
@@ -174,7 +187,13 @@ export function setupSettings(mixer) {
 
 		this.dom.addEventListener('ln-playlist:playlist-removed', function (e) {
 			lnDb.delete('playlists', e.detail.playlistId);
-			dispatch(window, 'ln-toast:enqueue', { type: 'warn', message: 'Playlist "' + e.detail.name + '" deleted' });
+			const deletedMsg = (self.dict && self.dict['playlist-deleted'])
+				? self.dict['playlist-deleted'].replace('{name}', e.detail.name)
+				: 'Playlist "' + e.detail.name + '" deleted';
+			dispatch(window, 'ln-toast:enqueue', {
+				type: 'warn',
+				message: deletedMsg
+			});
 
 			// Reset decks if no playlists remain
 			const sidebar = self._getSidebar();
@@ -189,28 +208,35 @@ export function setupSettings(mixer) {
 			self._refreshDeckHighlights();
 		});
 
-		// Edit track requested → set form context + populate + open modal
+		// Normalize edit track modal at open boundary
+		const editTrackModal = document.getElementById('modal-edit-track');
+		if (editTrackModal) {
+			editTrackModal.addEventListener('ln-modal:before-open', function () {
+				const detail = self._pendingEditTrack;
+				if (!detail) return;
+				const track = detail.track || {};
+				const form = document.querySelector('[data-ln-form="edit-track"]');
+				if (form) {
+					form.setAttribute('data-mixer-track-index', detail.index);
+					form.setAttribute('data-mixer-playlist-id', detail.playlistId);
+					fill(form, {
+						'edit-track-title': track.title || '',
+						'edit-track-artist': (track.artist || '') + (track.duration ? ' \u2014 ' + track.duration : '')
+					});
+					const notesInput = form.querySelector('[data-ln-field="edit-track-notes"]');
+					if (notesInput) {
+						notesInput.value = track.notes || '';
+						notesInput.focus();
+					}
+				}
+			});
+		}
+
+		// Edit track requested → store context + open modal
 		this.dom.addEventListener('ln-playlist:open-edit', function (e) {
-			const track = e.detail.track;
-
-			const form = document.querySelector('[data-ln-form="edit-track"]');
-			if (form) {
-				form.setAttribute('data-mixer-track-index', e.detail.index);
-				form.setAttribute('data-mixer-playlist-id', e.detail.playlistId);
-			}
-
-			const titleEl = document.querySelector('[data-ln-field="edit-track-title"]');
-			const artistEl = document.querySelector('[data-ln-field="edit-track-artist"]');
-			const notesInput = document.querySelector('[data-ln-field="edit-track-notes"]');
-
-			if (titleEl) titleEl.textContent = track.title;
-			if (artistEl) artistEl.textContent = track.artist + ' \u2014 ' + track.duration;
-			if (notesInput) notesInput.value = track.notes || '';
-
+			self._pendingEditTrack = e.detail;
 			const modalEl = document.getElementById('modal-edit-track');
 			if (modalEl) modalEl.setAttribute('data-ln-modal', 'open');
-
-			if (notesInput) notesInput.focus();
 		});
 	};
 
@@ -218,8 +244,6 @@ export function setupSettings(mixer) {
 
 	mixer._bindProfileActions = function () {
 		const self = this;
-
-
 
 		// Delete current profile
 		document.addEventListener('click', function (e) {
@@ -235,7 +259,8 @@ export function setupSettings(mixer) {
 		document.addEventListener('ln-form:submit', function (e) {
 			if (e.target.getAttribute('data-ln-form') !== 'new-profile') return;
 
-			const input = document.querySelector('[data-ln-field="new-profile-name"]');
+			const form = e.target;
+			const input = form.querySelector('[data-ln-field="new-profile-name"]');
 			const name = input ? input.value.trim() : '';
 			if (!name) {
 				if (input) input.focus();
@@ -321,7 +346,10 @@ export function setupSettings(mixer) {
 			self._pendingLogo = null;
 			const modalEl = document.getElementById('modal-settings');
 			if (modalEl) modalEl.setAttribute('data-ln-modal', 'close');
-			dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Settings saved' });
+			dispatch(window, 'ln-toast:enqueue', {
+				type: 'success',
+				message: (self.dict && self.dict['settings-saved']) || 'Settings saved'
+			});
 		});
 	};
 

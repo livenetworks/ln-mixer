@@ -3902,6 +3902,7 @@ class _n {
   });
 })();
 export {
+  Rt as buildDict,
   Ye as cloneTemplate,
   q as dispatch,
   _e as fill,

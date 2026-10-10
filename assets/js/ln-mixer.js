@@ -1,4 +1,4 @@
-import { dispatch, registerComponent } from 'ln-ashlar';
+import { dispatch, registerComponent, buildDict } from 'ln-ashlar';
 import { setupAudio } from './ln-mixer-audio.js';
 import { setupCache } from './ln-mixer-cache.js';
 import { setupDeck } from './ln-mixer-deck.js';
@@ -15,6 +15,8 @@ if (window[DOM_ATTRIBUTE] === undefined) {
 	function _component(dom) {
 		this.dom = dom;
 		dom[DOM_ATTRIBUTE] = this;
+
+		this.dict = buildDict(this.dom, 'data-mixer-dict');
 
 		this._pendingLogo = null;
 

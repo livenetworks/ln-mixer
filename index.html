@@ -223,6 +223,45 @@
 
 		</main>
 
+		<!-- Coordinator UI Dictionary (Zero Display Text Doctrine) -->
+		<ul hidden data-mixer-dict-list>
+			<li data-mixer-dict="profile-created">Profile created</li>
+			<li data-mixer-dict="profile-deleted">Profile deleted</li>
+			<li data-mixer-dict="playlist-created">Playlist created</li>
+			<li data-mixer-dict="playlist-deleted">Playlist "{name}" deleted</li>
+			<li data-mixer-dict="track-updated">Track updated</li>
+			<li data-mixer-dict="track-removed">Track removed</li>
+			<li data-mixer-dict="track-downloaded">Track downloaded</li>
+			<li data-mixer-dict="download-failed">Download failed — using remote URL</li>
+			<li data-mixer-dict="track-recached">Track re-cached</li>
+			<li data-mixer-dict="track-uncached">Track removed from cache</li>
+			<li data-mixer-dict="audio-cache-cleared">Audio cache cleared</li>
+			<li data-mixer-dict="autoplay-on">Autoplay ON</li>
+			<li data-mixer-dict="autoplay-off">Autoplay OFF</li>
+			<li data-mixer-dict="loop-saved">Loop "{name}" saved</li>
+			<li data-mixer-dict="loop-removed">Loop removed</li>
+			<li data-mixer-dict="settings-saved">Settings saved</li>
+			<li data-mixer-dict="create-profile-first">Create a profile first</li>
+			<li data-mixer-dict="select-playlist-first">Select a playlist first</li>
+			<li data-mixer-dict="offline-caching-unavailable">Offline caching unavailable (file:// mode)</li>
+			<li data-mixer-dict="library-refreshed">Library refreshed</li>
+			<li data-mixer-dict="failed-load-tracks">Failed to load tracks</li>
+			<li data-mixer-dict="data-exported">Data exported</li>
+			<li data-mixer-dict="export-failed">Export failed</li>
+			<li data-mixer-dict="invalid-data-file">Invalid data file</li>
+			<li data-mixer-dict="imported-records">Imported {count} record(s)</li>
+			<li data-mixer-dict="import-failed">Import failed</li>
+			<li data-mixer-dict="enter-url">Enter a URL</li>
+			<li data-mixer-dict="failed-fetch-import">Failed to fetch import file</li>
+			<li data-mixer-dict="failed-read-import">Failed to read import file</li>
+			<li data-mixer-dict="no-tracks-download">No tracks to download</li>
+			<li data-mixer-dict="all-tracks-cached">All tracks already cached</li>
+			<li data-mixer-dict="downloading-tracks">Downloading {count} track(s)...</li>
+			<li data-mixer-dict="download-complete">Download complete: {cached} cached</li>
+			<li data-mixer-dict="no-cached-tracks">No cached tracks</li>
+			<li data-mixer-dict="unable-read-cache">Unable to read cache</li>
+		</ul>
+
 		<footer class="app-footer">
 			<small>developed by <a href="https://livenetworks.mk"><strong>Live Networks</strong></a></small>
 		</footer>
@@ -384,7 +423,8 @@
 						<label>Logo</label>
 						<section class="logo-preview">
 							<figure class="logo-placeholder" data-mixer-logo-preview>
-								<span>No logo</span>
+								<img src="" alt="Logo preview" hidden />
+								<span data-empty>No logo</span>
 							</figure>
 							<nav>
 								<button type="button" class="ln-icon-upload--white ln-icon--sm" data-mixer-action="upload-logo">Choose Image</button>

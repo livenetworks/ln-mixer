@@ -77,11 +77,13 @@
 	input[type="range"] {
 		--radius: var(--radius-sm);
 		--range-thumb-size: var(--size-md);
+		--volume-pct: 80%;
 		appearance: none;
 		width: 7.5rem;               // intrinsic control length
 		height: var(--size-xs-up);
 		padding: 0;
 		cursor: pointer;
+		background: linear-gradient(to right, hsl(var(--color-primary)) var(--volume-pct), var(--bg-sunken) var(--volume-pct));
 
 		@media (pointer: coarse) {
 			--range-thumb-size: var(--size-lg);

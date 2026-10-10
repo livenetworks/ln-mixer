@@ -195,8 +195,8 @@ export function setupCache(mixer) {
 			self._showAddFeedback(btn);
 
 			dispatch(window, 'ln-toast:enqueue', success
-				? { type: 'success', message: 'Track downloaded' }
-				: { type: 'warn', message: 'Download failed — using remote URL' });
+				? { type: 'success', message: (self.dict && self.dict['track-downloaded']) || 'Track downloaded' }
+				: { type: 'warn', message: (self.dict && self.dict['download-failed']) || 'Download failed — using remote URL' });
 		});
 	};
 
@@ -281,7 +281,10 @@ export function setupCache(mixer) {
 			if (!hasCachedBlob && trackUrl && !_isFileProtocol() && !self._downloading[trackUrl]) {
 				self._downloadBlob(trackUrl, function (success) {
 					if (success) {
-						dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Track re-cached' });
+						dispatch(window, 'ln-toast:enqueue', {
+							type: 'info',
+							message: (self.dict && self.dict['track-recached']) || 'Track re-cached'
+						});
 					}
 				});
 			}
@@ -294,12 +297,13 @@ export function setupCache(mixer) {
 	/* ─── Cache Info ─────────────────────────────────────────────── */
 
 	mixer._updateCacheInfo = function () {
+		const self = this;
 		const output = document.querySelector('[data-mixer-cache-size]');
 		if (!output) return;
 
 		lnDb.getAll('audioFiles').then(function (records) {
 			if (!records || records.length === 0) {
-				output.textContent = 'No cached tracks';
+				output.textContent = (self.dict && self.dict['no-cached-tracks']) || 'No cached tracks';
 				return;
 			}
 			let totalBytes = 0;
@@ -314,7 +318,7 @@ export function setupCache(mixer) {
 
 			output.textContent = records.length + (records.length === 1 ? ' track' : ' tracks') + ' (' + sizeLabel + ')';
 		}).catch(function () {
-			output.textContent = 'Unable to read cache';
+			output.textContent = (self.dict && self.dict['unable-read-cache']) || 'Unable to read cache';
 		});
 	};
 
@@ -330,13 +334,15 @@ export function setupCache(mixer) {
 				const sidebar = self._getSidebar();
 				if (!sidebar || !sidebar.lnPlaylist || !sidebar.lnPlaylist.playlists) {
 					e.preventDefault();
-					dispatch(window, 'ln-toast:enqueue', { type: 'warn', message: 'Create a profile first' });
+					dispatch(window, 'ln-toast:enqueue', {
+						type: 'warn',
+						message: (self.dict && self.dict['create-profile-first']) || 'Create a profile first'
+					});
 				}
 			});
 		}
 
 		// Library opening → tell the library which tracks are cached offline.
-		// The list itself is fed by the libraryTracks store (IDB cache), not fetched here.
 		const libraryModal = document.getElementById('modal-track-library');
 		if (libraryModal) {
 			libraryModal.addEventListener('ln-modal:before-open', function () {
@@ -419,7 +425,10 @@ export function setupCache(mixer) {
 
 			const sidebar = self._getSidebar();
 			if (!sidebar || !sidebar.lnPlaylist || !sidebar.lnPlaylist.getPlaylist()) {
-				dispatch(window, 'ln-toast:enqueue', { type: 'warn', message: 'Select a playlist first' });
+				dispatch(window, 'ln-toast:enqueue', {
+					type: 'warn',
+					message: (self.dict && self.dict['select-playlist-first']) || 'Select a playlist first'
+				});
 				return;
 			}
 
@@ -437,7 +446,10 @@ export function setupCache(mixer) {
 			if (_isFileProtocol()) {
 				if (!self._fileProtocolWarned) {
 					self._fileProtocolWarned = true;
-					dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Offline caching unavailable (file:// mode)' });
+					dispatch(window, 'ln-toast:enqueue', {
+						type: 'info',
+						message: (self.dict && self.dict['offline-caching-unavailable']) || 'Offline caching unavailable (file:// mode)'
+					});
 				}
 				self._addTrackToPlaylist(sidebar, title, artist, url);
 				self._showAddFeedback(btn);
@@ -465,7 +477,8 @@ export function setupCache(mixer) {
 		document.addEventListener('ln-form:submit', function (e) {
 			if (e.target.getAttribute('data-ln-form') !== 'new-playlist') return;
 
-			const input = document.querySelector('[data-ln-field="new-playlist-name"]');
+			const form = e.target;
+			const input = form.querySelector('[data-ln-field="new-playlist-name"]');
 			const name = input ? input.value.trim() : '';
 			if (!name) {
 				if (input) input.focus();
@@ -491,7 +504,7 @@ export function setupCache(mixer) {
 			const playlistId = form.getAttribute('data-mixer-playlist-id');
 			if (idx < 0 || !playlistId) return;
 
-			const notesInput = document.querySelector('[data-ln-field="edit-track-notes"]');
+			const notesInput = form.querySelector('[data-ln-field="edit-track-notes"]');
 			const notes = notesInput ? notesInput.value.trim() : '';
 
 			const sidebar = self._getSidebar();
@@ -509,7 +522,6 @@ export function setupCache(mixer) {
 		let refreshing = false;
 
 		// Refresh button → ask the connector for a fresh track list.
-		// The coordinator ingests the response into the libraryTracks store; ln-list re-renders.
 		document.addEventListener('click', function (e) {
 			if (!e.target.closest('[data-mixer-action="refresh-library"]')) return;
 			if (!connectorEl || refreshing) return;
@@ -521,14 +533,20 @@ export function setupCache(mixer) {
 			storeEl.addEventListener('ln-data-store:synced', function () {
 				if (!refreshing) return;
 				refreshing = false;
-				dispatch(window, 'ln-toast:enqueue', { type: 'success', message: 'Library refreshed' });
+				dispatch(window, 'ln-toast:enqueue', {
+					type: 'success',
+					message: (self.dict && self.dict['library-refreshed']) || 'Library refreshed'
+				});
 			});
 		}
 
 		if (connectorEl) {
 			connectorEl.addEventListener('ln-api-connector:error', function () {
 				refreshing = false;
-				dispatch(window, 'ln-toast:enqueue', { type: 'warn', message: 'Failed to load tracks' });
+				dispatch(window, 'ln-toast:enqueue', {
+					type: 'warn',
+					message: (self.dict && self.dict['failed-load-tracks']) || 'Failed to load tracks'
+				});
 			});
 		}
 	};
@@ -561,7 +579,10 @@ export function setupCache(mixer) {
 				if (libraryEl) {
 					dispatch(libraryEl, 'ln-library:request-uncache', { url: url });
 				}
-				dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Track removed from cache' });
+				dispatch(window, 'ln-toast:enqueue', {
+					type: 'info',
+					message: (self.dict && self.dict['track-uncached']) || 'Track removed from cache'
+				});
 			});
 		});
 
@@ -587,7 +608,10 @@ export function setupCache(mixer) {
 
 				self._updateCacheInfo();
 
-				dispatch(window, 'ln-toast:enqueue', { type: 'info', message: 'Audio cache cleared' });
+				dispatch(window, 'ln-toast:enqueue', {
+					type: 'info',
+					message: (self.dict && self.dict['audio-cache-cleared']) || 'Audio cache cleared'
+				});
 			});
 		});
 	};
